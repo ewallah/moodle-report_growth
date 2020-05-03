@@ -24,11 +24,6 @@ Feature: Growth checks
       | user    | course   | role    |
       | manager | C1       | manager |
 
-  Scenario: Managers cannot see growth report in course context
-    When I am on the "C1" "Course" page logged in as "manager"
-    And I navigate to "Reports" in current page administration
-    Then I should not see "Growth"
-
   Scenario: Managers can see growth report
     When I am on the "C1" "Course" page logged in as "manager"
     And I navigate to "Reports > Growth report" in site administration
@@ -41,4 +36,3 @@ Feature: Growth checks
     And I should see "Guest access"
     And I follow "Country"
     And I should see "Show chart data"
-    

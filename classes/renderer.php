@@ -87,8 +87,8 @@ class report_growth_renderer extends plugin_renderer_base {
         $family = $DB->get_dbfamily();
         if ($family === 'mysql' or $family === 'mssql') {
             $sql = "
-               SELECT COUNT(*) as newusers,
-                 CONCAT(YEAR(FROM_UNIXTIME(timecreated)), ' ', WEEKOFYEAR(FROM_UNIXTIME(timecreated))) AS week FROM {user}
+               SELECT CONCAT(YEAR(FROM_UNIXTIME(timecreated)), ' ', WEEKOFYEAR(FROM_UNIXTIME(timecreated))) AS week,
+                  COUNT(*) as newusers FROM {user}
                WHERE timecreated > 0 GROUP BY CONCAT(YEAR(FROM_UNIXTIME(timecreated)), ' ', WEEKOFYEAR(FROM_UNIXTIME(timecreated)))
                ORDER BY timecreated";
         } else {
@@ -128,14 +128,12 @@ class report_growth_renderer extends plugin_renderer_base {
                ORDER BY 1;";
         }
         $rows = $DB->get_records_sql($sql);
-        $chart2 = new \core\chart_line();
-        $chart2->set_smooth(true);
+        $chart2 = new \core\chart_bar();
         $series = [];
         $labels = [];
         $total = 0;
         foreach ($rows as $row) {
-            $total += $row->newusers;
-            $series[] = $total;
+            $series[] = $row->newusers;
             $labels[] = $row->year;
         }
         $series = new core\chart_series(get_string('year'), $series);
@@ -194,8 +192,7 @@ class report_growth_renderer extends plugin_renderer_base {
      * @return string
      */
     public function table_country() {
-        global $CFG, $DB, $OUTPUT;
-        $country = get_string(empty($CFG->country) ? 'BE' : $CFG->country, 'countries');
+        global $DB, $OUTPUT;
         $sql = "SELECT country, COUNT(country) as newusers FROM {user} GROUP BY country ORDER BY country";
         $rows = $DB->get_records_sql($sql);
         $chart = new core\chart_bar();
@@ -203,8 +200,11 @@ class report_growth_renderer extends plugin_renderer_base {
         $series = [];
         $labels = [];
         foreach ($rows as $row) {
+            if (empty($row->country) or $row->country == '') {
+                continue;
+            }
             $series[] = $row->newusers;
-            $labels[] = $row->country == '' ? $country : get_string($row->country, 'countries');
+            $labels[] = get_string($row->country, 'countries');
         }
         $series = new core\chart_series(get_string('country'), $series);
         $chart->add_series($series);

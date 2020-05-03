@@ -36,6 +36,7 @@ $str = get_string('pluginname', 'report_growth');
 $url = new moodle_url($ur, ['p' => $p]);
 $PAGE->set_url($url);
 $PAGE->set_context($context);
+$PAGE->set_pagelayout('report');
 $PAGE->set_title($str);
 $PAGE->set_heading($str);
 $output = $PAGE->get_renderer('report_growth');

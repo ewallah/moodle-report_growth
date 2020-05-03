@@ -26,7 +26,7 @@ Feature: Growth checks
 
   Scenario: Managers can see growth report
     When I am on the "C1" "Course" page logged in as "manager"
-    And I navigate to "Reports > Growth report" in site administration
+    And I navigate to "Reports > Growth" in site administration
     Then I should see "Moodle release"
     And I follow "Users"
     And I should see "Confirmed"

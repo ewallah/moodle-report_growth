@@ -1,0 +1,77 @@
+language: php
+dist: bionic
+
+os:
+  - linux
+
+services:
+  - mysql
+
+addons:
+  postgresql: "9.6"
+  firefox: "47.0.1"
+  chrome: stable
+  apt:
+    packages:
+      - openjdk-8-jre-headless
+      - chromium-chromedriver
+
+cache:
+  directories:
+    - $HOME/.composer/cache
+    - $HOME/.npm
+
+php:
+ - 7.3
+
+env:
+  - DB=pgsql MOODLE_BRANCH=master
+  - DB=mysqli MOODLE_BRANCH=master
+
+jobs:
+  include:
+    - php: 7.2
+      env: DB=pgsql MOODLE_BRANCH=MOODLE_36_STABLE
+    - php: 7.2
+      env: DB=pgsql MOODLE_BRANCH=MOODLE_37_STABLE
+    - php: 7.3
+      env: DB=pgsql MOODLE_BRANCH=MOODLE_38_STABLE
+    - php: 7.4
+      env: DB=pgsql MOODLE_BRANCH=master
+
+before_install:
+  - phpenv config-rm xdebug.ini
+  - nvm install 8.9
+  - nvm use 8.9
+  - cd ../..
+  - composer create-project -n --no-dev --prefer-dist blackboard-open-source/moodle-plugin-ci ci ^2
+  - export PATH="$(cd ci/bin; pwd):$(cd ci/vendor/bin; pwd):$PATH"
+  - google-chrome-stable --headless --disable-extensions --no-sandbox --remote-debugging-port=9222 --remote-debugging-address=127.0.0.1 &>/dev/null &
+
+install:
+  - moodle-plugin-ci install
+
+script:
+  - /home/travis/build/moodle/vendor/bin/phpunit --colors=auto "provider_testcase" /home/travis/build/moodle/privacy/tests/provider_test.php
+  - /home/travis/build/moodle/vendor/bin/phpunit --colors=auto "tool_dataprivacy_expired_contexts_testcase" /home/travis/build/moodle/admin/tool/dataprivacy/tests/expired_contexts_test.php
+  - moodle-plugin-ci phplint
+  - moodle-plugin-ci phpcpd
+  - moodle-plugin-ci phpmd
+  - moodle-plugin-ci phpdoc || true
+  - moodle-plugin-ci codechecker
+  - moodle-plugin-ci validate
+  - moodle-plugin-ci savepoints
+  - moodle-plugin-ci mustache
+  - moodle-plugin-ci grunt
+  - moodle-plugin-ci phpunit --coverage-text  --coverage-clover
+  - moodle-plugin-ci behat
+  - moodle-plugin-ci behat --profile chrome
+  - >
+        if [ "$MOODLE_BRANCH" = 'master' ];
+        then
+            php /home/travis/build/moodle/admin/tool/behat/cli/init.php -a="classic"
+            moodle-plugin-ci behat --suite="classic"
+            moodle-plugin-ci behat --suite="classic" --profile chrome
+        fi
+after_success:
+  - moodle-plugin-ci coveralls-upload

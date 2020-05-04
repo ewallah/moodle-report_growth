@@ -249,7 +249,7 @@ class report_growth_renderer extends plugin_renderer_base {
             GROUP BY CONCAT(YEAR(FROM_UNIXTIME($field)), ' ', WEEKOFYEAR(FROM_UNIXTIME($field)))
             ORDER BY $field" , "
             SELECT
-                TO_CHAR(TO_TIMESTAMP($field), 'WW YY') AS week,
+                TO_CHAR(TO_TIMESTAMP($field), 'YYYY \"week\" WW') AS week,
                 COUNT(*) AS newitems
             FROM {" . $table . "}
             WHERE $field > 0
@@ -257,45 +257,55 @@ class report_growth_renderer extends plugin_renderer_base {
             ORDER BY 1");
         $chart1 = new \core\chart_line();
         $chart1->set_smooth(true);
-        $series = $labels = [];
+        $series = $labels = $quarter1 = $quarter2 = $quarter3 = $quarter4 = $qlabels = [];
         $total = 0;
         foreach ($rows as $row) {
             $total += $row->newitems;
             $series[] = $total;
             $labels[] = $row->week;
         }
+        $toyear = intval(date("Y"));
+        $x = reset($rows);
+        $fromyear = is_object($x) ? intval(explode(' ', $x->week)[0]) : $toyear - 7;
         $series = new core\chart_series($title, $series);
         $chart1->add_series($series);
         $chart1->set_labels($labels);
 
         $rows = $this->local_querry("
             SELECT
-                YEAR(FROM_UNIXTIME($field)) AS year,
+                CONCAT(YEAR(FROM_UNIXTIME($field)), ' ', QUARTER(FROM_UNIXTIME($field))) as year
                 COUNT(*) as newitems
             FROM {" . $table . "}
             WHERE $field > 0
-            GROUP BY YEAR(FROM_UNIXTIME($field))
+            GROUP BY CONCAT(YEAR(FROM_UNIXTIME($field)), ' ', QUARTER(FROM_UNIXTIME($field)))
             ORDER BY $field" , "
             SELECT
-                TO_CHAR(TO_TIMESTAMP($field), 'YY') AS year,
+                TO_CHAR(TO_TIMESTAMP($field), 'YYYY Q') AS year,
                 COUNT(*) AS newitems
             FROM {" . $table . "}
             WHERE $field > 0
             GROUP BY 1
             ORDER BY 1");
-        $chart2 = new \core\chart_bar();
-        $series = [];
-        $labels = [];
-        $total = 0;
-        foreach ($rows as $row) {
-            $series[] = $row->newitems;
-            $labels[] = $row->year;
-        }
-        $series = new core\chart_series(get_string('year'), $series);
-        $chart2->add_series($series);
-        $chart2->set_labels($labels);
 
-        return $OUTPUT->render($chart1) . '<br>' . $OUTPUT->render($chart2);
+        for ($i = $fromyear; $i <= $toyear; $i++) {
+            $quarter1[] = array_key_exists("$i 1", $rows) ? $rows["$i 1"]->newitems : 0;
+            $quarter2[] = array_key_exists("$i 2", $rows) ? $rows["$i 2"]->newitems : 0;
+            $quarter3[] = array_key_exists("$i 3", $rows) ? $rows["$i 3"]->newitems : 0;
+            $quarter4[] = array_key_exists("$i 4", $rows) ? $rows["$i 4"]->newitems : 0;
+            $qlabels[] = $i;
+        }
+        $chart2 = new \core\chart_bar();
+        $chart2->set_stacked(1);
+        $series = new core\chart_series('Q1', $quarter1);
+        $chart2->add_series($series);
+        $series = new core\chart_series('Q2', $quarter2);
+        $chart2->add_series($series);
+        $series = new core\chart_series('Q3', $quarter3);
+        $chart2->add_series($series);
+        $series = new core\chart_series('Q4', $quarter4);
+        $chart2->add_series($series);
+        $chart2->set_labels($qlabels);
+        return $OUTPUT->render($chart1, false) . '<br>' . $OUTPUT->render($chart2);
     }
 
     /**

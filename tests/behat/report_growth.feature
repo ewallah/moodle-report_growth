@@ -1,4 +1,4 @@
-@iplus @report @javascript @report_growth
+@iplus @report @report_growth
 Feature: Growth checks
 
   Background:
@@ -12,7 +12,6 @@ Feature: Growth checks
       | user2    | Username  | 2        |      NL |
       | teacher  | Teacher   | 3        |      UG |
       | manager  | Manager   | 4        |      NL |
-      | monoger  | Monoger   | 5        |      BE |
     And the following "course enrolments" exist:
       | user    | course | role           |
       | user1   | C1     | student        |

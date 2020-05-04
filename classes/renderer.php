@@ -273,7 +273,7 @@ class report_growth_renderer extends plugin_renderer_base {
 
         $rows = $this->local_querry("
             SELECT
-                CONCAT(YEAR(FROM_UNIXTIME($field)), ' ', QUARTER(FROM_UNIXTIME($field))) as year
+                CONCAT(YEAR(FROM_UNIXTIME($field)), ' ', QUARTER(FROM_UNIXTIME($field))) as year,
                 COUNT(*) as newitems
             FROM {" . $table . "}
             WHERE $field > 0

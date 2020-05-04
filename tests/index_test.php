@@ -47,6 +47,7 @@ class report_growth_index_testcase extends advanced_testcase {
         $course = $dg->create_course();
         $user = $dg->create_user(['country' => 'BE']);
         $course = $dg->create_course();
+        $dg->create_module('page', ['course' => $course->id]);
         $user = $dg->create_user(['country' => 'NL']);
         $dg->enrol_user($user->id, $course->id);
         $course = $dg->create_course();
@@ -115,7 +116,39 @@ class report_growth_index_testcase extends advanced_testcase {
      */
     public function test_page5() {
         $html = $this->test_page(5);
-        $this->assertContains('Show chart data', $html);
+        $this->assertContains(' ', $html);
+    }
+
+    /**
+     * Test page 6.
+     */
+    public function test_page6() {
+        $html = $this->test_page(6);
+        $this->assertContains(' ', $html);
+    }
+
+    /**
+     * Test page 7.
+     */
+    public function test_page7() {
+        $html = $this->test_page(7);
+        $this->assertContains(' ', $html);
+    }
+
+    /**
+     * Test page 8.
+     */
+    public function test_page8() {
+        $html = $this->test_page(8);
+        $this->assertContains(' ', $html);
+    }
+
+    /**
+     * Test page 9.
+     */
+    public function test_page9() {
+        $html = $this->test_page(9);
+        $this->assertContains(' ', $html);
     }
 
     /**

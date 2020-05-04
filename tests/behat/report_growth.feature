@@ -34,5 +34,5 @@ Feature: Growth checks
     And I should see "Course categories"
     And I follow "Enrolments"
     And I should see "Guest access"
-    And I follow "Country"
+    And I follow "Countries"
     And I should see "Show chart data"

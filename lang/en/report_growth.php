@@ -23,8 +23,9 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+$string['countries'] = 'Countries';
+$string['eventreportviewed'] = 'Growth report viewed';
 $string['growth'] = 'Growth';
 $string['growth:view'] = 'View growth report';
 $string['pluginname'] = 'Growth report';
 $string['privacy:metadata'] = 'The report_growth plugin does not store any personal data.';
-$string['eventreportviewed'] = 'Growth report viewed';

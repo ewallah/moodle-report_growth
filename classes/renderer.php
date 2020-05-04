@@ -72,7 +72,7 @@ class report_growth_renderer extends plugin_renderer_base {
      * @return string
      */
     public function table_users() {
-        global $DB, $OUTPUT;
+        global $DB;
         $table = new html_table();
         $table->attributes = ['class' => 'table table-sm table-hover w-50'];
         $table->colclasses = ['text-left', 'text-right'];
@@ -83,63 +83,8 @@ class report_growth_renderer extends plugin_renderer_base {
         $table->data[] = [get_string('deleted'), $DB->count_records('user', ['deleted' => 1])];
         $table->data[] = [get_string('suspended'), $DB->count_records('user', ['suspended' => 1])];
         $table->data[] = [get_string('confirmed', 'admin'), $DB->count_records('user', ['confirmed' => 1])];
-        $table->data[] = [get_string('statslogins'), $DB->count_records('user', ['lastip' => ''])];
-        $family = $DB->get_dbfamily();
-        if ($family === 'mysql' or $family === 'mssql') {
-            $sql = "
-               SELECT CONCAT(YEAR(FROM_UNIXTIME(timecreated)), ' ', WEEKOFYEAR(FROM_UNIXTIME(timecreated))) AS week,
-                  COUNT(*) as newusers FROM {user}
-               WHERE timecreated > 0 GROUP BY CONCAT(YEAR(FROM_UNIXTIME(timecreated)), ' ', WEEKOFYEAR(FROM_UNIXTIME(timecreated)))
-               ORDER BY timecreated";
-        } else {
-            $sql = "
-               SELECT TO_CHAR(TO_TIMESTAMP(timecreated / 1000), 'WW YY') AS week, count(*) AS newusers
-               FROM {user} WHERE timecreated > 0
-               GROUP BY 1 ORDER BY 1;";
-        }
-        $rows = $DB->get_records_sql($sql);
-        $chart1 = new \core\chart_line();
-        $chart1->set_smooth(true);
-        $series = [];
-        $labels = [];
-        $total = 0;
-        foreach ($rows as $row) {
-            $total += $row->newusers;
-            $series[] = $total;
-            $labels[] = $row->week;
-        }
-        $series = new core\chart_series(get_string('users'), $series);
-        $chart1->add_series($series);
-        $chart1->set_labels($labels);
-
-        if ($family === 'mysql' or $family === 'mssql') {
-            $sql = "
-               SELECT YEAR(FROM_UNIXTIME(timecreated)) AS year, COUNT(*) as newusers
-               FROM {user}
-               WHERE timecreated > 0
-               GROUP BY YEAR(FROM_UNIXTIME(timecreated))
-               ORDER BY timecreated";
-        } else {
-            $sql = "
-               SELECT TO_CHAR(TO_TIMESTAMP(timecreated / 1000), 'YY') AS year, count(*) AS newusers
-               FROM {user}
-               WHERE timecreated > 0
-               GROUP BY 1
-               ORDER BY 1;";
-        }
-        $rows = $DB->get_records_sql($sql);
-        $chart2 = new \core\chart_bar();
-        $series = [];
-        $labels = [];
-        $total = 0;
-        foreach ($rows as $row) {
-            $series[] = $row->newusers;
-            $labels[] = $row->year;
-        }
-        $series = new core\chart_series(get_string('year'), $series);
-        $chart2->add_series($series);
-        $chart2->set_labels($labels);
-        return html_writer::table($table) . '<br>' . $OUTPUT->render($chart1) . '<br>' . $OUTPUT->render($chart2);
+        $table->data[] = [get_string('activeusers'), $DB->count_records('user', ['lastip' => ''])];
+        return html_writer::table($table) . '<br>' . $this->create_charts('user', get_string('users'));
     }
 
 
@@ -150,15 +95,16 @@ class report_growth_renderer extends plugin_renderer_base {
      */
     public function table_courses() {
         global $DB;
+        $str = get_string('courses');
         $table = new html_table();
         $table->attributes = ['class' => 'table table-sm table-hover w-50'];
         $table->colclasses = ['text-left', 'text-right'];
         $table->size = [null, '5rem'];
-        $table->caption = get_string('courses');
+        $table->caption = $str;
         $i = $DB->count_records('course', []);
         $table->data[] = [get_string('total'), --$i];
         $table->data[] = [get_string('categories'), $DB->count_records('course_categories', [])];
-        return html_writer::table($table);
+        return html_writer::table($table) . '<br>' . $this->create_charts('course', $str);
     }
 
     /**
@@ -168,12 +114,13 @@ class report_growth_renderer extends plugin_renderer_base {
      */
     public function table_enrolments() {
         global $DB;
+        $str = get_string('enrolments', 'enrol');
         $enabled = enrol_get_plugins(true);
         $table = new html_table();
         $table->attributes = ['class' => 'table table-sm table-hover w-50'];
         $table->colclasses = ['text-left', 'text-right'];
         $table->size = [null, '5rem'];
-        $table->caption = get_string('enrolments', 'enrol');
+        $table->caption = $str;
         $table->data[] = [get_string('total'), $DB->count_records('user_enrolments', [])];
         foreach ($enabled as $key => $unused) {
             $ids = $DB->get_fieldset_select('enrol', 'id', "enrol = '$key'");
@@ -183,8 +130,78 @@ class report_growth_renderer extends plugin_renderer_base {
                 $table->data[] = [get_string('pluginname', 'enrol_'. $key), $cnt];
             }
         }
-        return html_writer::table($table);
+        return html_writer::table($table) . '<br>' . $this->create_charts('user_enrolments', $str);
     }
+
+    /**
+     * Table badges.
+     *
+     * @return string
+     */
+    public function table_badges() {
+        global $DB;
+        $str = get_string('badges');
+        $table = new html_table();
+        $table->attributes = ['class' => 'table table-sm table-hover w-50'];
+        $table->colclasses = ['text-left', 'text-right'];
+        $table->size = [null, '5rem'];
+        $table->caption = $str;
+        $table->data[] = [get_string('total'), $DB->count_records('badge_issued', [])];
+        return html_writer::table($table) . '<br>' . $this->create_charts('badge_issued', $str, 'dateissued');
+    }
+
+    /**
+     * Table completions.
+     *
+     * @return string
+     */
+    public function table_completions() {
+        global $DB;
+        $str = get_string('coursecompletions');
+        $table = new html_table();
+        $table->attributes = ['class' => 'table table-sm table-hover w-50'];
+        $table->colclasses = ['text-left', 'text-right'];
+        $table->size = [null, '5rem'];
+        $table->caption = $str;
+        $table->data[] = [get_string('total'), $DB->count_records('course_completions', [])];
+        return html_writer::table($table) . '<br>' . $this->create_charts('course_completions', $str, 'timecompleted');
+    }
+
+    /**
+     * Table questions.
+     *
+     * @return string
+     */
+    public function table_questions() {
+        global $DB;
+        $str = get_string('questions', 'question');
+        $table = new html_table();
+        $table->attributes = ['class' => 'table table-sm table-hover w-50'];
+        $table->colclasses = ['text-left', 'text-right'];
+        $table->size = [null, '5rem'];
+        $table->caption = $str;
+        $table->data[] = [get_string('total'), $DB->count_records('question', [])];
+        return html_writer::table($table) . '<br>' . $this->create_charts('question', $str);
+    }
+
+
+    /**
+     * Table resources.
+     *
+     * @return string
+     */
+    public function table_resources() {
+        global $DB;
+        $str = get_string('resources');
+        $table = new html_table();
+        $table->attributes = ['class' => 'table table-sm table-hover w-50'];
+        $table->colclasses = ['text-left', 'text-right'];
+        $table->size = [null, '5rem'];
+        $table->caption = $str;
+        $table->data[] = [get_string('total'), $DB->count_records('course_modules', [])];
+        return html_writer::table($table) . '<br>' . $this->create_charts('course_modules', $str, 'added');
+    }
+
 
     /**
      * Table country.
@@ -210,5 +227,88 @@ class report_growth_renderer extends plugin_renderer_base {
         $chart->add_series($series);
         $chart->set_labels($labels);
         return $OUTPUT->render($chart);
+    }
+
+    /**
+     * Create charts.
+     *
+     * @param string $table
+     * @param string $title
+     * @param string $field optional
+     * @return array
+     */
+    private function create_charts($table, $title, $field = 'timecreated') {
+        global $OUTPUT;
+
+        $rows = $this->local_querry("
+            SELECT
+                 CONCAT(YEAR(FROM_UNIXTIME($field)), ' ', WEEKOFYEAR(FROM_UNIXTIME($field))) AS week,
+                 COUNT(*) as newitems
+            FROM {" . $table . "}
+            WHERE $field > 0
+            GROUP BY CONCAT(YEAR(FROM_UNIXTIME($field)), ' ', WEEKOFYEAR(FROM_UNIXTIME($field)))
+            ORDER BY $field" , "
+            SELECT
+                TO_CHAR(TO_TIMESTAMP($field), 'WW YY') AS week,
+                COUNT(*) AS newitems
+            FROM {" . $table . "}
+            WHERE $field > 0
+            GROUP BY 1
+            ORDER BY 1");
+        $chart1 = new \core\chart_line();
+        $chart1->set_smooth(true);
+        $series = $labels = [];
+        $total = 0;
+        foreach ($rows as $row) {
+            $total += $row->newitems;
+            $series[] = $total;
+            $labels[] = $row->week;
+        }
+        $series = new core\chart_series($title, $series);
+        $chart1->add_series($series);
+        $chart1->set_labels($labels);
+
+        $rows = $this->local_querry("
+            SELECT
+                YEAR(FROM_UNIXTIME($field)) AS year,
+                COUNT(*) as newitems
+            FROM {" . $table . "}
+            WHERE $field > 0
+            GROUP BY YEAR(FROM_UNIXTIME($field))
+            ORDER BY $field" , "
+            SELECT
+                TO_CHAR(TO_TIMESTAMP($field), 'YY') AS year,
+                COUNT(*) AS newitems
+            FROM {" . $table . "}
+            WHERE $field > 0
+            GROUP BY 1
+            ORDER BY 1");
+        $chart2 = new \core\chart_bar();
+        $series = [];
+        $labels = [];
+        $total = 0;
+        foreach ($rows as $row) {
+            $series[] = $row->newitems;
+            $labels[] = $row->year;
+        }
+        $series = new core\chart_series(get_string('year'), $series);
+        $chart2->add_series($series);
+        $chart2->set_labels($labels);
+
+        return $OUTPUT->render($chart1) . '<br>' . $OUTPUT->render($chart2);
+    }
+
+    /**
+     * Do sqlquerry.
+     *
+     * @param string $mysql
+     * @param string $postgr
+     * @return array
+     */
+    private function local_querry($mysql, $postgr) {
+        global $DB;
+        $family = $DB->get_dbfamily();
+        $sql = ($family === 'mysql' or $family === 'mssql') ? $mysql : $postgr;
+        return $DB->get_records_sql($sql);
     }
 }

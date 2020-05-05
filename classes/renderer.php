@@ -73,18 +73,12 @@ class report_growth_renderer extends plugin_renderer_base {
      */
     public function table_users() {
         global $DB;
-        $table = new html_table();
-        $table->attributes = ['class' => 'table table-sm table-hover w-50'];
-        $table->colclasses = ['text-left', 'text-right'];
-        $table->size = [null, '5rem'];
-        $table->caption = get_string('users');
-        $url = html_writer::link(new moodle_url('/admin/user.php'), get_string('total'));
-        $table->data[] = [$url, $DB->count_records('user', [])];
-        $table->data[] = [get_string('deleted'), $DB->count_records('user', ['deleted' => 1])];
-        $table->data[] = [get_string('suspended'), $DB->count_records('user', ['suspended' => 1])];
-        $table->data[] = [get_string('confirmed', 'admin'), $DB->count_records('user', ['confirmed' => 1])];
-        $table->data[] = [get_string('activeusers'), $DB->count_records('user', ['lastip' => ''])];
-        return html_writer::table($table) . '<br>' . $this->create_charts('user', get_string('users'));
+        $arr = [
+           [get_string('deleted'), $DB->count_records('user', ['deleted' => 1])],
+           [get_string('suspended'), $DB->count_records('user', ['suspended' => 1])],
+           [get_string('confirmed', 'admin'), $DB->count_records('user', ['confirmed' => 1])],
+           [get_string('activeusers'), $DB->count_records('user', ['lastip' => ''])]];
+        return $this->create_charts($arr, 'user', get_string('users'));
     }
 
 
@@ -95,16 +89,8 @@ class report_growth_renderer extends plugin_renderer_base {
      */
     public function table_courses() {
         global $DB;
-        $str = get_string('courses');
-        $table = new html_table();
-        $table->attributes = ['class' => 'table table-sm table-hover w-50'];
-        $table->colclasses = ['text-left', 'text-right'];
-        $table->size = [null, '5rem'];
-        $table->caption = $str;
-        $i = $DB->count_records('course', []);
-        $table->data[] = [get_string('total'), --$i];
-        $table->data[] = [get_string('categories'), $DB->count_records('course_categories', [])];
-        return html_writer::table($table) . '<br>' . $this->create_charts('course', $str);
+        $arr = [[get_string('categories'), $DB->count_records('course_categories', [])]];
+        return $this->create_charts($arr, 'course', get_string('courses'));
     }
 
     /**
@@ -114,23 +100,17 @@ class report_growth_renderer extends plugin_renderer_base {
      */
     public function table_enrolments() {
         global $DB;
-        $str = get_string('enrolments', 'enrol');
         $enabled = enrol_get_plugins(true);
-        $table = new html_table();
-        $table->attributes = ['class' => 'table table-sm table-hover w-50'];
-        $table->colclasses = ['text-left', 'text-right'];
-        $table->size = [null, '5rem'];
-        $table->caption = $str;
-        $table->data[] = [get_string('total'), $DB->count_records('user_enrolments', [])];
+        $arr = [];
         foreach ($enabled as $key => $unused) {
             $ids = $DB->get_fieldset_select('enrol', 'id', "enrol = '$key'");
             if (count($ids) > 0) {
                 list($insql, $inparams) = $DB->get_in_or_equal($ids);
                 $cnt = $DB->count_records_sql("SELECT COUNT('x') FROM {user_enrolments} WHERE enrolid {$insql}", $inparams);
-                $table->data[] = [get_string('pluginname', 'enrol_'. $key), $cnt];
+                $arr[] = [get_string('pluginname', 'enrol_'. $key), $cnt];
             }
         }
-        return html_writer::table($table) . '<br>' . $this->create_charts('user_enrolments', $str);
+        return $this->create_charts($arr, 'user_enrolments', get_string('enrolments', 'enrol'));
     }
 
     /**
@@ -139,15 +119,7 @@ class report_growth_renderer extends plugin_renderer_base {
      * @return string
      */
     public function table_badges() {
-        global $DB;
-        $str = get_string('badges');
-        $table = new html_table();
-        $table->attributes = ['class' => 'table table-sm table-hover w-50'];
-        $table->colclasses = ['text-left', 'text-right'];
-        $table->size = [null, '5rem'];
-        $table->caption = $str;
-        $table->data[] = [get_string('total'), $DB->count_records('badge_issued', [])];
-        return html_writer::table($table) . '<br>' . $this->create_charts('badge_issued', $str, 'dateissued');
+        return $this->create_charts([], 'badge_issued', get_string('badges'), 'dateissued');
     }
 
     /**
@@ -156,15 +128,7 @@ class report_growth_renderer extends plugin_renderer_base {
      * @return string
      */
     public function table_completions() {
-        global $DB;
-        $str = get_string('coursecompletions');
-        $table = new html_table();
-        $table->attributes = ['class' => 'table table-sm table-hover w-50'];
-        $table->colclasses = ['text-left', 'text-right'];
-        $table->size = [null, '5rem'];
-        $table->caption = $str;
-        $table->data[] = [get_string('total'), $DB->count_records('course_completions', [])];
-        return html_writer::table($table) . '<br>' . $this->create_charts('course_completions', $str, 'timecompleted');
+        return $this->create_charts([], 'course_completions', get_string('coursecompletions'), 'timecompleted');
     }
 
     /**
@@ -173,15 +137,7 @@ class report_growth_renderer extends plugin_renderer_base {
      * @return string
      */
     public function table_questions() {
-        global $DB;
-        $str = get_string('questions', 'question');
-        $table = new html_table();
-        $table->attributes = ['class' => 'table table-sm table-hover w-50'];
-        $table->colclasses = ['text-left', 'text-right'];
-        $table->size = [null, '5rem'];
-        $table->caption = $str;
-        $table->data[] = [get_string('total'), $DB->count_records('question', [])];
-        return html_writer::table($table) . '<br>' . $this->create_charts('question', $str);
+        return $this->create_charts([], 'question', get_string('questions', 'question'));
     }
 
 
@@ -191,15 +147,7 @@ class report_growth_renderer extends plugin_renderer_base {
      * @return string
      */
     public function table_resources() {
-        global $DB;
-        $str = get_string('resources');
-        $table = new html_table();
-        $table->attributes = ['class' => 'table table-sm table-hover w-50'];
-        $table->colclasses = ['text-left', 'text-right'];
-        $table->size = [null, '5rem'];
-        $table->caption = $str;
-        $table->data[] = [get_string('total'), $DB->count_records('course_modules', [])];
-        return html_writer::table($table) . '<br>' . $this->create_charts('course_modules', $str, 'added');
+        return $this->create_charts([], 'course_modules', get_string('resources'), 'added');
     }
 
 
@@ -232,27 +180,38 @@ class report_growth_renderer extends plugin_renderer_base {
     /**
      * Create charts.
      *
+     * @param array $data
      * @param string $table
      * @param string $title
      * @param string $field optional
+     * @param string $where optional
      * @return array
      */
-    private function create_charts($table, $title, $field = 'timecreated') {
-        global $OUTPUT;
+    private function create_charts($data, $table, $title, $field = 'timecreated', $where = '') {
+        global $DB, $OUTPUT;
 
+        $tbl = new html_table();
+        $tbl->attributes = ['class' => 'table table-sm table-hover w-50'];
+        $tbl->colclasses = ['text-left', 'text-right'];
+        $tbl->size = [null, '5rem'];
+        $tbl->caption = $title;
+        $tbl->data = $data;
+        $tbl->data[] = [html_writer::tag('b', get_string('total')), $DB->count_records($table, [])];
+
+        $wh = ($where == '') ? "$field  > 0" : "($field > 0) AND ($where)";
         $rows = $this->local_querry("
             SELECT
                  CONCAT(YEAR(FROM_UNIXTIME($field)), ' ', WEEKOFYEAR(FROM_UNIXTIME($field))) AS week,
                  COUNT(*) as newitems
             FROM {" . $table . "}
-            WHERE $field > 0
+            WHERE $wh
             GROUP BY CONCAT(YEAR(FROM_UNIXTIME($field)), ' ', WEEKOFYEAR(FROM_UNIXTIME($field)))
             ORDER BY $field" , "
             SELECT
                 TO_CHAR(TO_TIMESTAMP($field), 'YYYY \"week\" WW') AS week,
                 COUNT(*) AS newitems
             FROM {" . $table . "}
-            WHERE $field > 0
+            WHERE $wh
             GROUP BY 1
             ORDER BY 1");
         $chart1 = new \core\chart_line();
@@ -276,14 +235,14 @@ class report_growth_renderer extends plugin_renderer_base {
                 CONCAT(YEAR(FROM_UNIXTIME($field)), ' ', QUARTER(FROM_UNIXTIME($field))) as year,
                 COUNT(*) as newitems
             FROM {" . $table . "}
-            WHERE $field > 0
+            WHERE $wh
             GROUP BY CONCAT(YEAR(FROM_UNIXTIME($field)), ' ', QUARTER(FROM_UNIXTIME($field)))
             ORDER BY $field" , "
             SELECT
                 TO_CHAR(TO_TIMESTAMP($field), 'YYYY Q') AS year,
                 COUNT(*) AS newitems
             FROM {" . $table . "}
-            WHERE $field > 0
+            WHERE $wh
             GROUP BY 1
             ORDER BY 1");
 
@@ -305,7 +264,7 @@ class report_growth_renderer extends plugin_renderer_base {
         $series = new core\chart_series('Q4', $quarter4);
         $chart2->add_series($series);
         $chart2->set_labels($qlabels);
-        return $OUTPUT->render($chart1, false) . '<br>' . $OUTPUT->render($chart2);
+        return html_writer::table($tbl) . '<br>' . $OUTPUT->render($chart1, false) . '<br>' . $OUTPUT->render($chart2);
     }
 
     /**

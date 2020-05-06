@@ -58,6 +58,7 @@ class report_growth_renderer extends plugin_renderer_base {
             array_splice($rows, 7, 0, ['modulenameplural-mod_customcert']);
         }
         $ur = '/report/growth/index.php';
+        $p = $p > count($rows) ? 1 : $p;
         $i = 1;
         $tabs = [];
         $func = 'table_';

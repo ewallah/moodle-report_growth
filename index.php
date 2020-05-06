@@ -31,9 +31,8 @@ $context = context_system::instance();
 require_login();
 require_capability('report/growth:view', $context);
 
-$ur = '/report/growth/index.php';
 $str = get_string('growth', 'report_growth');
-$url = new moodle_url($ur, ['p' => $p]);
+$url = new moodle_url('/report/growth/index.php');
 $PAGE->set_url($url);
 $PAGE->set_context($context);
 $PAGE->set_pagelayout('report');
@@ -42,51 +41,7 @@ $PAGE->set_heading($str);
 $output = $PAGE->get_renderer('report_growth');
 
 echo $output->header();
-// TODO: Course completions only when enabled.
-// TODO: Certificates when plugin installed.
-
-$rows = [
-    new tabobject(1, new moodle_url($ur, ['p' => 1]), get_string('summary')),
-    new tabobject(2, new moodle_url($ur, ['p' => 2]), get_string('users')),
-    new tabobject(3, new moodle_url($ur, ['p' => 3]), get_string('courses')),
-    new tabobject(4, new moodle_url($ur, ['p' => 4]), get_string('enrolments', 'enrol')),
-    new tabobject(5, new moodle_url($ur, ['p' => 5]), get_string('badges')),
-    new tabobject(6, new moodle_url($ur, ['p' => 6]), get_string('coursecompletions')),
-    new tabobject(7, new moodle_url($ur, ['p' => 7]), get_string('questions', 'question')),
-    new tabobject(8, new moodle_url($ur, ['p' => 8]), get_string('resources')),
-    new tabobject(9, new moodle_url($ur, ['p' => 9]), get_string('countries', 'report_growth')),
-    ];
-echo $OUTPUT->tabtree($rows, $p);
-switch ($p) {
-    case 2:
-        echo $output->table_users();
-        break;
-    case 3:
-        echo $output->table_courses();
-        break;
-    case 4:
-        echo $output->table_enrolments();
-        break;
-    case 5:
-        echo $output->table_badges();
-        break;
-    case 6:
-        echo $output->table_completions();
-        break;
-    case 7:
-        echo $output->table_questions();
-        break;
-    case 8:
-        echo $output->table_resources();
-        break;
-    case 9:
-        echo $output->table_country();
-        break;
-    default:
-        echo $output->table_summary();
-        break;
-}
-
+echo $output->create_tabtree($p);
 echo $output->footer();
 
 // Trigger a report viewed event.

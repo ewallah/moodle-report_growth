@@ -35,34 +35,60 @@ defined('MOODLE_INTERNAL') || die;
  */
 class report_growth_renderer extends plugin_renderer_base {
 
+
+    /**
+     * Create Tabs.
+     *
+     * @param int $p Selected tab
+     * @return string
+     */
+    public function create_tabtree($p = 1) {
+        global $CFG, $OUTPUT;
+        $rows = ['summary', 'users', 'courses', 'enrolments-enrol', 'questions-question', 'resources', 'countries-report_growth'];
+        if (!empty($CFG->enablebadges)) {
+            array_splice($rows, 4, 0, ['badges']);
+        }
+        if (!empty($CFG->enablecompletion)) {
+            array_splice($rows, 5, 0, ['coursecompletions']);
+        }
+        if (file_exists($CFG->dirroot . '/mod/certificate')) {
+            array_splice($rows, 6, 0, ['modulenameplural-mod_certificate']);
+        }
+        if (file_exists($CFG->dirroot . '/mod/customcert')) {
+            array_splice($rows, 7, 0, ['modulenameplural-mod_customcert']);
+        }
+        $ur = '/report/growth/index.php';
+        $i = 1;
+        $tabs = [];
+        $func = 'table_';
+        foreach ($rows as $row) {
+            if (strpos($row, '-') == true) {
+                $expl = explode('-', $row);
+                $str = get_string($expl[0], $expl[1]);
+                if ($i == $p) {
+                    $func .= $expl[1];
+                }
+            } else {
+                $str = get_string($row);
+                if ($i == $p) {
+                    $func .= $row;
+                }
+            }
+            $tabs[] = new tabobject($i, new moodle_url($ur, ['p' => $i]), $str);
+            $i++;
+        }
+        return $OUTPUT->tabtree($tabs, $p) . html_writer::tag('div', $this->$func(), ['class' => 'p-3']);
+    }
+
+
     /**
      * Table summary.
      *
      * @return string
      */
     public function table_summary() {
-        global $CFG;
-        $site = get_site();
-        $admin = get_admin();
-
-        $siteinfo = \core\hub\registration::get_site_info([
-            'name' => format_string($site->fullname, true, ['context' => context_course::instance(SITEID)]),
-            'description' => $site->summary,
-            'contactname' => fullname($admin, true),
-            'contactemail' => $admin->email,
-            'contactphone' => $admin->phone1,
-            'street' => '',
-            'countrycode' => $admin->country ?: $CFG->country,
-            'regioncode' => '-', // Not supported yet.
-            'language' => explode('_', current_language())[0],
-            'geolocation' => '',
-            'emailalert' => 1,
-            'commnews' => 1,
-            'policyagreed' => 0
-
-        ]);
-        $lis = \core\hub\registration::get_stats_summary($siteinfo);
-        $lis = strip_tags($lis, '<ul><li>');
+        $siteinfo = \core\hub\registration::get_site_info([]);
+        $lis = strip_tags(\core\hub\registration::get_stats_summary($siteinfo), '<ul><li>');
         return str_replace(get_string('sendfollowinginfo_help', 'hub') , '', $lis);
     }
 
@@ -77,7 +103,7 @@ class report_growth_renderer extends plugin_renderer_base {
            [get_string('deleted'), $DB->count_records('user', ['deleted' => 1])],
            [get_string('suspended'), $DB->count_records('user', ['suspended' => 1])],
            [get_string('confirmed', 'admin'), $DB->count_records('user', ['confirmed' => 1])],
-           [get_string('activeusers'), $DB->count_records('user', ['lastip' => ''])]];
+           [get_string('activeusers'), $DB->count_records_select('user', 'lastip <> ?', [''])]];
         return $this->create_charts($arr, 'user', get_string('users'));
     }
 
@@ -98,7 +124,7 @@ class report_growth_renderer extends plugin_renderer_base {
      *
      * @return string
      */
-    public function table_enrolments() {
+    public function table_enrol() {
         global $DB;
         $enabled = enrol_get_plugins(true);
         $arr = [];
@@ -127,7 +153,7 @@ class report_growth_renderer extends plugin_renderer_base {
      *
      * @return string
      */
-    public function table_completions() {
+    public function table_coursecompletions() {
         return $this->create_charts([], 'course_completions', get_string('coursecompletions'), 'timecompleted');
     }
 
@@ -136,7 +162,7 @@ class report_growth_renderer extends plugin_renderer_base {
      *
      * @return string
      */
-    public function table_questions() {
+    public function table_question() {
         return $this->create_charts([], 'question', get_string('questions', 'question'));
     }
 
@@ -150,13 +176,30 @@ class report_growth_renderer extends plugin_renderer_base {
         return $this->create_charts([], 'course_modules', get_string('resources'), 'added');
     }
 
+    /**
+     * Table certificates.
+     *
+     * @return string
+     */
+    public function table_mod_certificate() {
+        return $this->create_charts([], 'certificate_issues', get_string('modulenameplural', 'mod_certificate'));
+    }
+
+    /**
+     * Table certificates.
+     *
+     * @return string
+     */
+    public function table_mod_customcert() {
+        return $this->create_charts([], 'customcert_issues', get_string('modulenameplural', 'mod_customcert'));
+    }
 
     /**
      * Table country.
      *
      * @return string
      */
-    public function table_country() {
+    public function table_report_growth() {
         global $DB, $OUTPUT;
         $sql = "SELECT country, COUNT(country) as newusers FROM {user} GROUP BY country ORDER BY country";
         $rows = $DB->get_records_sql($sql);
@@ -189,6 +232,7 @@ class report_growth_renderer extends plugin_renderer_base {
      */
     private function create_charts($data, $table, $title, $field = 'timecreated', $where = '') {
         global $DB, $OUTPUT;
+        $week = get_string('week');
 
         $tbl = new html_table();
         $tbl->attributes = ['class' => 'table table-sm table-hover w-50'];
@@ -201,14 +245,14 @@ class report_growth_renderer extends plugin_renderer_base {
         $wh = ($where == '') ? "$field  > 0" : "($field > 0) AND ($where)";
         $rows = $this->local_querry("
             SELECT
-                 CONCAT(YEAR(FROM_UNIXTIME($field)), ' ', WEEKOFYEAR(FROM_UNIXTIME($field))) AS week,
+                 CONCAT(YEAR(FROM_UNIXTIME($field)), ' $week ', WEEKOFYEAR(FROM_UNIXTIME($field))) AS week,
                  COUNT(*) as newitems
             FROM {" . $table . "}
             WHERE $wh
             GROUP BY CONCAT(YEAR(FROM_UNIXTIME($field)), ' ', WEEKOFYEAR(FROM_UNIXTIME($field)))
             ORDER BY $field" , "
             SELECT
-                TO_CHAR(TO_TIMESTAMP($field), 'YYYY \"week\" WW') AS week,
+                TO_CHAR(TO_TIMESTAMP($field), 'YYYY \"$week\" WW') AS week,
                 COUNT(*) AS newitems
             FROM {" . $table . "}
             WHERE $wh

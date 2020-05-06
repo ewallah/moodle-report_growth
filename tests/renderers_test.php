@@ -90,7 +90,7 @@ class report_growth_renderers_testcase extends advanced_testcase {
     public function test_enrolments() {
         global $PAGE;
         $output = $PAGE->get_renderer('report_growth');
-        $x = $output->table_enrolments();
+        $x = $output->table_enrol();
         $this->assertContains('0', $x);
     }
 
@@ -98,10 +98,10 @@ class report_growth_renderers_testcase extends advanced_testcase {
      * Test country report.
      *
      */
-    public function test_country() {
+    public function test_countries() {
         global $PAGE;
         $output = $PAGE->get_renderer('report_growth');
-        $x = $output->table_country();
+        $x = $output->table_report_growth();
         $this->assertContains('Show chart data', $x);
     }
 }

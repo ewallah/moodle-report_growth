@@ -160,6 +160,14 @@ class report_growth_index_testcase extends advanced_testcase {
     }
 
     /**
+     * Test page 11.
+     */
+    public function test_page11() {
+        $html = $this->test_page(11);
+        $this->assertContains(' ', $html);
+    }
+
+    /**
      * Test page.
      *
      * @param int $pageid

@@ -95,13 +95,24 @@ class report_growth_renderers_testcase extends advanced_testcase {
     }
 
     /**
+     * Test mobile users report.
+     *
+     */
+    public function test_mobile() {
+        global $PAGE;
+        $output = $PAGE->get_renderer('report_growth');
+        $x = $output->table_mobile();
+        $this->assertContains('0', $x);
+    }
+
+    /**
      * Test country report.
      *
      */
     public function test_countries() {
         global $PAGE;
         $output = $PAGE->get_renderer('report_growth');
-        $x = $output->table_report_growth();
+        $x = $output->table_countries();
         $this->assertContains('Show chart data', $x);
     }
 }

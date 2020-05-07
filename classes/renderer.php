@@ -44,7 +44,10 @@ class report_growth_renderer extends plugin_renderer_base {
      */
     public function create_tabtree($p = 1) {
         global $CFG, $OUTPUT;
-        $rows = ['summary', 'users', 'courses', 'enrolments-enrol', 'questions-question', 'resources', 'countries-report_growth'];
+        $rows = ['summary', 'users', 'courses', 'enrolments-enrol', 'questions-question', 'resources', 'countries-'];
+        if (!empty($CFG->enablemobilewebservice)) {
+            array_splice($rows, 3, 0, ['mobile-']);
+        }
         if (!empty($CFG->enablebadges)) {
             array_splice($rows, 4, 0, ['badges']);
         }
@@ -57,6 +60,7 @@ class report_growth_renderer extends plugin_renderer_base {
         if (file_exists($CFG->dirroot . '/mod/customcert')) {
             array_splice($rows, 7, 0, ['modulenameplural-mod_customcert']);
         }
+
         $ur = '/report/growth/index.php';
         $p = $p > count($rows) ? 1 : $p;
         $i = 1;
@@ -65,9 +69,10 @@ class report_growth_renderer extends plugin_renderer_base {
         foreach ($rows as $row) {
             if (strpos($row, '-') == true) {
                 $expl = explode('-', $row);
-                $str = get_string($expl[0], $expl[1]);
+                $local = ($expl[1] == '');
+                $str = get_string($expl[0], $local ? 'report_growth' : $expl[1]);
                 if ($i == $p) {
-                    $func .= $expl[1];
+                    $func .= $local ? $expl[0] : $expl[1];
                 }
             } else {
                 $str = get_string($row);
@@ -141,6 +146,15 @@ class report_growth_renderer extends plugin_renderer_base {
     }
 
     /**
+     * Table mobile.
+     *
+     * @return string
+     */
+    public function table_mobile() {
+        return $this->create_charts([], 'user_devices', get_string('mobile', 'report_growth'));
+    }
+
+    /**
      * Table badges.
      *
      * @return string
@@ -166,7 +180,6 @@ class report_growth_renderer extends plugin_renderer_base {
     public function table_question() {
         return $this->create_charts([], 'question', get_string('questions', 'question'));
     }
-
 
     /**
      * Table resources.
@@ -200,7 +213,7 @@ class report_growth_renderer extends plugin_renderer_base {
      *
      * @return string
      */
-    public function table_report_growth() {
+    public function table_countries() {
         global $DB, $OUTPUT;
         $sql = "SELECT country, COUNT(country) as newusers FROM {user} GROUP BY country ORDER BY country";
         $rows = $DB->get_records_sql($sql);

@@ -46,10 +46,11 @@ class report_growth_renderers_testcase extends advanced_testcase {
         $dg = $this->getDataGenerator();
         $dg->create_course();
         $dg->create_course();
-        $dg->create_course();
+        $course = $dg->create_course();
         $dg->create_user(['country' => 'BE']);
         $dg->create_user(['country' => 'NL']);
-        $dg->create_user(['country' => 'UG']);
+        $user = $dg->create_user(['country' => 'UG']);
+        $dg->enrol_user($user->id, $course->id, 'student');
     }
 
     /**
@@ -102,7 +103,7 @@ class report_growth_renderers_testcase extends advanced_testcase {
         global $PAGE;
         $output = $PAGE->get_renderer('report_growth');
         $x = $output->table_mobile();
-        $this->assertContains('0', $x);
+        $this->assertEquals('No Mobile devices found', $x);
     }
 
     /**

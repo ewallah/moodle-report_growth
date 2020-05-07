@@ -182,7 +182,7 @@ class report_growth_index_testcase extends advanced_testcase {
      * @return string
      */
     public function test_page($pageid = 1) {
-        global $CFG, $DB, $OUTPUT, $PAGE;
+        global $CFG, $DB, $OUTPUT, $PAGE, $USER;
         chdir($CFG->dirroot . '/report/growth');
         $_POST['p'] = $pageid;
         ob_start();

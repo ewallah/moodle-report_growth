@@ -30,7 +30,6 @@ $p = optional_param('p', 1, PARAM_INT);
 $context = context_system::instance();
 require_login();
 require_capability('report/growth:view', $context);
-
 $str = get_string('growth', 'report_growth');
 $url = new moodle_url('/report/growth/index.php');
 $PAGE->set_url($url);
@@ -38,6 +37,9 @@ $PAGE->set_context($context);
 $PAGE->set_pagelayout('report');
 $PAGE->set_title($str);
 $PAGE->set_heading($str);
+if (is_siteadmin($USER)) {
+    admin_externalpage_setup('reportgrowth', '', ['p' => $p], '', ['pagelayout' => 'report']);
+}
 $output = $PAGE->get_renderer('report_growth');
 
 echo $output->header();

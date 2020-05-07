@@ -261,6 +261,7 @@ class report_growth_renderer extends plugin_renderer_base {
         global $DB, $OUTPUT;
         $week = get_string('week');
         $total = get_string('total');
+        $toyear = intval(date("Y"));
 
         $tbl = new html_table();
         $tbl->attributes = ['class' => 'table table-sm table-hover w-50'];
@@ -290,15 +291,21 @@ class report_growth_renderer extends plugin_renderer_base {
             $chart1 = new \core\chart_line();
             $chart1->set_smooth(true);
             $series = $labels = $quarter1 = $quarter2 = $quarter3 = $quarter4 = $qlabels = $totals = [];
-            $total = 0;
-            foreach ($rows as $row) {
-                $total += $row->newitems;
-                $series[] = $total;
-                $labels[] = $row->week;
-            }
-            $toyear = intval(date("Y"));
             $x = reset($rows);
+            $total = $x->newitems;
+            $series[] = $total;
+            $labels[] = $x->week;
             $fromyear = is_object($x) ? intval(explode(' ', $x->week)[0]) : $toyear - 7;
+            $fromweek = is_object($x) ? intval(explode(' ', $x->week)[2]) : 1;
+            for ($i = $fromyear; $i <= $toyear; $i++) {
+                for ($j = $fromweek; $j <= 52; $j++) {
+                    $str = "$i $week $j";
+                    $total += array_key_exists($str, $rows) ? $rows[$str]->newitems : 0;
+                    $series[] = $total;
+                    $labels[] = $str;
+                }
+                $fromweek = 1;
+            }
             $series = new core\chart_series($title, $series);
             $chart1->add_series($series);
             $chart1->set_labels($labels);
@@ -332,7 +339,7 @@ class report_growth_renderer extends plugin_renderer_base {
                 $qlabels[] = $i;
             }
             $chart2 = new \core\chart_bar();
-            $chart2->set_stacked(1);
+            $chart2->set_stacked(true);
             $series = new \core\chart_series('Total', $totals);
             $series->set_type(\core\chart_series::TYPE_LINE);
             $chart2->add_series($series);

@@ -44,27 +44,27 @@ class report_growth_renderer extends plugin_renderer_base {
      */
     public function create_tabtree($p = 1) {
         global $CFG, $OUTPUT;
-        $rows = ['summary', 'users', 'courses', 'enrolments-enrol', 'questions-question', 'resources', 'countries-'];
+        $ur = '/report/growth/index.php';
+        $rows = ['summary', 'users'];
         if (isset($CFG->logguests) and $CFG->logguests) {
-            array_splice($rows, 2, 0, ['policydocaudience2-tool_policy']);
+            $rows[] = 'policydocaudience2-tool_policy';
         }
         if (!empty($CFG->enablemobilewebservice)) {
-            array_splice($rows, 3, 0, ['mobile-']);
+            $rows[] = 'mobile-';
         }
         if (!empty($CFG->enablebadges)) {
-            array_splice($rows, 4, 0, ['badges']);
+            $rows[] = 'badges';
         }
         if (!empty($CFG->enablecompletion)) {
-            array_splice($rows, 5, 0, ['coursecompletions']);
+            $rows[] = 'coursecompletions';
         }
         if (file_exists($CFG->dirroot . '/mod/certificate')) {
-            array_splice($rows, 6, 0, ['modulenameplural-mod_certificate']);
+            $rows[] = 'modulenameplural-mod_certificate';
         }
         if (file_exists($CFG->dirroot . '/mod/customcert')) {
-            array_splice($rows, 7, 0, ['modulenameplural-mod_customcert']);
+            $rows[] = 'modulenameplural-mod_customcert';
         }
-
-        $ur = '/report/growth/index.php';
+        $rows = array_merge($rows, ['courses', 'enrolments-enrol', 'questions-question', 'resources', 'countries-']);
         $p = $p > count($rows) ? 1 : $p;
         $i = 1;
         $tabs = [];
@@ -135,9 +135,9 @@ class report_growth_renderer extends plugin_renderer_base {
      */
     public function table_enrol() {
         global $DB;
-        $enabled = enrol_get_plugins(true);
+        $enabled = array_keys(enrol_get_plugins(true));
         $arr = [];
-        foreach ($enabled as $key => $unused) {
+        foreach ($enabled as $key) {
             $ids = $DB->get_fieldset_select('enrol', 'id', "enrol = '$key'");
             if (count($ids) > 0) {
                 list($insql, $inparams) = $DB->get_in_or_equal($ids);
@@ -199,7 +199,8 @@ class report_growth_renderer extends plugin_renderer_base {
      * @return string
      */
     public function table_tool_policy() {
-        return $this->create_charts([], 'logstore_standard_log', get_string('policydocaudience2', 'tool_policy'), 'timecreated', 'userid = 0');
+        return $this->create_charts([], 'logstore_standard_log', get_string('policydocaudience2', 'tool_policy'),
+           'timecreated', 'userid = 1');
     }
 
     /**

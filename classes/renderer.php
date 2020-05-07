@@ -45,6 +45,9 @@ class report_growth_renderer extends plugin_renderer_base {
     public function create_tabtree($p = 1) {
         global $CFG, $OUTPUT;
         $rows = ['summary', 'users', 'courses', 'enrolments-enrol', 'questions-question', 'resources', 'countries-'];
+        if (isset($CFG->logguests) and $CFG->logguests) {
+            array_splice($rows, 2, 0, ['policydocaudience2-tool_policy']);
+        }
         if (!empty($CFG->enablemobilewebservice)) {
             array_splice($rows, 3, 0, ['mobile-']);
         }
@@ -188,6 +191,15 @@ class report_growth_renderer extends plugin_renderer_base {
      */
     public function table_resources() {
         return $this->create_charts([], 'course_modules', get_string('resources'), 'added');
+    }
+
+    /**
+     * Table guests.
+     *
+     * @return string
+     */
+    public function table_tool_policy() {
+        return $this->create_charts([], 'logstore_standard_log', get_string('policydocaudience2', 'tool_policy'), 'timecreated', 'userid = 0');
     }
 
     /**

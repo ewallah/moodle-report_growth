@@ -46,7 +46,6 @@ before_install:
   - google-chrome-stable --headless --disable-extensions --no-sandbox --remote-debugging-port=9222 --remote-debugging-address=127.0.0.1 &>/dev/null &
 
 install:
-  - moodle-plugin-ci add-plugin --branch MOODLE_38_STABLE --clone https://github.com/mdjnelson/moodle-mod_customcert.git
   - moodle-plugin-ci add-plugin --clone https://github.com/mdjnelson/moodle-mod_certificate.git
   - moodle-plugin-ci install
 

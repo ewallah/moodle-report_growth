@@ -100,7 +100,7 @@ class report_growth_index_testcase extends advanced_testcase {
      */
     public function test_page3() {
         $html = $this->test_page(3);
-        $this->assertContains('Course categories', $html);
+        $this->assertContains(' ', $html);
     }
 
     /**
@@ -108,7 +108,7 @@ class report_growth_index_testcase extends advanced_testcase {
      */
     public function test_page4() {
         $html = $this->test_page(4);
-        $this->assertContains('Enrolments', $html);
+        $this->assertContains(' ', $html);
     }
 
     /**
@@ -164,6 +164,14 @@ class report_growth_index_testcase extends advanced_testcase {
      */
     public function test_page11() {
         $html = $this->test_page(11);
+        $this->assertContains(' ', $html);
+    }
+
+    /**
+     * Test page 12.
+     */
+    public function test_page12() {
+        $html = $this->test_page(12);
         $this->assertContains(' ', $html);
     }
 

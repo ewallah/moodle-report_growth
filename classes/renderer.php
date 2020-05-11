@@ -125,7 +125,7 @@ class report_growth_renderer extends plugin_renderer_base {
     public function table_courses() {
         global $DB;
         $arr = [[get_string('categories'), $DB->count_records('course_categories', [])]];
-        return $this->create_charts($arr, 'course', get_string('courses'));
+        return $this->create_charts($arr, 'course', get_string('courses'), 'timecreated', 'id > 1');
     }
 
     /**
@@ -259,6 +259,7 @@ class report_growth_renderer extends plugin_renderer_base {
      */
     private function create_charts($data, $table, $title, $field = 'timecreated', $where = '') {
         global $DB, $OUTPUT;
+        $family = $DB->get_dbfamily();
         $week = get_string('week');
         $total = get_string('total');
         $toyear = intval(date("Y"));
@@ -273,59 +274,64 @@ class report_growth_renderer extends plugin_renderer_base {
         $cnt = $DB->count_records_select($table, $wh);
         if ($cnt > 0) {
             $tbl->data[] = [html_writer::tag('b', $total), $cnt];
-            $rows = $this->local_querry("
-                SELECT
-                     CONCAT(YEAR(FROM_UNIXTIME($field)), ' $week ', WEEKOFYEAR(FROM_UNIXTIME($field))) AS week,
-                     COUNT(*) as newitems
+            $concat = "CONCAT(YEAR(FROM_UNIXTIME($field)), ' ', WEEKOFYEAR(FROM_UNIXTIME($field)))";
+            $sql1 = "
+                SELECT $concat AS week, COUNT(*) as newitems
                 FROM {" . $table . "}
                 WHERE $wh
-                GROUP BY CONCAT(YEAR(FROM_UNIXTIME($field)), ' ', WEEKOFYEAR(FROM_UNIXTIME($field)))
-                ORDER BY $field" , "
+                GROUP BY $concat
+                ORDER BY $field";
+            $sql2 = "
                 SELECT
-                    TO_CHAR(TO_TIMESTAMP($field), 'YYYY \"$week\" WW') AS week,
+                    TO_CHAR(TO_TIMESTAMP($field), 'YYYY WW') AS week,
                     COUNT(*) AS newitems
                 FROM {" . $table . "}
                 WHERE $wh
                 GROUP BY 1
-                ORDER BY 1");
+                ORDER BY 1";
+            $sql = ($family === 'mysql' or $family === 'mssql') ? $sql1 : $sql2;
+            $rows = $DB->get_records_sql($sql);
             $chart1 = new \core\chart_line();
             $chart1->set_smooth(true);
             $series = $labels = $quarter1 = $quarter2 = $quarter3 = $quarter4 = $qlabels = $totals = [];
-            $x = reset($rows);
-            $total = $x->newitems;
-            $series[] = $total;
-            $labels[] = $x->week;
+            $x = current($rows);
+            $total = 0;
             $fromyear = is_object($x) ? intval(explode(' ', $x->week)[0]) : $toyear - 7;
-            $fromweek = is_object($x) ? intval(explode(' ', $x->week)[2]) : 1;
+            $fromweek = is_object($x) ? intval(explode(' ', $x->week)[1]) : 1;
+            $nowweek = date('W');
             for ($i = $fromyear; $i <= $toyear; $i++) {
                 for ($j = $fromweek; $j <= 52; $j++) {
-                    $str = "$i $week $j";
+                    $str = "$i $j";
                     $total += array_key_exists($str, $rows) ? $rows[$str]->newitems : 0;
                     $series[] = $total;
-                    $labels[] = $str;
+                    $labels[] = "$i $week $j";
+                    if ($i == $toyear and $j > $nowweek) {
+                        break;
+                    }
                 }
                 $fromweek = 1;
             }
             $series = new core\chart_series($title, $series);
             $chart1->add_series($series);
             $chart1->set_labels($labels);
-
-            $rows = $this->local_querry("
+            $sql1 = "
                 SELECT
                     CONCAT(YEAR(FROM_UNIXTIME($field)), ' ', QUARTER(FROM_UNIXTIME($field))) as year,
                     COUNT(*) as newitems
                 FROM {" . $table . "}
                 WHERE $wh
                 GROUP BY CONCAT(YEAR(FROM_UNIXTIME($field)), ' ', QUARTER(FROM_UNIXTIME($field)))
-                ORDER BY $field" , "
+                ORDER BY $field";
+            $sql2 = "
                 SELECT
                     TO_CHAR(TO_TIMESTAMP($field), 'YYYY Q') AS year,
                     COUNT(*) AS newitems
                 FROM {" . $table . "}
                 WHERE $wh
                 GROUP BY 1
-                ORDER BY 1");
-
+                ORDER BY 1";
+            $sql = ($family === 'mysql' or $family === 'mssql') ? $sql1 : $sql2;
+            $rows = $DB->get_records_sql($sql);
             for ($i = $fromyear; $i <= $toyear; $i++) {
                 $x1 = array_key_exists("$i 1", $rows) ? $rows["$i 1"]->newitems : 0;
                 $x2 = array_key_exists("$i 2", $rows) ? $rows["$i 2"]->newitems : 0;
@@ -355,19 +361,5 @@ class report_growth_renderer extends plugin_renderer_base {
             return html_writer::table($tbl) . '<br>' . $OUTPUT->render($chart1, false) . '<br>' . $OUTPUT->render($chart2);
         }
         return get_string('nostudentsfound', 'moodle', $title);
-    }
-
-    /**
-     * Do sqlquerry.
-     *
-     * @param string $mysql
-     * @param string $postgr
-     * @return array
-     */
-    private function local_querry($mysql, $postgr) {
-        global $DB;
-        $family = $DB->get_dbfamily();
-        $sql = ($family === 'mysql' or $family === 'mssql') ? $mysql : $postgr;
-        return $DB->get_records_sql($sql);
     }
 }

@@ -290,30 +290,31 @@ class report_growth_renderer extends plugin_renderer_base {
                 GROUP BY 1
                 ORDER BY 1";
             $sql = ($family === 'mysql' or $family === 'mssql') ? $sql1 : $sql2;
-            $rows = $DB->get_records_sql($sql);
-            $chart1 = new \core\chart_line();
-            $chart1->set_smooth(true);
-            $series = $labels = $quarter1 = $quarter2 = $quarter3 = $quarter4 = $qlabels = $totals = [];
-            $x = current($rows);
-            $total = 0;
-            $fromyear = is_object($x) ? intval(explode(' ', $x->week)[0]) : $toyear - 7;
-            $fromweek = is_object($x) ? intval(explode(' ', $x->week)[1]) : 1;
-            $nowweek = date('W');
-            for ($i = $fromyear; $i <= $toyear; $i++) {
-                for ($j = $fromweek; $j <= 52; $j++) {
-                    $str = "$i $j";
-                    $total += array_key_exists($str, $rows) ? $rows[$str]->newitems : 0;
-                    $series[] = $total;
-                    $labels[] = "$i $week $j";
-                    if ($i == $toyear and $j > $nowweek) {
-                        break;
+            if ($rows = $DB->get_records_sql($sql)) {
+                $chart1 = new \core\chart_line();
+                $chart1->set_smooth(true);
+                $series = $labels = $quarter1 = $quarter2 = $quarter3 = $quarter4 = $qlabels = $totals = [];
+                $x = current($rows);
+                $total = 0;
+                $fromyear = is_object($x) ? intval(explode(' ', $x->week)[0]) : $toyear - 7;
+                $fromweek = is_object($x) ? intval(explode(' ', $x->week)[1]) : 1;
+                $nowweek = date('W');
+                for ($i = $fromyear; $i <= $toyear; $i++) {
+                    for ($j = $fromweek; $j <= 52; $j++) {
+                        $str = "$i $j";
+                        $total += array_key_exists($str, $rows) ? $rows[$str]->newitems : 0;
+                        $series[] = $total;
+                        $labels[] = "$i $week $j";
+                        if ($i == $toyear and $j > $nowweek) {
+                            break;
+                        }
                     }
+                    $fromweek = 1;
                 }
-                $fromweek = 1;
+                $series = new core\chart_series($title, $series);
+                $chart1->add_series($series);
+                $chart1->set_labels($labels);
             }
-            $series = new core\chart_series($title, $series);
-            $chart1->add_series($series);
-            $chart1->set_labels($labels);
             $sql1 = "
                 SELECT
                     CONCAT(YEAR(FROM_UNIXTIME($field)), ' ', QUARTER(FROM_UNIXTIME($field))) as year,
@@ -331,34 +332,35 @@ class report_growth_renderer extends plugin_renderer_base {
                 GROUP BY 1
                 ORDER BY 1";
             $sql = ($family === 'mysql' or $family === 'mssql') ? $sql1 : $sql2;
-            $rows = $DB->get_records_sql($sql);
-            for ($i = $fromyear; $i <= $toyear; $i++) {
-                $x1 = array_key_exists("$i 1", $rows) ? $rows["$i 1"]->newitems : 0;
-                $x2 = array_key_exists("$i 2", $rows) ? $rows["$i 2"]->newitems : 0;
-                $x3 = array_key_exists("$i 3", $rows) ? $rows["$i 3"]->newitems : 0;
-                $x4 = array_key_exists("$i 4", $rows) ? $rows["$i 4"]->newitems : 0;
-                $quarter1[] = $x1;
-                $quarter2[] = $x2;
-                $quarter3[] = $x3;
-                $quarter4[] = $x4;
-                $totals[] = $x1 + $x2 + $x3 + $x4;
-                $qlabels[] = $i;
+            if ($rows = $DB->get_records_sql($sql)) {
+                for ($i = $fromyear; $i <= $toyear; $i++) {
+                    $x1 = array_key_exists("$i 1", $rows) ? $rows["$i 1"]->newitems : 0;
+                    $x2 = array_key_exists("$i 2", $rows) ? $rows["$i 2"]->newitems : 0;
+                    $x3 = array_key_exists("$i 3", $rows) ? $rows["$i 3"]->newitems : 0;
+                    $x4 = array_key_exists("$i 4", $rows) ? $rows["$i 4"]->newitems : 0;
+                    $quarter1[] = $x1;
+                    $quarter2[] = $x2;
+                    $quarter3[] = $x3;
+                    $quarter4[] = $x4;
+                    $totals[] = $x1 + $x2 + $x3 + $x4;
+                    $qlabels[] = $i;
+                }
+                $chart2 = new \core\chart_bar();
+                $chart2->set_stacked(true);
+                $series = new \core\chart_series('Total', $totals);
+                $series->set_type(\core\chart_series::TYPE_LINE);
+                $chart2->add_series($series);
+                $series = new \core\chart_series('Q1', $quarter1);
+                $chart2->add_series($series);
+                $series = new \core\chart_series('Q2', $quarter2);
+                $chart2->add_series($series);
+                $series = new \core\chart_series('Q3', $quarter3);
+                $chart2->add_series($series);
+                $series = new \core\chart_series('Q4', $quarter4);
+                $chart2->add_series($series);
+                $chart2->set_labels($qlabels);
+                return html_writer::table($tbl) . '<br>' . $OUTPUT->render($chart1, false) . '<br>' . $OUTPUT->render($chart2);
             }
-            $chart2 = new \core\chart_bar();
-            $chart2->set_stacked(true);
-            $series = new \core\chart_series('Total', $totals);
-            $series->set_type(\core\chart_series::TYPE_LINE);
-            $chart2->add_series($series);
-            $series = new \core\chart_series('Q1', $quarter1);
-            $chart2->add_series($series);
-            $series = new \core\chart_series('Q2', $quarter2);
-            $chart2->add_series($series);
-            $series = new \core\chart_series('Q3', $quarter3);
-            $chart2->add_series($series);
-            $series = new \core\chart_series('Q4', $quarter4);
-            $chart2->add_series($series);
-            $chart2->set_labels($qlabels);
-            return html_writer::table($tbl) . '<br>' . $OUTPUT->render($chart1, false) . '<br>' . $OUTPUT->render($chart2);
         }
         return get_string('nostudentsfound', 'moodle', $title);
     }

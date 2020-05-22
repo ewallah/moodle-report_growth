@@ -45,57 +45,54 @@ class report_growth_renderer extends plugin_renderer_base {
     public function create_tabtree($p = 1) {
         global $CFG, $OUTPUT;
         $ur = '/report/growth/index.php';
-        $rows = ['summary', 'users'];
+        $rows = ['summary' => get_string('summary'), 'users' => get_string('users')];
         if (isset($CFG->logguests) and $CFG->logguests) {
-            $rows[] = 'policydocaudience2-tool_policy';
+            $rows['logguests'] = get_string('policydocaudience2', 'tool_policy');
         }
         if (!empty($CFG->enablemobilewebservice)) {
-            $rows[] = 'mobile-';
+            $rows['mobiles'] = get_string('mobile', 'report_growth');
         }
         if (!empty($CFG->enablebadges)) {
-            $rows[] = 'badges';
+            $rows['badges'] = get_string('badges');
         }
         if (!empty($CFG->enablecompletion)) {
-            $rows[] = 'coursecompletions';
+            $rows['coursecompletions'] = get_string('coursecompletions');
         }
         if (file_exists($CFG->dirroot . '/mod/certificate')) {
-            $rows[] = 'modulenameplural-mod_certificate';
+            $rows['certificates'] = get_string('modulenameplural', 'mod_certificate');
         }
         if (file_exists($CFG->dirroot . '/mod/customcert')) {
-            $rows[] = 'modulenameplural-mod_customcert';
+            $rows['customcerts'] = get_string('modulenameplural', 'mod_customcert');
         }
-        $rows = array_merge($rows, ['courses', 'enrolments-enrol', 'questions-question', 'resources', 'countries-']);
+        $rows['courses'] = get_string('courses');
+        $rows['enrolments'] = get_string('enrolments', 'enrol');
+        $rows['questions'] = get_string('questions', 'question');
+        $rows['resources'] = get_string('resources');
+        $rows['countries'] = get_string('countries', 'report_growth');
         $p = $p > count($rows) ? 1 : $p;
         $i = 1;
         $tabs = [];
         $func = 'table_';
-        foreach ($rows as $row) {
-            if (strpos($row, '-') == true) {
-                $expl = explode('-', $row);
-                $local = ($expl[1] == '');
-                $str = get_string($expl[0], $local ? 'report_growth' : $expl[1]);
-                if ($i == $p) {
-                    $func .= $local ? $expl[0] : $expl[1];
-                }
-            } else {
-                $str = get_string($row);
-                if ($i == $p) {
-                    $func .= $row;
-                }
+        $fparam = '';
+        foreach ($rows as $key => $value) {
+            $tabs[] = new tabobject($i, new moodle_url($ur, ['p' => $i]), $value);
+            if ($i == $p) {
+                $func .= $key;
+                $fparam = $value;
             }
-            $tabs[] = new tabobject($i, new moodle_url($ur, ['p' => $i]), $str);
             $i++;
         }
-        return $OUTPUT->tabtree($tabs, $p) . html_writer::tag('div', $this->$func(), ['class' => 'p-3']);
+        return $OUTPUT->tabtree($tabs, $p) . html_writer::tag('div', $this->$func($fparam), ['class' => 'p-3']);
     }
 
 
     /**
      * Table summary.
      *
+     * @param string $title Title
      * @return string
      */
-    public function table_summary() {
+    public function table_summary($title = ''):string {
         $siteinfo = \core\hub\registration::get_site_info([]);
         $lis = strip_tags(\core\hub\registration::get_stats_summary($siteinfo), '<ul><li>');
         return str_replace(get_string('sendfollowinginfo_help', 'hub') , '', $lis);
@@ -104,36 +101,39 @@ class report_growth_renderer extends plugin_renderer_base {
     /**
      * Table users.
      *
+     * @param string $title Title
      * @return string
      */
-    public function table_users() {
+    public function table_users($title = ''):string {
         global $DB;
         $arr = [
            [get_string('deleted'), $DB->count_records('user', ['deleted' => 1])],
            [get_string('suspended'), $DB->count_records('user', ['suspended' => 1])],
            [get_string('confirmed', 'admin'), $DB->count_records('user', ['confirmed' => 1])],
            [get_string('activeusers'), $DB->count_records_select('user', 'lastip <> ?', [''])]];
-        return $this->create_charts($arr, 'user', get_string('users'));
+        return $this->create_charts($arr, 'user', $title);
     }
 
 
     /**
      * Table courses.
      *
+     * @param string $title Title
      * @return string
      */
-    public function table_courses() {
+    public function table_courses($title = ''):string {
         global $DB;
         $arr = [[get_string('categories'), $DB->count_records('course_categories', [])]];
-        return $this->create_charts($arr, 'course', get_string('courses'), 'timecreated', 'id > 1');
+        return $this->create_charts($arr, 'course', $title, 'timecreated', 'id > 1');
     }
 
     /**
      * Table enrolments.
      *
+     * @param string $title Title
      * @return string
      */
-    public function table_enrol() {
+    public function table_enrolments($title = ''):string {
         global $DB;
         $enabled = array_keys(enrol_get_plugins(true));
         $arr = [];
@@ -145,88 +145,96 @@ class report_growth_renderer extends plugin_renderer_base {
                 $arr[] = [get_string('pluginname', 'enrol_'. $key), $cnt];
             }
         }
-        return $this->create_charts($arr, 'user_enrolments', get_string('enrolments', 'enrol'));
+        return $this->create_charts($arr, 'user_enrolments', $title);
     }
 
     /**
      * Table mobile.
      *
+     * @param string $title Title
      * @return string
      */
-    public function table_mobile() {
-        return $this->create_charts([], 'user_devices', get_string('mobile', 'report_growth'));
+    public function table_mobiles($title = ''):string {
+        return $this->create_charts([], 'user_devices', $title);
     }
 
     /**
      * Table badges.
      *
+     * @param string $title Title
      * @return string
      */
-    public function table_badges() {
-        return $this->create_charts([], 'badge_issued', get_string('badges'), 'dateissued');
+    public function table_badges($title = ''):string {
+        return $this->create_charts([], 'badge_issued', $title, 'dateissued');
     }
 
     /**
      * Table completions.
      *
+     * @param string $title Title
      * @return string
      */
-    public function table_coursecompletions() {
-        return $this->create_charts([], 'course_completions', get_string('coursecompletions'), 'timecompleted');
+    public function table_coursecompletions($title = ''):string {
+        return $this->create_charts([], 'course_completions', $title, 'timecompleted');
     }
 
     /**
      * Table questions.
      *
+     * @param string $title Title
      * @return string
      */
-    public function table_question() {
-        return $this->create_charts([], 'question', get_string('questions', 'question'));
+    public function table_questions($title = ''):string {
+        return $this->create_charts([], 'question', $title);
     }
 
     /**
      * Table resources.
      *
+     * @param string $title Title
      * @return string
      */
-    public function table_resources() {
-        return $this->create_charts([], 'course_modules', get_string('resources'), 'added');
+    public function table_resources($title = ''):string {
+        return $this->create_charts([], 'course_modules', $title, 'added');
     }
 
     /**
      * Table guests.
      *
+     * @param string $title Title
      * @return string
      */
-    public function table_tool_policy() {
-        return $this->create_charts([], 'logstore_standard_log', get_string('policydocaudience2', 'tool_policy'),
-           'timecreated', 'userid = 1');
+    public function table_logguests($title = ''):string {
+        return $this->create_charts([], 'logstore_standard_log', $title, 'timecreated', 'userid = 1');
     }
 
     /**
      * Table certificates.
      *
+     * @param string $title Title
      * @return string
      */
-    public function table_mod_certificate() {
-        return $this->create_charts([], 'certificate_issues', get_string('modulenameplural', 'mod_certificate'));
+    public function table_certificates($title = ''):string {
+        return $this->create_charts([], 'certificate_issues', $title);
     }
 
     /**
      * Table certificates.
      *
+     * @param string $title Title
      * @return string
      */
-    public function table_mod_customcert() {
-        return $this->create_charts([], 'customcert_issues', get_string('modulenameplural', 'mod_customcert'));
+    public function table_customcerts($title = ''):string {
+        return $this->create_charts([], 'customcert_issues', $title);
     }
 
     /**
      * Table country.
      *
+     * @param string $title Title
      * @return string
      */
-    public function table_countries() {
+    public function table_countries($title = ''):string {
         global $DB, $OUTPUT;
         $sql = "SELECT country, COUNT(country) as newusers FROM {user} GROUP BY country ORDER BY country";
         $rows = $DB->get_records_sql($sql);
@@ -241,7 +249,7 @@ class report_growth_renderer extends plugin_renderer_base {
             $series[] = $row->newusers;
             $labels[] = get_string($row->country, 'countries');
         }
-        $series = new core\chart_series(get_string('country'), $series);
+        $series = new core\chart_series($title, $series);
         $chart->add_series($series);
         $chart->set_labels($labels);
         return $OUTPUT->render($chart);
@@ -255,13 +263,12 @@ class report_growth_renderer extends plugin_renderer_base {
      * @param string $title
      * @param string $field optional
      * @param string $where optional
-     * @return array
+     * @return string
      */
-    private function create_charts($data, $table, $title, $field = 'timecreated', $where = '') {
+    private function create_charts($data, $table, $title, $field = 'timecreated', $where = ''):string {
         global $DB, $OUTPUT;
         $family = $DB->get_dbfamily();
         $week = get_string('week');
-        $total = get_string('total');
         $toyear = intval(date("Y"));
 
         $tbl = new html_table();
@@ -273,7 +280,7 @@ class report_growth_renderer extends plugin_renderer_base {
         $wh = ($where == '') ? "$field  > 0" : "($field > 0) AND ($where)";
         $cnt = $DB->count_records_select($table, $wh);
         if ($cnt > 0) {
-            $tbl->data[] = [html_writer::tag('b', $total), $cnt];
+            $tbl->data[] = [html_writer::tag('b', get_string('total')), $cnt];
             $concat = "CONCAT(YEAR(FROM_UNIXTIME($field)), ' ', WEEKOFYEAR(FROM_UNIXTIME($field)))";
             $sql1 = "
                 SELECT $concat AS week, COUNT(*) as newitems
@@ -311,8 +318,7 @@ class report_growth_renderer extends plugin_renderer_base {
                     }
                     $fromweek = 1;
                 }
-                $series = new core\chart_series($title, $series);
-                $chart1->add_series($series);
+                $chart1->add_series(new core\chart_series($title, $series));
                 $chart1->set_labels($labels);
             }
             $sql1 = "
@@ -347,17 +353,13 @@ class report_growth_renderer extends plugin_renderer_base {
                 }
                 $chart2 = new \core\chart_bar();
                 $chart2->set_stacked(true);
-                $series = new \core\chart_series('Total', $totals);
+                $series = new \core\chart_series(get_string('total'), $totals);
                 $series->set_type(\core\chart_series::TYPE_LINE);
                 $chart2->add_series($series);
-                $series = new \core\chart_series('Q1', $quarter1);
-                $chart2->add_series($series);
-                $series = new \core\chart_series('Q2', $quarter2);
-                $chart2->add_series($series);
-                $series = new \core\chart_series('Q3', $quarter3);
-                $chart2->add_series($series);
-                $series = new \core\chart_series('Q4', $quarter4);
-                $chart2->add_series($series);
+                $chart2->add_series(new \core\chart_series('Q1', $quarter1));
+                $chart2->add_series(new \core\chart_series('Q2', $quarter2));
+                $chart2->add_series(new \core\chart_series('Q3', $quarter3));
+                $chart2->add_series(new \core\chart_series('Q4', $quarter4));
                 $chart2->set_labels($qlabels);
                 return html_writer::table($tbl) . '<br>' . $OUTPUT->render($chart1, false) . '<br>' . $OUTPUT->render($chart2);
             }

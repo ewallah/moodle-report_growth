@@ -37,13 +37,18 @@ defined('MOODLE_INTERNAL') || die();
  */
 class report_growth_renderers_testcase extends advanced_testcase {
 
+    /** @var object renderer */
+    protected $output;
+
     /**
      * Setup testcase.
      */
     public function setUp() {
+        global $PAGE;
         $this->setAdminUser();
         $this->resetAfterTest();
         $dg = $this->getDataGenerator();
+        $dg->create_course();
         $dg->create_course();
         $dg->create_course();
         $course = $dg->create_course();
@@ -51,69 +56,19 @@ class report_growth_renderers_testcase extends advanced_testcase {
         $dg->create_user(['country' => 'NL']);
         $user = $dg->create_user(['country' => 'UG']);
         $dg->enrol_user($user->id, $course->id, 'student');
+        $this->output = $PAGE->get_renderer('report_growth');
     }
 
     /**
-     * Test summary report.
+     * Test tables.
      *
      */
-    public function test_summary() {
-        global $PAGE;
-        $output = $PAGE->get_renderer('report_growth');
-        $this->assertContains('Mobile services enabled (Yes)', $output->table_summary());
-    }
-
-    /**
-     * Test users report.
-     *
-     */
-    public function test_users() {
-        global $PAGE;
-        $output = $PAGE->get_renderer('report_growth');
-        $this->assertContains('Show chart data', $output->table_users());
-    }
-
-    /**
-     * Test courses report.
-     *
-     */
-    public function test_courses() {
-        global $PAGE;
-        $output = $PAGE->get_renderer('report_growth');
-        $x = $output->table_courses();
-        $this->assertContains('3', $x);
-    }
-
-    /**
-     * Test enrolments report.
-     *
-     */
-    public function test_enrolments() {
-        global $PAGE;
-        $output = $PAGE->get_renderer('report_growth');
-        $x = $output->table_enrol();
-        $this->assertContains('0', $x);
-    }
-
-    /**
-     * Test mobile users report.
-     *
-     */
-    public function test_mobile() {
-        global $PAGE;
-        $output = $PAGE->get_renderer('report_growth');
-        $x = $output->table_mobile();
-        $this->assertEquals('No Mobile devices found', $x);
-    }
-
-    /**
-     * Test country report.
-     *
-     */
-    public function test_countries() {
-        global $PAGE;
-        $output = $PAGE->get_renderer('report_growth');
-        $x = $output->table_countries();
-        $this->assertContains('Show chart data', $x);
+    public function test_tables() {
+        $this->assertContains('Mobile services enabled (Yes)', $this->output->table_summary());
+        $this->assertContains('>3</td>', $this->output->table_users());
+        $this->assertContains('>4</td>', $this->output->table_courses());
+        $this->assertContains('>1</td>', $this->output->table_enrolments());
+        $this->assertEquals('No Mobile devices found', $this->output->table_mobiles('Mobile devices'));
+        $this->assertContains('Show chart data', $this->output->table_countries());
     }
 }

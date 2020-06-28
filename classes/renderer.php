@@ -43,7 +43,7 @@ class report_growth_renderer extends plugin_renderer_base {
      * @return string
      */
     public function create_tabtree($p = 1) {
-        global $CFG, $OUTPUT;
+        global $CFG;
         $ur = '/report/growth/index.php';
         $rows = ['summary' => get_string('summary'), 'users' => get_string('users')];
         if (isset($CFG->logguests) and $CFG->logguests) {
@@ -82,7 +82,7 @@ class report_growth_renderer extends plugin_renderer_base {
             }
             $i++;
         }
-        return $OUTPUT->tabtree($tabs, $p) . html_writer::tag('div', $this->$func($fparam), ['class' => 'p-3']);
+        return $this->output->tabtree($tabs, $p) . html_writer::tag('div', $this->$func($fparam), ['class' => 'p-3']);
     }
 
 
@@ -235,7 +235,7 @@ class report_growth_renderer extends plugin_renderer_base {
      * @return string
      */
     public function table_countries($title = ''):string {
-        global $DB, $OUTPUT;
+        global $DB;
         $sql = "SELECT country, COUNT(country) as newusers FROM {user} GROUP BY country ORDER BY country";
         $rows = $DB->get_records_sql($sql);
         $chart = new core\chart_bar();
@@ -252,7 +252,7 @@ class report_growth_renderer extends plugin_renderer_base {
         $series = new core\chart_series($title, $series);
         $chart->add_series($series);
         $chart->set_labels($labels);
-        return $OUTPUT->render($chart);
+        return $this->output->render($chart);
     }
 
     /**
@@ -266,7 +266,7 @@ class report_growth_renderer extends plugin_renderer_base {
      * @return string
      */
     private function create_charts($data, $table, $title, $field = 'timecreated', $where = ''):string {
-        global $DB, $OUTPUT;
+        global $DB;
         $family = $DB->get_dbfamily();
         $week = get_string('week');
         $toyear = intval(date("Y"));
@@ -361,7 +361,8 @@ class report_growth_renderer extends plugin_renderer_base {
                 $chart2->add_series(new \core\chart_series('Q3', $quarter3));
                 $chart2->add_series(new \core\chart_series('Q4', $quarter4));
                 $chart2->set_labels($qlabels);
-                return html_writer::table($tbl) . '<br>' . $OUTPUT->render($chart1, false) . '<br>' . $OUTPUT->render($chart2);
+                return html_writer::table($tbl) . '<br>' . $this->output->render($chart1, false) .
+                   '<br>' . $this->output->render($chart2);
             }
         }
         return get_string('nostudentsfound', 'moodle', $title);

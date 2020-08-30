@@ -65,5 +65,4 @@ script:
 
 after_success:
   - moodle-plugin-ci coveralls-upload
-  - moodle-plugin-ci install
 

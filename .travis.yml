@@ -43,7 +43,7 @@ install:
   - moodle-plugin-ci add-plugin --clone https://github.com/mdjnelson/moodle-mod_certificate.git
   - moodle-plugin-ci add-plugin --clone https://github.com/mdjnelson/moodle-mod_customcert.git --branch MOODLE_38_STABLE
   - moodle-plugin-ci install
-  = cd moodle
+  - cd moodle
 
 script:
   - moodle-plugin-ci phplint

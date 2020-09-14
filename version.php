@@ -25,8 +25,8 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-$plugin->version   = 2020052100;
+$plugin->version   = 2020091400;
 $plugin->requires  = 2019052000;
-$plugin->release   = '3.7+';
+$plugin->release   = '3.8+';
 $plugin->component = 'report_growth';
-$plugin->maturity = MATURITY_BETA;
+$plugin->maturity = MATURITY_RC;

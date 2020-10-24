@@ -40,7 +40,7 @@ class report_growth_index_testcase extends advanced_testcase {
     /**
      * Setup testcase.
      */
-    public function setUp() {
+    public function setUp():void {
         $this->setAdminUser();
         $this->resetAfterTest();
         $dg = $this->getDataGenerator();
@@ -84,7 +84,7 @@ class report_growth_index_testcase extends advanced_testcase {
      */
     public function test_index_general() {
         $html = $this->test_page();
-        $this->assertContains('Number of users (5)', $html);
+        $this->assertStringContainsString('Number of users (5)', $html);
     }
 
     /**
@@ -92,7 +92,7 @@ class report_growth_index_testcase extends advanced_testcase {
      */
     public function test_page2() {
         $html = $this->test_page(2);
-        $this->assertContains('Suspended', $html);
+        $this->assertStringContainsString('Suspended', $html);
     }
 
     /**
@@ -100,7 +100,7 @@ class report_growth_index_testcase extends advanced_testcase {
      */
     public function test_page3() {
         $html = $this->test_page(3);
-        $this->assertContains(' ', $html);
+        $this->assertStringContainsString(' ', $html);
     }
 
     /**
@@ -108,7 +108,7 @@ class report_growth_index_testcase extends advanced_testcase {
      */
     public function test_page4() {
         $html = $this->test_page(4);
-        $this->assertContains(' ', $html);
+        $this->assertStringContainsString(' ', $html);
     }
 
     /**
@@ -116,7 +116,7 @@ class report_growth_index_testcase extends advanced_testcase {
      */
     public function test_page5() {
         $html = $this->test_page(5);
-        $this->assertContains(' ', $html);
+        $this->assertStringContainsString(' ', $html);
     }
 
     /**
@@ -124,7 +124,7 @@ class report_growth_index_testcase extends advanced_testcase {
      */
     public function test_page6() {
         $html = $this->test_page(6);
-        $this->assertContains(' ', $html);
+        $this->assertStringContainsString(' ', $html);
     }
 
     /**
@@ -132,7 +132,7 @@ class report_growth_index_testcase extends advanced_testcase {
      */
     public function test_page7() {
         $html = $this->test_page(7);
-        $this->assertContains(' ', $html);
+        $this->assertStringContainsString(' ', $html);
     }
 
     /**
@@ -140,7 +140,7 @@ class report_growth_index_testcase extends advanced_testcase {
      */
     public function test_page8() {
         $html = $this->test_page(8);
-        $this->assertContains(' ', $html);
+        $this->assertStringContainsString(' ', $html);
     }
 
     /**
@@ -148,7 +148,7 @@ class report_growth_index_testcase extends advanced_testcase {
      */
     public function test_page9() {
         $html = $this->test_page(9);
-        $this->assertContains(' ', $html);
+        $this->assertStringContainsString(' ', $html);
     }
 
     /**
@@ -156,7 +156,7 @@ class report_growth_index_testcase extends advanced_testcase {
      */
     public function test_page10() {
         $html = $this->test_page(10);
-        $this->assertContains(' ', $html);
+        $this->assertStringContainsString(' ', $html);
     }
 
     /**
@@ -164,7 +164,7 @@ class report_growth_index_testcase extends advanced_testcase {
      */
     public function test_page11() {
         $html = $this->test_page(11);
-        $this->assertContains(' ', $html);
+        $this->assertStringContainsString(' ', $html);
     }
 
     /**
@@ -172,7 +172,7 @@ class report_growth_index_testcase extends advanced_testcase {
      */
     public function test_page12() {
         $html = $this->test_page(12);
-        $this->assertContains(' ', $html);
+        $this->assertStringContainsString(' ', $html);
     }
 
     /**

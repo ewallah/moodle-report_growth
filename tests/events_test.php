@@ -40,7 +40,7 @@ class report_growth_events_testcase extends advanced_testcase {
     /**
      * Setup testcase.
      */
-    public function setUp() {
+    public function setUp():void {
         $this->setAdminUser();
         $this->resetAfterTest();
     }

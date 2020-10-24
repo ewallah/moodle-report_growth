@@ -45,6 +45,6 @@ class report_growth_privacy_testcase extends provider_testcase {
         $collection = new \core_privacy\local\metadata\collection('report_growth');
         $reason = \report_growth\privacy\provider::get_reason($collection);
         $this->assertEquals($reason, 'privacy:metadata');
-        $this->assertContains('plugin does not store any personal data', get_string($reason, 'report_growth'));
+        $this->assertStringContainsString('plugin does not store any personal data', get_string($reason, 'report_growth'));
     }
 }

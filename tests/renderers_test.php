@@ -43,7 +43,7 @@ class report_growth_renderers_testcase extends advanced_testcase {
     /**
      * Setup testcase.
      */
-    public function setUp() {
+    public function setUp():void {
         global $PAGE;
         $this->setAdminUser();
         $this->resetAfterTest();
@@ -64,11 +64,11 @@ class report_growth_renderers_testcase extends advanced_testcase {
      *
      */
     public function test_tables() {
-        $this->assertContains('Mobile services enabled (Yes)', $this->output->table_summary());
-        $this->assertContains('>3</td>', $this->output->table_users());
-        $this->assertContains('>4</td>', $this->output->table_courses());
-        $this->assertContains('>1</td>', $this->output->table_enrolments());
+        $this->assertStringContainsString('Mobile services enabled (Yes)', $this->output->table_summary());
+        $this->assertStringContainsString('>3</td>', $this->output->table_users());
+        $this->assertStringContainsString('>4</td>', $this->output->table_courses());
+        $this->assertStringContainsString('>1</td>', $this->output->table_enrolments());
         $this->assertEquals('No Mobile devices found', $this->output->table_mobiles('Mobile devices'));
-        $this->assertContains('Show chart data', $this->output->table_countries());
+        $this->assertStringContainsString('Show chart data', $this->output->table_countries());
     }
 }

@@ -1,6 +1,8 @@
-name: Tests
+name: Cron
 
-on: [push, pull_request]
+on:
+  schedule:
+    - cron: "5 10 9 * *"
 
 jobs:
   ci:
@@ -10,16 +12,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        moodle-branch: ['master', 'MOODLE_311_STABLE']
-        php: ['8.0', '7.4']
+        moodle-branch: ['master']
+        php: ['7.4']
         database: ['mysqli']
-        include:
-        - php: 7.4
-          moodle-branch: MOODLE_310_STABLE
-          database: mariadb
-        - php: 7.4
-          moodle-branch: MOODLE_39_STABLE
-          database: mariadb
 
     steps:
       - name: checkout plugin
@@ -31,8 +26,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          extensions: mbstring, mysqli, gd, xmlrpc,zip
-          ini-values: max_input_vars=5000
+          extensions: mbstring, mysqli, gd, zip
 
       - name: composer
         run: |
@@ -58,7 +52,7 @@ jobs:
         run: moodle-plugin-ci --ansi phpmd
 
       - name: phpdoc
-        run: moodle-plugin-ci --ansi phpdoc || true
+        run: moodle-plugin-ci --ansi phpdoc
 
       - name: codechecker
         run: moodle-plugin-ci --ansi codechecker
@@ -76,24 +70,13 @@ jobs:
         run: moodle-plugin-ci --ansi grunt
 
       - name: phpunit 
-        run: moodle-plugin-ci --ansi phpunit || true
+        run: moodle-plugin-ci --ansi phpunit --coverage-text
 
       - name: firefox
         run: moodle-plugin-ci --ansi behat
-      
-      - name: chrome
-        run: moodle-plugin-ci --ansi behat --profile chrome
 
-      - name: firefox classic
-        run: moodle-plugin-ci --ansi behat --suite="classic"
-      
-      - name: chrome classic
-        run: moodle-plugin-ci --ansi behat  --suite="classic" --profile chrome
-
-      - name: admin bookmarks
-        run: php admin/tool/behat/cli/run.php --profile=chrome --tags=@block_admin_bookmarks
-        working-directory: moodle
-
-      - name: privacy
-        run: vendor/bin/phpunit --colors --no-coverage --testsuite tool_dataprivacy_testsuite,tool_policy_testsuite,core_privacy_testsuite
-        working-directory: moodle
+      - name: coveralls
+        env:
+          COVERALLS_RUN_LOCALLY: true
+          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
+        run: moodle-plugin-ci coveralls-upload

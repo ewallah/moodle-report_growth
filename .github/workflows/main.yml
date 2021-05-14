@@ -16,10 +16,10 @@ jobs:
         include:
         - php: 7.4
           moodle-branch: MOODLE_310_STABLE
-          database: mariadb
+          database: mysqli
         - php: 7.4
           moodle-branch: MOODLE_39_STABLE
-          database: mariadb
+          database: mysqli
 
     steps:
       - name: checkout plugin

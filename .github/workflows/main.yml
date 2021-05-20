@@ -31,16 +31,18 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          extensions: mbstring, mysqli, gd, xmlrpc,zip
+          extensions: curl, gd, intl, mbstring, mysqli, opcache, zip
+          tools: behat, composer, phpcbf, phpcpd, phplint, phpmd, phpunit
           ini-values: max_input_vars=5000
+          coverage: xdebug2
 
       - name: composer
         run: |
-           composer create-project -n --no-dev --prefer-dist moodlehq/moodle-plugin-ci ci ^3
-           echo $(cd ci/bin; pwd) >> $GITHUB_PATH
-           echo $(cd ci/vendor/bin; pwd) >> $GITHUB_PATH
-           sudo locale-gen en_AU.UTF-8
-           sudo systemctl start mysql.service
+          composer create-project -n --no-dev --prefer-dist moodlehq/moodle-plugin-ci ci ^3
+          echo $(cd ci/bin; pwd) >> $GITHUB_PATH
+          echo $(cd ci/vendor/bin; pwd) >> $GITHUB_PATH
+          sudo systemctl start mysql.service
+          sudo locale-gen en_AU.UTF-8
 
       - name: install Moodle
         run: moodle-plugin-ci install -v  --db-user=root --db-pass=root --db-host=127.0.0.1 --plugin this-plugin
@@ -76,7 +78,7 @@ jobs:
         run: moodle-plugin-ci --ansi grunt
 
       - name: phpunit 
-        run: moodle-plugin-ci --ansi phpunit || true
+        run: moodle-plugin-ci --ansi phpunit --coverage-text || true
 
       - name: firefox
         run: moodle-plugin-ci --ansi behat

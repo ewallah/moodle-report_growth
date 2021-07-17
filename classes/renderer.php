@@ -75,14 +75,14 @@ class report_growth_renderer extends plugin_renderer_base {
         $func = 'table_';
         $fparam = '';
         foreach ($rows as $key => $value) {
-            $tabs[] = new tabobject($i, new moodle_url($ur, ['p' => $i]), $value);
+            $tabs[] = new \tabobject($i, new \moodle_url($ur, ['p' => $i]), $value);
             if ($i == $p) {
                 $func .= $key;
                 $fparam = $value;
             }
             $i++;
         }
-        return $this->output->tabtree($tabs, $p) . html_writer::tag('div', $this->$func($fparam), ['class' => 'p-3']);
+        return $this->output->tabtree($tabs, $p) . \html_writer::tag('div', $this->$func($fparam), ['class' => 'p-3']);
     }
 
 
@@ -95,7 +95,7 @@ class report_growth_renderer extends plugin_renderer_base {
     public function table_summary($title = ''):string {
         $siteinfo = \core\hub\registration::get_site_info([]);
         $lis = strip_tags(\core\hub\registration::get_stats_summary($siteinfo), '<ul><li>');
-        return str_replace(get_string('sendfollowinginfo_help', 'hub') , '', $lis);
+        return \html_writer::tag('h3', $title) . str_replace(get_string('sendfollowinginfo_help', 'hub') , '', $lis);
     }
 
     /**
@@ -238,7 +238,7 @@ class report_growth_renderer extends plugin_renderer_base {
         global $DB;
         $sql = "SELECT country, COUNT(country) as newusers FROM {user} GROUP BY country ORDER BY country";
         $rows = $DB->get_records_sql($sql);
-        $chart = new core\chart_bar();
+        $chart = new \core\chart_bar();
         $chart->set_horizontal(true);
         $series = [];
         $labels = [];
@@ -249,7 +249,7 @@ class report_growth_renderer extends plugin_renderer_base {
             $series[] = $row->newusers;
             $labels[] = get_string($row->country, 'countries');
         }
-        $series = new core\chart_series($title, $series);
+        $series = new \core\chart_series($title, $series);
         $chart->add_series($series);
         $chart->set_labels($labels);
         return $this->output->render($chart);
@@ -268,10 +268,9 @@ class report_growth_renderer extends plugin_renderer_base {
     private function create_charts($data, $table, $title, $field = 'timecreated', $where = ''):string {
         global $DB;
         $family = $DB->get_dbfamily();
-        $week = get_string('week');
         $toyear = intval(date("Y"));
 
-        $tbl = new html_table();
+        $tbl = new \html_table();
         $tbl->attributes = ['class' => 'table table-sm table-hover w-50'];
         $tbl->colclasses = ['text-left', 'text-right'];
         $tbl->size = [null, '5rem'];
@@ -280,24 +279,25 @@ class report_growth_renderer extends plugin_renderer_base {
         $wh = ($where == '') ? "$field  > 0" : "($field > 0) AND ($where)";
         $cnt = $DB->count_records_select($table, $wh);
         if ($cnt > 0) {
-            $tbl->data[] = [html_writer::tag('b', get_string('total')), $cnt];
-            $concat = "CONCAT(YEAR(FROM_UNIXTIME($field)), ' ', WEEKOFYEAR(FROM_UNIXTIME($field)))";
-            $sql1 = "
-                SELECT $concat AS week, COUNT(*) as newitems
-                FROM {" . $table . "}
-                WHERE $wh
-                GROUP BY $concat
-                ORDER BY $field";
-            $sql2 = "
-                SELECT
-                    TO_CHAR(TO_TIMESTAMP($field), 'YYYY WW') AS week,
-                    COUNT(*) AS newitems
-                FROM {" . $table . "}
-                WHERE $wh
-                GROUP BY 1
-                ORDER BY 1";
-            $sql = ($family === 'mysql' or $family === 'mssql') ? $sql1 : $sql2;
+            $tbl->data[] = [\html_writer::tag('b', get_string('total')), $cnt];
+            if ($family === 'mysql' or $family === 'mssql') {
+                $concat = "CONCAT(YEAR(FROM_UNIXTIME($field)), ' ', WEEKOFYEAR(FROM_UNIXTIME($field)))";
+                $sql = "
+                    SELECT $concat AS week, COUNT(*) as newitems
+                    FROM {" . $table . "}
+                    WHERE $wh
+                    GROUP BY $concat
+                    ORDER BY $field";
+            } else {
+                $sql = "
+                    SELECT TO_CHAR(TO_TIMESTAMP($field), 'YYYY WW') AS week, COUNT(*) AS newitems
+                    FROM {" . $table . "}
+                    WHERE $wh
+                    GROUP BY 1
+                    ORDER BY 1";
+            }
             if ($rows = $DB->get_records_sql($sql)) {
+                $week = get_string('week');
                 $chart1 = new \core\chart_line();
                 $chart1->set_smooth(true);
                 $series = $labels = $quarter1 = $quarter2 = $quarter3 = $quarter4 = $qlabels = $totals = [];
@@ -318,27 +318,27 @@ class report_growth_renderer extends plugin_renderer_base {
                     }
                     $fromweek = 1;
                 }
-                $chart1->add_series(new core\chart_series($title, $series));
+                $chart1->add_series(new \core\chart_series($title, $series));
                 $chart1->set_labels($labels);
             }
-            $sql1 = "
-                SELECT
-                    CONCAT(YEAR(FROM_UNIXTIME($field)), ' ', QUARTER(FROM_UNIXTIME($field))) as year,
-                    COUNT(*) as newitems
-                FROM {" . $table . "}
-                WHERE $wh
-                GROUP BY CONCAT(YEAR(FROM_UNIXTIME($field)), ' ', QUARTER(FROM_UNIXTIME($field)))
-                ORDER BY $field";
-            $sql2 = "
-                SELECT
-                    TO_CHAR(TO_TIMESTAMP($field), 'YYYY Q') AS year,
-                    COUNT(*) AS newitems
-                FROM {" . $table . "}
-                WHERE $wh
-                GROUP BY 1
-                ORDER BY 1";
-            $sql = ($family === 'mysql' or $family === 'mssql') ? $sql1 : $sql2;
+            if ($family === 'mysql' or $family === 'mssql') {
+                $concat = "CONCAT(YEAR(FROM_UNIXTIME($field)), ' ', QUARTER(FROM_UNIXTIME($field)))";
+                $sql = "
+                    SELECT $concat as year, COUNT(*) as newitems
+                    FROM {" . $table . "}
+                    WHERE $wh
+                    GROUP BY $concat
+                    ORDER BY $field";
+            } else {
+                $sql = "
+                    SELECT TO_CHAR(TO_TIMESTAMP($field), 'YYYY Q') AS year, COUNT(*) AS newitems
+                    FROM {" . $table . "}
+                    WHERE $wh
+                    GROUP BY 1
+                    ORDER BY 1";
+            }
             if ($rows = $DB->get_records_sql($sql)) {
+                $q = get_string('quarter', 'report_growth');
                 for ($i = $fromyear; $i <= $toyear; $i++) {
                     $x1 = array_key_exists("$i 1", $rows) ? $rows["$i 1"]->newitems : 0;
                     $x2 = array_key_exists("$i 2", $rows) ? $rows["$i 2"]->newitems : 0;
@@ -356,13 +356,13 @@ class report_growth_renderer extends plugin_renderer_base {
                 $series = new \core\chart_series(get_string('total'), $totals);
                 $series->set_type(\core\chart_series::TYPE_LINE);
                 $chart2->add_series($series);
-                $chart2->add_series(new \core\chart_series('Q1', $quarter1));
-                $chart2->add_series(new \core\chart_series('Q2', $quarter2));
-                $chart2->add_series(new \core\chart_series('Q3', $quarter3));
-                $chart2->add_series(new \core\chart_series('Q4', $quarter4));
+                $chart2->add_series(new \core\chart_series($q . '1', $quarter1));
+                $chart2->add_series(new \core\chart_series($q . '2', $quarter2));
+                $chart2->add_series(new \core\chart_series($q . '3', $quarter3));
+                $chart2->add_series(new \core\chart_series($q . '4', $quarter4));
                 $chart2->set_labels($qlabels);
-                return html_writer::table($tbl) . '<br>' . $this->output->render($chart1, false) .
-                   '<br>' . $this->output->render($chart2);
+                return \html_writer::table($tbl) . '<br/>' . $this->output->render($chart1, false) .
+                   '<br/>' . $this->output->render($chart2);
             }
         }
         return get_string('nostudentsfound', 'moodle', $title);

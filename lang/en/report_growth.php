@@ -30,3 +30,4 @@ $string['growth:view'] = 'View growth report';
 $string['mobile'] = 'Mobile devices';
 $string['pluginname'] = 'Growth report';
 $string['privacy:metadata'] = 'The report_growth plugin does not store any personal data.';
+$string['quarter'] = 'Q';

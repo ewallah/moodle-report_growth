@@ -283,18 +283,12 @@ class report_growth_renderer extends plugin_renderer_base {
             if ($family === 'mysql' or $family === 'mssql') {
                 $concat = "CONCAT(YEAR(FROM_UNIXTIME($field)), ' ', WEEKOFYEAR(FROM_UNIXTIME($field)))";
                 $sql = "
-                    SELECT $concat AS week, COUNT(*) as newitems
-                    FROM {" . $table . "}
-                    WHERE $wh
-                    GROUP BY $concat
-                    ORDER BY $field";
+                    SELECT $concat AS week, COUNT(*) as newitems FROM {" . $table . "}
+                    WHERE $wh GROUP BY $concat ORDER BY $field";
             } else {
                 $sql = "
-                    SELECT TO_CHAR(TO_TIMESTAMP($field), 'YYYY WW') AS week, COUNT(*) AS newitems
-                    FROM {" . $table . "}
-                    WHERE $wh
-                    GROUP BY 1
-                    ORDER BY 1";
+                    SELECT TO_CHAR(TO_TIMESTAMP($field), 'YYYY WW') AS week, COUNT(*) AS newitems FROM {" . $table . "}
+                    WHERE $wh GROUP BY 1 ORDER BY 1";
             }
             if ($rows = $DB->get_records_sql($sql)) {
                 $week = get_string('week');

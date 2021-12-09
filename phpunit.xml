@@ -33,6 +33,7 @@
         <exclude>
             <directory suffix="_test.php">.</directory>
             <file>version.php</file>
+            <file>tests/coverage.php</file>
             <file>db/access.php</file>
         </exclude>
     </coverage>

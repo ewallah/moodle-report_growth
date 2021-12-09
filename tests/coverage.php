@@ -15,18 +15,26 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version details
+ * Coverage for growth report.
  *
  * @package   report_growth
  * @copyright 2020 eWallah
  * @author    Renaat Debleu <info@eWallah.net>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+defined('MOODLE_INTERNAL') || die();
 
-defined('MOODLE_INTERNAL') || die;
+return new class extends phpunit_coverage_info {
+    /** @var array The list of folders relative to the plugin root to include in coverage generation. */
+    protected $includelistfolders = ['classes'];
 
-$plugin->version   = 2021120900;
-$plugin->requires  = 2020061500;
-$plugin->release   = '3.9+';
-$plugin->component = 'report_growth';
-$plugin->maturity = MATURITY_STABLE;
+    /** @var array The list of files relative to the plugin root to include in coverage generation. */
+    protected $includelistfiles = [];
+
+    /** @var array The list of folders relative to the plugin root to exclude from coverage generation. */
+    protected $excludelistfolders = ['db'];
+
+    /** @var array The list of files relative to the plugin root to exclude from coverage generation. */
+    protected $excludelistfiles = [];
+};
+

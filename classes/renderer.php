@@ -44,8 +44,8 @@ class report_growth_renderer extends plugin_renderer_base {
      */
     public function create_tabtree($p = 1) {
         global $CFG;
-        $ur = '/report/growth/index.php';
-        $rows = ['summary' => get_string('summary'), 'users' => get_string('users')];
+        $txt = get_strings(['summary', 'users', 'badges', 'coursecompletions', 'courses', 'resources']);
+        $rows = ['summary' => $txt->summary, 'users' => $txt->users];
         if (isset($CFG->logguests) and $CFG->logguests) {
             $rows['logguests'] = get_string('policydocaudience2', 'tool_policy');
         }
@@ -53,7 +53,7 @@ class report_growth_renderer extends plugin_renderer_base {
             $rows['mobiles'] = get_string('mobile', 'report_growth');
         }
         if (!empty($CFG->enablebadges)) {
-            $rows['badges'] = get_string('badges');
+            $rows['badges'] = $txt->badges;
         }
         if (!empty($CFG->enablecompletion)) {
             $rows['coursecompletions'] = get_string('coursecompletions');
@@ -64,10 +64,10 @@ class report_growth_renderer extends plugin_renderer_base {
         if (file_exists($CFG->dirroot . '/mod/customcert')) {
             $rows['customcerts'] = get_string('modulenameplural', 'mod_customcert');
         }
-        $rows['courses'] = get_string('courses');
+        $rows['courses'] = $txt->courses;
         $rows['enrolments'] = get_string('enrolments', 'enrol');
         $rows['questions'] = get_string('questions', 'question');
-        $rows['resources'] = get_string('resources');
+        $rows['resources'] = $txt->resources;
         $rows['countries'] = get_string('countries', 'report_growth');
         $p = $p > count($rows) ? 1 : $p;
         $i = 1;
@@ -75,7 +75,7 @@ class report_growth_renderer extends plugin_renderer_base {
         $func = 'table_';
         $fparam = '';
         foreach ($rows as $key => $value) {
-            $tabs[] = new \tabobject($i, new \moodle_url($ur, ['p' => $i]), $value);
+            $tabs[] = new \tabobject($i, new \moodle_url('/report/growth/index.php', ['p' => $i]), $value);
             if ($i == $p) {
                 $func .= $key;
                 $fparam = $value;

@@ -22,6 +22,7 @@
  * @author    Renaat Debleu <info@eWallah.net>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+namespace report_growth;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -35,7 +36,7 @@ defined('MOODLE_INTERNAL') || die();
  * @author    Renaat Debleu <info@eWallah.net>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class report_growth_renderers_testcase extends advanced_testcase {
+class renderers_test extends \advanced_testcase {
 
     /** @var object renderer */
     protected $output;

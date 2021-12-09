@@ -23,6 +23,8 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace report_growth;
+
 defined('MOODLE_INTERNAL') || die();
 
 /**
@@ -35,7 +37,7 @@ defined('MOODLE_INTERNAL') || die();
  * @author    Renaat Debleu <info@eWallah.net>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class report_growth_events_testcase extends advanced_testcase {
+class events_test extends \advanced_testcase {
 
     /**
      * Setup testcase.
@@ -55,7 +57,7 @@ class report_growth_events_testcase extends advanced_testcase {
         $this->getDataGenerator()->create_course();
         $this->getDataGenerator()->create_course();
         $course = $this->getDataGenerator()->create_course();
-        $context = context_system::instance();
+        $context = \context_system::instance();
         $event = \report_growth\event\report_viewed::create(['context' => $context]);
 
         // Trigger and capture the event.
@@ -67,11 +69,11 @@ class report_growth_events_testcase extends advanced_testcase {
         $this->assertInstanceOf('\report_growth\event\report_viewed', $event);
         $this->assertEquals($context, $event->get_context());
         $this->assertEquals('Growth report viewed', $event->get_name());
-        $url = new moodle_url('/report/growth/index.php');
+        $url = new \moodle_url('/report/growth/index.php');
         $this->assertEquals($url, $event->get_url());
         $this->assertEventContextNotUsed($event);
 
-        $context = context_course::instance($course->id);
+        $context = \context_course::instance($course->id);
         $this->expectException('coding_exception');
         $str = 'Coding error detected, it must be fixed by a programmer: Context level must be CONTEXT_SYSTEM.';
         $this->expectExceptionMessage($str);

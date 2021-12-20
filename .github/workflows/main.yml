@@ -32,9 +32,8 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           extensions: curl, gd, intl, mbstring, mysqli, opcache, zip
-          tools: behat, composer, phpcbf, phpcpd, phplint, phpmd, phpunit
           ini-values: max_input_vars=5000
-          coverage: xdebug2
+          coverage: none
 
       - name: composer
         run: |
@@ -87,9 +86,12 @@ jobs:
         run: moodle-plugin-ci --ansi mustache
 
       - name: phpunit
-        continue-on-error: true
-        if: ${{ always() }}
+        if: ${{ matrix.php == '7.4' }}
         run: moodle-plugin-ci --ansi phpunit --coverage-text
+
+      - name: phpunit
+        if: ${{ matrix.php == '8.0' }}
+        run: moodle-plugin-ci --ansi phpunit
 
       - name: firefox
         if: ${{ always() }}

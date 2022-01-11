@@ -22,9 +22,7 @@
  * @author    Renaat Debleu <info@eWallah.net>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 namespace report_growth\event;
-defined('MOODLE_INTERNAL') || die();
 
 /**
  * The growth report viewed event.

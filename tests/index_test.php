@@ -25,7 +25,8 @@
 
 namespace report_growth;
 
-defined('MOODLE_INTERNAL') || die();
+use advanced_testcase;
+use moodle_exception;
 
 /**
  * Class report_growth_index_testcase
@@ -37,7 +38,7 @@ defined('MOODLE_INTERNAL') || die();
  * @author    Renaat Debleu <info@eWallah.net>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class index_test extends \advanced_testcase {
+class index_test extends advanced_testcase {
 
     /**
      * Setup testcase.
@@ -76,7 +77,7 @@ class index_test extends \advanced_testcase {
         $user = $generator->create_user();
         $this->setUser($user);
         chdir($CFG->dirroot . '/report/growth');
-        $this->expectException(\moodle_exception::class);
+        $this->expectException(moodle_exception::class);
         $this->expectExceptionMessage('Sorry, but you do not currently have permissions to do that (View growth report).');
         include($CFG->dirroot . '/report/growth/index.php');
     }

@@ -24,8 +24,6 @@
  */
 namespace report_growth\privacy;
 
-defined('MOODLE_INTERNAL') || die();
-
 use \core_privacy\tests\provider_testcase;
 
 /**

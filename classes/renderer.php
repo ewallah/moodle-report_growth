@@ -23,8 +23,6 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die;
-
 /**
  * growth report renderer.
  *
@@ -33,7 +31,7 @@ defined('MOODLE_INTERNAL') || die;
  * @author    Renaat Debleu <info@eWallah.net>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class report_growth_renderer extends plugin_renderer_base {
+class report_growth_renderer extends \plugin_renderer_base {
 
 
     /**
@@ -75,7 +73,7 @@ class report_growth_renderer extends plugin_renderer_base {
         $func = 'table_';
         $fparam = '';
         foreach ($rows as $key => $value) {
-            $tabs[] = new \tabobject($i, new \moodle_url('/report/growth/index.php', ['p' => $i]), $value);
+            $tabs[] = new \tabobject($i, new moodle_url('/report/growth/index.php', ['p' => $i]), $value);
             if ($i == $p) {
                 $func .= $key;
                 $fparam = $value;

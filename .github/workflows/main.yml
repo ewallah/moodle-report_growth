@@ -31,9 +31,9 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          extensions: curl, gd, intl, mbstring, mysqli, opcache, zip
+          extensions: curl, gd, intl, mbstring, mysqli, zip
           ini-values: max_input_vars=5000
-          coverage: none
+          coverage: xdebug
 
       - name: composer
         run: |
@@ -41,6 +41,7 @@ jobs:
           echo $(cd ci/bin; pwd) >> $GITHUB_PATH
           echo $(cd ci/vendor/bin; pwd) >> $GITHUB_PATH
           sudo systemctl start mysql.service
+          sed -i 's/phpdbg -d memory_limit=-1 -qrr//g' ci/src/Command/PHPUnitCommand.php
           sudo locale-gen en_AU.UTF-8
 
       - name: install Moodle
@@ -86,12 +87,8 @@ jobs:
         run: moodle-plugin-ci --ansi mustache
 
       - name: phpunit
-        if: ${{ matrix.php == '7.4' }}
+        if: ${{ always() }}
         run: moodle-plugin-ci --ansi phpunit --coverage-text
-
-      - name: phpunit
-        if: ${{ matrix.php == '8.0' }}
-        run: moodle-plugin-ci --ansi phpunit
 
       - name: firefox
         if: ${{ always() }}

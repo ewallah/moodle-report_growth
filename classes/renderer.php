@@ -379,7 +379,7 @@ class report_growth_renderer extends \plugin_renderer_base {
                         WHERE $wh GROUP BY $concat ORDER BY $field";
                 break;
             case 'mssql':
-                $concat = "CONCAT(DATEPART(YEAR, $field), ' ', $DATEPART($func, $field)";
+                $concat = "CONCAT(DATEPART(YEAR, $field), ' ', DATEPART($func, $field)";
                 $sql = "SELECT $concat as week, COUNT(*) as newitems FROM {". $table . "}
                         WHERE $wh GROUP BY $concat ORDER BY $field";
                 break;

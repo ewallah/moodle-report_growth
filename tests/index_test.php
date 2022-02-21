@@ -87,14 +87,6 @@ class index_test extends advanced_testcase {
     }
 
     /**
-     * Test index general.
-     */
-    public function test_index_general() {
-        $html = $this->test_page();
-        $this->assertStringContainsString('Number of users (5)', $html);
-    }
-
-    /**
      * Test a page.
      *
      * @dataProvider pageprovider
@@ -102,7 +94,16 @@ class index_test extends advanced_testcase {
      * @param string $expected
      */
     public function test_page_x($x, $expected): void {
-        $html = $this->test_page($x);
+        global $CFG, $DB, $OUTPUT, $PAGE, $USER;
+        chdir($CFG->dirroot . '/report/growth');
+        $user = $DB->get_record('user', ['id' => $USER->id]);
+        $this->assertSame($user->id, $USER->id);
+        $this->assertNotEmpty($OUTPUT);
+        $this->assertNotEmpty($PAGE);
+        $_POST['p'] = $x;
+        ob_start();
+        include($CFG->dirroot . '/report/growth/index.php');
+        $html = ob_get_clean();
         $this->assertStringContainsString($expected, $html);
     }
 
@@ -124,28 +125,10 @@ class index_test extends advanced_testcase {
             [11, '.'],
             [12, '.'],
             [13, '.'],
+            [14, '.'],
+            [15, '.'],
             [0, '.'],
             [99999, '.'],
         ];
-    }
-
-    /**
-     * Test page.
-     *
-     * @param int $pageid
-     * @return string
-     */
-    private function test_page($pageid = 1): string {
-        global $CFG, $DB, $OUTPUT, $PAGE, $USER;
-        chdir($CFG->dirroot . '/report/growth');
-        $user = $DB->get_record('user', ['id' => $USER->id]);
-        $this->assertSame($user->id, $USER->id);
-        $this->assertNotEmpty($OUTPUT);
-        $this->assertNotEmpty($PAGE);
-        $_POST['p'] = $pageid;
-        ob_start();
-        include($CFG->dirroot . '/report/growth/index.php');
-        $html = ob_get_clean();
-        return $html;
     }
 }

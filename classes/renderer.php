@@ -42,7 +42,7 @@ class report_growth_renderer extends \plugin_renderer_base {
      */
     public function create_tabtree($p = 1) {
         global $CFG;
-        $txt = get_strings(['summary', 'users', 'badges', 'coursecompletions', 'courses', 'resources']);
+        $txt = get_strings(['summary', 'users', 'badges', 'coursecompletions', 'courses', 'resources', 'files']);
         $rows = ['summary' => $txt->summary, 'users' => $txt->users];
         if (isset($CFG->logguests) and $CFG->logguests) {
             $rows['logguests'] = get_string('policydocaudience2', 'tool_policy');
@@ -66,6 +66,8 @@ class report_growth_renderer extends \plugin_renderer_base {
         $rows['enrolments'] = get_string('enrolments', 'enrol');
         $rows['questions'] = get_string('questions', 'question');
         $rows['resources'] = $txt->resources;
+        $rows['files'] = $txt->files;
+        $rows['messages'] = get_string('messages', 'message');
         $rows['countries'] = get_string('countries', 'report_growth');
         $p = ($p > count($rows) || $p == 0) ? 1 : $p;
         $i = 1;
@@ -73,7 +75,7 @@ class report_growth_renderer extends \plugin_renderer_base {
         $func = 'table_';
         $fparam = '';
         foreach ($rows as $key => $value) {
-            $tabs[] = new \tabobject($i, new moodle_url('/report/growth/index.php', ['p' => $i]), $value);
+            $tabs[] = new \tabobject($i, new \moodle_url('/report/growth/index.php', ['p' => $i]), $value);
             if ($i == $p) {
                 $func .= $key;
                 $fparam = $value;
@@ -231,6 +233,26 @@ class report_growth_renderer extends \plugin_renderer_base {
     }
 
     /**
+     * Table files.
+     *
+     * @param string $title Title
+     * @return string
+     */
+    public function table_files($title = ''):string {
+        return $this->create_charts([], 'files', $title);
+    }
+
+    /**
+     * Table messages.
+     *
+     * @param string $title Title
+     * @return string
+     */
+    public function table_messages($title = ''):string {
+        return $this->create_charts([], 'messages', $title);
+    }
+
+    /**
      * Table country.
      *
      * @param string $title Title
@@ -363,9 +385,8 @@ class report_growth_renderer extends \plugin_renderer_base {
                 break;
             case 'postgres':
                 $func = $weeks ? 'YYYY WW' : 'YYYY Q';
-                $sql = "
-                    SELECT TO_CHAR(TO_TIMESTAMP($field), '$func') AS week, COUNT(*) AS newitems FROM {" . $table . "}
-                    WHERE $wh GROUP BY 1 ORDER BY 1";
+                $sql = "SELECT TO_CHAR(TO_TIMESTAMP($field), '$func') AS week, COUNT(*) AS newitems FROM {" . $table . "}
+                        WHERE $wh GROUP BY 1 ORDER BY 1";
                 break;
             case 'oracle':
             default:

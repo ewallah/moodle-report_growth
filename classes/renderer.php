@@ -352,12 +352,12 @@ class report_growth_renderer extends \plugin_renderer_base {
         $func = $weeks ? 'WEEKOFYEAR' : 'QUARTER';
         switch ($family) {
             case 'mysql':
-                $concat = $DB->sql_concat("YEAR(FROM_UNIXTIME($field))", "$func(FROM_UNIXTIME($field))");
+                $concat = "CONCAT(YEAR(FROM_UNIXTIME($field)), ' ', $func(FROM_UNIXTIME($field)))";
                 $sql = "SELECT $concat AS week, COUNT(*) as newitems FROM {" . $table . "}
                         WHERE $wh GROUP BY $concat ORDER BY $field";
                 break;
             case 'mssql':
-                $concat = $DB->sql_concat("DATEPART(YEAR, $field)", "DATEPART($func, $field)");
+                $concat = "CONCAT(DATEPART(YEAR, $field), ' ', $DATEPART($func, $field)";
                 $sql = "SELECT $concat as week, COUNT(*) as newitems FROM {". $table . "}
                         WHERE $wh GROUP BY $concat ORDER BY $field";
                 break;

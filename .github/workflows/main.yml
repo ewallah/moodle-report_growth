@@ -7,12 +7,30 @@ jobs:
     name: ci
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_USER: 'postgres'
+          POSTGRES_HOST_AUTH_METHOD: 'trust'
+        options: --health-cmd="pg_isready" --health-interval 10s --health-timeout 5s --health-retries 5
+        ports:
+          - 5432:5432
+      mariadb:
+        image: mariadb:10.5
+        env:
+          MYSQL_USER: 'root'
+          MYSQL_ALLOW_EMPTY_PASSWORD: "true"
+        options: --health-cmd="mysqladmin ping" --health-interval 10s --health-timeout 5s --health-retries 3
+        ports:
+          - 3306:3306
+
     strategy:
       fail-fast: false
       matrix:
         moodle-branch: ['master', 'MOODLE_311_STABLE']
         php: ['8.0', '7.4']
-        database: ['mysqli']
+        database: ['mysqli', 'pgsql', 'mariadb']
         include:
         - php: 7.4
           moodle-branch: MOODLE_310_STABLE
@@ -40,9 +58,13 @@ jobs:
           composer create-project -n --no-dev --prefer-dist moodlehq/moodle-plugin-ci ci ^3
           echo $(cd ci/bin; pwd) >> $GITHUB_PATH
           echo $(cd ci/vendor/bin; pwd) >> $GITHUB_PATH
-          sudo systemctl start mysql.service
           sed -i 's/phpdbg -d memory_limit=-1 -qrr//g' ci/src/Command/PHPUnitCommand.php
           sudo locale-gen en_AU.UTF-8
+
+      - name: start database
+        if: ${{ matrix.database == 'mysqli'}}
+        run: |
+          sudo systemctl start mysql.service
 
       - name: install Moodle
         run: moodle-plugin-ci install -v  --db-user=root --db-pass=root --db-host=127.0.0.1 --plugin this-plugin

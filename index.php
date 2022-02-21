@@ -22,7 +22,6 @@
  * @author    Renaat Debleu <info@eWallah.net>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-use core\report_helper;
 
 require_once(dirname(__FILE__).'/../../config.php');
 global $CFG;
@@ -43,9 +42,6 @@ if (is_siteadmin($USER)) {
     admin_externalpage_setup('reportgrowth', '', ['p' => $p], '', ['pagelayout' => 'report']);
 }
 $output = $PAGE->get_renderer('report_growth');
-$pluginname = get_string('pluginname', 'report_growth');
-report_helper::save_selected_report(1, $url);
-report_helper::print_report_selector($pluginname);
 echo $output->header();
 echo $output->create_tabtree($p);
 echo $output->footer();

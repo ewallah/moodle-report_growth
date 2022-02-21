@@ -75,8 +75,12 @@ class index_test extends advanced_testcase {
         global $CFG, $DB, $OUTPUT, $PAGE;
         $generator = $this->getDataGenerator();
         $user = $generator->create_user();
+        $user1 = $DB->get_record('user', ['id' => $user->id]);
+        $this->assertSame($user->id, $user1->id);
         $this->setUser($user);
         chdir($CFG->dirroot . '/report/growth');
+        $this->assertNotEmpty($OUTPUT);
+        $this->assertNotEmpty($PAGE);
         $this->expectException(moodle_exception::class);
         $this->expectExceptionMessage('Sorry, but you do not currently have permissions to do that (View growth report).');
         include($CFG->dirroot . '/report/growth/index.php');
@@ -91,91 +95,38 @@ class index_test extends advanced_testcase {
     }
 
     /**
-     * Test page 2.
+     * Test a page.
+     *
+     * @dataProvider pageprovider
+     * @param int $x
+     * @param string $expected
      */
-    public function test_page2() {
-        $html = $this->test_page(2);
-        $this->assertStringContainsString('Suspended', $html);
+    public function test_page_x($x, $expected): void {
+        $html = $this->test_page($x);
+        $this->assertStringContainsString($expected, $html);
     }
 
     /**
-     * Test page 3.
+     * Test pages.
      */
-    public function test_page3() {
-        $html = $this->test_page(3);
-        $this->assertStringContainsString(' ', $html);
-    }
-
-    /**
-     * Test page 4.
-     */
-    public function test_page4() {
-        $html = $this->test_page(4);
-        $this->assertStringContainsString(' ', $html);
-    }
-
-    /**
-     * Test page 5.
-     */
-    public function test_page5() {
-        $html = $this->test_page(5);
-        $this->assertStringContainsString(' ', $html);
-    }
-
-    /**
-     * Test page 6.
-     */
-    public function test_page6() {
-        $html = $this->test_page(6);
-        $this->assertStringContainsString(' ', $html);
-    }
-
-    /**
-     * Test page 7.
-     */
-    public function test_page7() {
-        $html = $this->test_page(7);
-        $this->assertStringContainsString(' ', $html);
-    }
-
-    /**
-     * Test page 8.
-     */
-    public function test_page8() {
-        $html = $this->test_page(8);
-        $this->assertStringContainsString(' ', $html);
-    }
-
-    /**
-     * Test page 9.
-     */
-    public function test_page9() {
-        $html = $this->test_page(9);
-        $this->assertStringContainsString(' ', $html);
-    }
-
-    /**
-     * Test page 10.
-     */
-    public function test_page10() {
-        $html = $this->test_page(10);
-        $this->assertStringContainsString(' ', $html);
-    }
-
-    /**
-     * Test page 11.
-     */
-    public function test_page11() {
-        $html = $this->test_page(11);
-        $this->assertStringContainsString(' ', $html);
-    }
-
-    /**
-     * Test page 12.
-     */
-    public function test_page12() {
-        $html = $this->test_page(12);
-        $this->assertStringContainsString(' ', $html);
+    public function pageprovider() {
+        return [
+            [1, 'Number of users (5)'],
+            [2, 'Suspended'],
+            [3, '.'],
+            [4, '.'],
+            [5, '.'],
+            [6, '.'],
+            [7, '.'],
+            [8, '.'],
+            [9, '.'],
+            [10, '.'],
+            [11, '.'],
+            [12, '.'],
+            [13, '.'],
+            [0, '.'],
+            [99999, '.'],
+        ];
     }
 
     /**
@@ -184,9 +135,13 @@ class index_test extends advanced_testcase {
      * @param int $pageid
      * @return string
      */
-    public function test_page($pageid = 1) {
+    private function test_page($pageid = 1): string {
         global $CFG, $DB, $OUTPUT, $PAGE, $USER;
         chdir($CFG->dirroot . '/report/growth');
+        $user = $DB->get_record('user', ['id' => $USER->id]);
+        $this->assertSame($user->id, $USER->id);
+        $this->assertNotEmpty($OUTPUT);
+        $this->assertNotEmpty($PAGE);
         $_POST['p'] = $pageid;
         ob_start();
         include($CFG->dirroot . '/report/growth/index.php');

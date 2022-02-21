@@ -24,6 +24,7 @@
  */
 
 require_once(dirname(__FILE__).'/../../config.php');
+global $CFG;
 require_once($CFG->libdir.'/adminlib.php');
 
 $p = optional_param('p', 1, PARAM_INT);
@@ -45,7 +46,3 @@ $output = $PAGE->get_renderer('report_growth');
 echo $output->header();
 echo $output->create_tabtree($p);
 echo $output->footer();
-
-// Trigger a report viewed event.
-$event = \report_growth\event\report_viewed::create(['context' => $context]);
-$event->trigger();

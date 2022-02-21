@@ -67,7 +67,7 @@ class report_growth_renderer extends \plugin_renderer_base {
         $rows['questions'] = get_string('questions', 'question');
         $rows['resources'] = $txt->resources;
         $rows['countries'] = get_string('countries', 'report_growth');
-        $p = $p > count($rows) ? 1 : $p;
+        $p = ($p > count($rows) || $p == 0) ? 1 : $p;
         $i = 1;
         $tabs = [];
         $func = 'table_';
@@ -80,6 +80,10 @@ class report_growth_renderer extends \plugin_renderer_base {
             }
             $i++;
         }
+        // Trigger a report viewed event.
+        $context = \context_system::instance();
+        $event = \report_growth\event\report_viewed::create(['context' => $context,  'other' => ['tab' => $p]]);
+        $event->trigger();
         return $this->output->tabtree($tabs, $p) . \html_writer::tag('div', $this->$func($fparam), ['class' => 'p-3']);
     }
 
@@ -265,7 +269,6 @@ class report_growth_renderer extends \plugin_renderer_base {
      */
     private function create_charts($data, $table, $title, $field = 'timecreated', $where = ''):string {
         global $DB;
-        $family = $DB->get_dbfamily();
         $toyear = intval(date("Y"));
 
         $tbl = new \html_table();
@@ -278,17 +281,7 @@ class report_growth_renderer extends \plugin_renderer_base {
         $cnt = $DB->count_records_select($table, $wh);
         if ($cnt > 0) {
             $tbl->data[] = [\html_writer::tag('b', get_string('total')), $cnt];
-            if ($family === 'mysql' or $family === 'mssql') {
-                $concat = "CONCAT(YEAR(FROM_UNIXTIME($field)), ' ', WEEKOFYEAR(FROM_UNIXTIME($field)))";
-                $sql = "
-                    SELECT $concat AS week, COUNT(*) as newitems FROM {" . $table . "}
-                    WHERE $wh GROUP BY $concat ORDER BY $field";
-            } else {
-                $sql = "
-                    SELECT TO_CHAR(TO_TIMESTAMP($field), 'YYYY WW') AS week, COUNT(*) AS newitems FROM {" . $table . "}
-                    WHERE $wh GROUP BY 1 ORDER BY 1";
-            }
-            if ($rows = $DB->get_records_sql($sql)) {
+            if ($rows = $this->get_sql($field, $table, $wh)) {
                 $week = get_string('week');
                 $chart1 = new \core\chart_line();
                 $chart1->set_smooth(true);
@@ -313,23 +306,7 @@ class report_growth_renderer extends \plugin_renderer_base {
                 $chart1->add_series(new \core\chart_series($title, $series));
                 $chart1->set_labels($labels);
             }
-            if ($family === 'mysql' or $family === 'mssql') {
-                $concat = "CONCAT(YEAR(FROM_UNIXTIME($field)), ' ', QUARTER(FROM_UNIXTIME($field)))";
-                $sql = "
-                    SELECT $concat as year, COUNT(*) as newitems
-                    FROM {" . $table . "}
-                    WHERE $wh
-                    GROUP BY $concat
-                    ORDER BY $field";
-            } else {
-                $sql = "
-                    SELECT TO_CHAR(TO_TIMESTAMP($field), 'YYYY Q') AS year, COUNT(*) AS newitems
-                    FROM {" . $table . "}
-                    WHERE $wh
-                    GROUP BY 1
-                    ORDER BY 1";
-            }
-            if ($rows = $DB->get_records_sql($sql)) {
+            if ($rows = $this->get_sql($field, $table, $wh, false)) {
                 $q = get_string('quarter', 'report_growth');
                 for ($i = $fromyear; $i <= $toyear; $i++) {
                     $x1 = array_key_exists("$i 1", $rows) ? $rows["$i 1"]->newitems : 0;
@@ -358,5 +335,43 @@ class report_growth_renderer extends \plugin_renderer_base {
             }
         }
         return get_string('nostudentsfound', 'moodle', $title);
+    }
+
+    /**
+     * Create charts.
+     *
+     * @param string $field
+     * @param string $table
+     * @param string $wh
+     * @param bool $weeks optional
+     * @return bool/array
+     */
+    private function get_sql(string $field, string $table, string $wh, bool $weeks = true) {
+        global $DB;
+        $family = $DB->get_dbfamily();
+        $func = $weeks ? 'WEEKOFYEAR' : 'QUARTER';
+        switch ($family) {
+            case 'mysql':
+                $concat = $DB->sql_concat("YEAR(FROM_UNIXTIME($field))", "$func(FROM_UNIXTIME($field))");
+                $sql = "SELECT $concat AS week, COUNT(*) as newitems FROM {" . $table . "}
+                        WHERE $wh GROUP BY $concat ORDER BY $field";
+                break;
+            case 'mssql':
+                $concat = $DB->sql_concat("DATEPART(YEAR, $field)", "DATEPART($func, $field)");
+                $sql = "SELECT $concat as week, COUNT(*) as newitems FROM {". $table . "}
+                        WHERE $wh GROUP BY $concat ORDER BY $field";
+                break;
+            case 'postgres':
+                $func = $weeks ? 'YYYY WW' : 'YYYY Q';
+                $sql = "
+                    SELECT TO_CHAR(TO_TIMESTAMP($field), '$func') AS week, COUNT(*) AS newitems FROM {" . $table . "}
+                    WHERE $wh GROUP BY 1 ORDER BY 1";
+                break;
+            case 'oracle':
+            default:
+                debugging("Database family $family not (yet) supported by this plugin", DEBUG_DEVELOPER);
+                return false;
+        }
+        return $DB->get_records_sql($sql);
     }
 }

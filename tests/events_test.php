@@ -62,7 +62,7 @@ class events_test extends advanced_testcase {
         $this->getDataGenerator()->create_course();
         $course = $this->getDataGenerator()->create_course();
         $context = context_system::instance();
-        $event = \report_growth\event\report_viewed::create(['context' => $context]);
+        $event = \report_growth\event\report_viewed::create(['context' => $context, 'other' => ['tab' => 1]]);
 
         // Trigger and capture the event.
         $sink = $this->redirectEvents();
@@ -73,7 +73,7 @@ class events_test extends advanced_testcase {
         $this->assertInstanceOf('\report_growth\event\report_viewed', $event);
         $this->assertEquals($context, $event->get_context());
         $this->assertEquals('Growth report viewed', $event->get_name());
-        $url = new moodle_url('/report/growth/index.php');
+        $url = new moodle_url('/report/growth/index.php', ['p' => 1]);
         $this->assertEquals($url, $event->get_url());
         $this->assertEventContextNotUsed($event);
 
@@ -81,6 +81,6 @@ class events_test extends advanced_testcase {
         $this->expectException('coding_exception');
         $str = 'Coding error detected, it must be fixed by a programmer: Context level must be CONTEXT_SYSTEM.';
         $this->expectExceptionMessage($str);
-        $event = \report_growth\event\report_viewed::create(['context' => $context]);
+        $event = \report_growth\event\report_viewed::create(['context' => $context, 'other' => ['tab' => 1]]);
     }
 }

@@ -62,6 +62,9 @@ class report_growth_renderer extends \plugin_renderer_base {
         if (file_exists($CFG->dirroot . '/mod/customcert')) {
             $rows['customcerts'] = get_string('modulenameplural', 'mod_customcert');
         }
+        if (file_exists($CFG->dirroot . '/mod/coursecertificate')) {
+            $rows['coursecertificates'] = get_string('modulenameplural', 'mod_coursecertificate');
+        }
         $rows['courses'] = $txt->courses;
         $rows['enrolments'] = get_string('enrolments', 'enrol');
         $rows['questions'] = get_string('questions', 'question');
@@ -223,13 +226,23 @@ class report_growth_renderer extends \plugin_renderer_base {
     }
 
     /**
-     * Table certificates.
+     * Table custom certificates.
      *
      * @param string $title Title
      * @return string
      */
     public function table_customcerts($title = ''):string {
         return $this->create_charts([], 'customcert_issues', $title);
+    }
+
+    /**
+     * Table course certificates.
+     *
+     * @param string $title Title
+     * @return string
+     */
+    public function table_coursecertificates($title = ''):string {
+        return $this->create_charts([], 'tool_certificate_issues', $title);
     }
 
     /**

@@ -384,17 +384,20 @@ class report_growth_renderer extends \plugin_renderer_base {
     private function get_sql(string $field, string $table, string $wh, bool $weeks = true) {
         global $DB;
         $family = $DB->get_dbfamily();
-        $func = $weeks ? 'WEEKOFYEAR' : 'QUARTER';
         switch ($family) {
+            // @codeCoverageIgnoreStart
             case 'mysql':
+                $func = $weeks ? 'WEEKOFYEAR' : 'QUARTER';
                 $concat = "CONCAT(YEAR(FROM_UNIXTIME($field)), ' ', $func(FROM_UNIXTIME($field)))";
-                $sql = "SELECT $concat AS week, COUNT(*) as newitems FROM {" . $table . "}
+                $sql = "SELECT $concat AS week, COUNT(*) AS newitems FROM {" . $table . "}
                         WHERE $wh GROUP BY $concat ORDER BY $field";
                 break;
             case 'mssql':
-                $concat = "CONCAT(DATEPART(YEAR, $field), ' ', DATEPART($func, $field)";
-                $sql = "SELECT $concat as week, COUNT(*) as newitems FROM {". $table . "}
-                        WHERE $wh GROUP BY $concat ORDER BY $field";
+                $func = $weeks ? 'WEEK' : 'qq';
+                $field = "dateadd(S, $field, '1970-01-01')";
+                $concat = $DB->sql_concat_join("' '", ["DATEPART(YEAR, $field)", "DATEPART($func, $field)"]);
+                $sql = "SELECT $concat AS week, COUNT(*) AS newitems FROM {". $table . "}
+                        WHERE $wh GROUP BY $concat ORDER BY $concat";
                 break;
             case 'postgres':
                 $func = $weeks ? 'YYYY WW' : 'YYYY Q';
@@ -405,6 +408,7 @@ class report_growth_renderer extends \plugin_renderer_base {
             default:
                 debugging("Database family $family not (yet) supported by this plugin", DEBUG_DEVELOPER);
                 return false;
+            // @codeCoverageIgnoreEnd
         }
         return $DB->get_records_sql($sql);
     }

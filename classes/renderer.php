@@ -405,6 +405,12 @@ class report_growth_renderer extends \plugin_renderer_base {
                         WHERE $wh GROUP BY 1 ORDER BY 1";
                 break;
             case 'oracle':
+                $func = $weeks ? 'YYYY WW' : 'YYYY Q';
+                $sql = "SELECT TO_CHAR(TO_DATE('1970-01-01','YYYY-MM-DD') + $field / 86400, '$func') week,
+                        COUNT(*) newitems FROM {" . $table . "}
+                        WHERE $wh GROUP BY TO_CHAR(TO_DATE('1970-01-01','YYYY-MM-DD') + $field / 86400, '$func')
+                        ORDER BY week";
+                break;
             default:
                 debugging("Database family $family not (yet) supported by this plugin", DEBUG_DEVELOPER);
                 return false;

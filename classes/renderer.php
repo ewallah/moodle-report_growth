@@ -385,7 +385,6 @@ class report_growth_renderer extends \plugin_renderer_base {
         global $DB;
         $family = $DB->get_dbfamily();
         switch ($family) {
-            // @codeCoverageIgnoreStart
             case 'mysql':
                 $func = $weeks ? 'WEEKOFYEAR' : 'QUARTER';
                 $concat = "CONCAT(YEAR(FROM_UNIXTIME($field)), ' ', $func(FROM_UNIXTIME($field)))";
@@ -414,7 +413,6 @@ class report_growth_renderer extends \plugin_renderer_base {
             default:
                 debugging("Database family $family not (yet) supported by this plugin", DEBUG_DEVELOPER);
                 return false;
-            // @codeCoverageIgnoreEnd
         }
         return $DB->get_records_sql($sql);
     }

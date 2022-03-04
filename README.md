@@ -38,6 +38,8 @@ This plugin has been tested on
 * MYSQL
 * MariaDB
 * PostgreSQL
+* MSSQL
+* OracleDB
 
 ### Bug Reports / Support ###
 

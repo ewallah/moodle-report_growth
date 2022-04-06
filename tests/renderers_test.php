@@ -35,6 +35,7 @@ use advanced_testcase;
  * @copyright 2020 eWallah
  * @author    Renaat Debleu <info@eWallah.net>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @coversDefaultClass \report_growth
  */
 class renderers_test extends advanced_testcase {
 
@@ -62,7 +63,7 @@ class renderers_test extends advanced_testcase {
 
     /**
      * Test tables.
-     *
+     * @covers \report_growth
      */
     public function test_tables() {
         $this->assertStringContainsString('Mobile services enabled (Yes)', $this->output->table_summary());

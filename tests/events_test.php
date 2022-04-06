@@ -40,6 +40,7 @@ use moodle_url;
  * @copyright 2020 eWallah
  * @author    Renaat Debleu <info@eWallah.net>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @coversDefaultClass \report_growtw
  */
 class events_test extends advanced_testcase {
 
@@ -56,6 +57,7 @@ class events_test extends advanced_testcase {
      *
      * It's not possible to use the moodle API to simulate the viewing of log report, so here we
      * simply create the event and trigger it.
+     * @covers \report_growth\event\report_viewed
      */
     public function test_report_viewed() {
         $this->getDataGenerator()->create_course();

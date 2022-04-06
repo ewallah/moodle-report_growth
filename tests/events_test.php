@@ -40,7 +40,7 @@ use moodle_url;
  * @copyright 2020 eWallah
  * @author    Renaat Debleu <info@eWallah.net>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @coversDefaultClass \report_growtw
+ * @coversDefaultClass \report_growth
  */
 class events_test extends advanced_testcase {
 

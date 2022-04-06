@@ -63,7 +63,7 @@ class renderers_test extends advanced_testcase {
 
     /**
      * Test tables.
-     * @covers \report_growth
+     * @covers \report_growth_renderer
      */
     public function test_tables() {
         $this->assertStringContainsString('Mobile services enabled (Yes)', $this->output->table_summary());

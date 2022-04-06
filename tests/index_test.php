@@ -37,7 +37,6 @@ use moodle_exception;
  * @copyright 2020 eWallah
  * @author    Renaat Debleu <info@eWallah.net>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @coverageDefaultClass \report_growth
  */
 class index_test extends advanced_testcase {
 
@@ -61,7 +60,7 @@ class index_test extends advanced_testcase {
 
     /**
      * Test settings.
-     * @covers \report_growth
+     * @covers \report_growth_renderer
      */
     public function test_settings() {
         global $CFG;
@@ -72,7 +71,7 @@ class index_test extends advanced_testcase {
 
     /**
      * Test index with wrong permission.
-     * @covers \report_growth
+     * @covers \report_growth_renderer
      */
     public function test_index_wrong_permissions() {
         global $CFG, $DB, $OUTPUT, $PAGE;
@@ -95,7 +94,7 @@ class index_test extends advanced_testcase {
      * @dataProvider pageprovider
      * @param int $x
      * @param string $expected
-     * @covers \report_growth
+     * @covers \report_growth_renderer
      */
     public function test_page_x($x, $expected): void {
         global $CFG, $DB, $OUTPUT, $PAGE, $USER;

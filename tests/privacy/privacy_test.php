@@ -21,7 +21,6 @@
  * @copyright 2020 eWallah
  * @author    Renaat Debleu <info@eWallah.net>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @coverageDefaultClass \report_growth\privacy\provider
  */
 namespace report_growth\privacy;
 
@@ -34,12 +33,13 @@ use \core_privacy\tests\provider_testcase;
  * @copyright 2020 eWallah
  * @author    Renaat Debleu <info@eWallah.net>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @covers \report_growth\privacy\provider
+ * @coversDefaultClass \report_growth\privacy\provider
  */
 class privacy_test extends provider_testcase {
 
     /**
      * Test returning metadata.
+     * @covers \report_growth\privacy\provider
      */
     public function test_get_metadata() {
         $this->resetAfterTest(true);

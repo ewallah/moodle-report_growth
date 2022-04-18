@@ -273,7 +273,8 @@ class report_growth_renderer extends \plugin_renderer_base {
      */
     public function table_countries($title = ''):string {
         global $DB;
-        $sql = "SELECT country, COUNT(country) as newusers FROM {user} GROUP BY country ORDER BY country";
+        $title = get_string('users');
+        $sql = "SELECT country, COUNT(country) AS newusers FROM {user} GROUP BY country ORDER BY country";
         $rows = $DB->get_records_sql($sql);
         $chart = new \core\chart_bar();
         $chart->set_horizontal(true);

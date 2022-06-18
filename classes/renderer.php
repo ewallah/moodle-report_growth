@@ -23,6 +23,10 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use core\chart_bar;
+use core\chart_line;
+use core\chart_series;
+
 /**
  * growth report renderer.
  *
@@ -276,7 +280,7 @@ class report_growth_renderer extends \plugin_renderer_base {
         $title = get_string('users');
         $sql = "SELECT country, COUNT(country) AS newusers FROM {user} GROUP BY country ORDER BY country";
         $rows = $DB->get_records_sql($sql);
-        $chart = new \core\chart_bar();
+        $chart = new chart_bar();
         $chart->set_horizontal(true);
         $series = [];
         $labels = [];
@@ -287,7 +291,7 @@ class report_growth_renderer extends \plugin_renderer_base {
             $series[] = $row->newusers;
             $labels[] = get_string($row->country, 'countries');
         }
-        $series = new \core\chart_series($title, $series);
+        $series = new chart_series($title, $series);
         $chart->add_series($series);
         $chart->set_labels($labels);
         return $this->output->render($chart);
@@ -319,7 +323,7 @@ class report_growth_renderer extends \plugin_renderer_base {
             $tbl->data[] = [\html_writer::tag('b', get_string('total')), $cnt];
             if ($rows = $this->get_sql($field, $table, $wh)) {
                 $week = get_string('week');
-                $chart1 = new \core\chart_line();
+                $chart1 = new chart_line();
                 $chart1->set_smooth(true);
                 $series = $labels = $quarter1 = $quarter2 = $quarter3 = $quarter4 = $qlabels = $totals = [];
                 $x = current($rows);
@@ -339,7 +343,7 @@ class report_growth_renderer extends \plugin_renderer_base {
                     }
                     $fromweek = 1;
                 }
-                $chart1->add_series(new \core\chart_series($title, $series));
+                $chart1->add_series(new chart_series($title, $series));
                 $chart1->set_labels($labels);
             }
             if ($rows = $this->get_sql($field, $table, $wh, false)) {
@@ -356,15 +360,15 @@ class report_growth_renderer extends \plugin_renderer_base {
                     $totals[] = $x1 + $x2 + $x3 + $x4;
                     $qlabels[] = $i;
                 }
-                $chart2 = new \core\chart_bar();
+                $chart2 = new chart_bar();
                 $chart2->set_stacked(true);
-                $series = new \core\chart_series(get_string('total'), $totals);
-                $series->set_type(\core\chart_series::TYPE_LINE);
+                $series = new chart_series(get_string('total'), $totals);
+                $series->set_type(chart_series::TYPE_LINE);
                 $chart2->add_series($series);
-                $chart2->add_series(new \core\chart_series($q . '1', $quarter1));
-                $chart2->add_series(new \core\chart_series($q . '2', $quarter2));
-                $chart2->add_series(new \core\chart_series($q . '3', $quarter3));
-                $chart2->add_series(new \core\chart_series($q . '4', $quarter4));
+                $chart2->add_series(new chart_series($q . '1', $quarter1));
+                $chart2->add_series(new chart_series($q . '2', $quarter2));
+                $chart2->add_series(new chart_series($q . '3', $quarter3));
+                $chart2->add_series(new chart_series($q . '4', $quarter4));
                 $chart2->set_labels($qlabels);
                 return \html_writer::table($tbl) . '<br/>' . $this->output->render($chart1, false) .
                    '<br/>' . $this->output->render($chart2);

@@ -48,7 +48,7 @@ class report_growth_renderer extends \plugin_renderer_base {
         global $CFG;
         $txt = get_strings(['summary', 'users', 'badges', 'coursecompletions', 'courses', 'resources', 'files']);
         $rows = ['summary' => $txt->summary, 'users' => $txt->users];
-        if (isset($CFG->logguests) and $CFG->logguests) {
+        if (isset($CFG->logguests) && $CFG->logguests) {
             $rows['logguests'] = get_string('policydocaudience2', 'tool_policy');
         }
         if (!empty($CFG->enablemobilewebservice)) {
@@ -285,7 +285,7 @@ class report_growth_renderer extends \plugin_renderer_base {
         $series = [];
         $labels = [];
         foreach ($rows as $row) {
-            if (empty($row->country) or $row->country == '') {
+            if (empty($row->country) || $row->country == '') {
                 continue;
             }
             $series[] = $row->newusers;
@@ -337,7 +337,7 @@ class report_growth_renderer extends \plugin_renderer_base {
                         $total += array_key_exists($str, $rows) ? $rows[$str]->newitems : 0;
                         $series[] = $total;
                         $labels[] = "$i $week $j";
-                        if ($i == $toyear and $j > $nowweek) {
+                        if ($i == $toyear && $j > $nowweek) {
                             break;
                         }
                     }

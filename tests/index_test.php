@@ -130,6 +130,7 @@ class index_test extends advanced_testcase {
             [13, '.'],
             [14, '.'],
             [15, '.'],
+            [16, '.'],
             [0, '.'],
             [99999, '.'],
         ];

@@ -32,7 +32,10 @@
         </include>
         <exclude>
             <directory suffix="_test.php">.</directory>
+            <directory suffix=".php">lang/en</directory>
             <file>version.php</file>
+            <file>index.php</file>
+            <file>settings.php</file>
             <file>tests/coverage.php</file>
             <file>db/access.php</file>
         </exclude>

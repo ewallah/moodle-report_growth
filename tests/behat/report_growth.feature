@@ -35,3 +35,5 @@ Feature: Growth checks
     And I should see "Guest access"
     And I follow "Countries"
     And I should see "Show chart data"
+    And I follow "Payments"
+    And I should see "No Payments found"

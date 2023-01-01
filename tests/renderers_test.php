@@ -71,6 +71,7 @@ class renderers_test extends advanced_testcase {
         $this->assertStringContainsString('>4</td>', $this->output->table_courses());
         $this->assertStringContainsString('>1</td>', $this->output->table_enrolments());
         $this->assertEquals('No Mobile devices found', $this->output->table_mobiles('Mobile devices'));
+        $this->assertEquals('No Payments found', $this->output->table_payments('Payments'));
         $this->assertStringContainsString('Show chart data', $this->output->table_countries());
     }
 }

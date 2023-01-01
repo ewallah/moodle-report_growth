@@ -71,6 +71,7 @@ class report_growth_renderer extends \plugin_renderer_base {
         }
         $rows['courses'] = $txt->courses;
         $rows['enrolments'] = get_string('enrolments', 'enrol');
+        $rows['payments'] = get_string('payments');
         $rows['questions'] = get_string('questions', 'question');
         $rows['resources'] = $txt->resources;
         $rows['files'] = $txt->files;
@@ -103,7 +104,7 @@ class report_growth_renderer extends \plugin_renderer_base {
      * @param string $title Title
      * @return string
      */
-    public function table_summary($title = ''):string {
+    public function table_summary($title = ''): string {
         $siteinfo = \core\hub\registration::get_site_info([]);
         $lis = strip_tags(\core\hub\registration::get_stats_summary($siteinfo), '<ul><li>');
         return \html_writer::tag('h3', $title) . str_replace(get_string('sendfollowinginfo_help', 'hub') , '', $lis);
@@ -115,7 +116,7 @@ class report_growth_renderer extends \plugin_renderer_base {
      * @param string $title Title
      * @return string
      */
-    public function table_users($title = ''):string {
+    public function table_users($title = ''): string {
         global $DB;
         $arr = [
            [get_string('deleted'), $DB->count_records('user', ['deleted' => 1])],
@@ -132,7 +133,7 @@ class report_growth_renderer extends \plugin_renderer_base {
      * @param string $title Title
      * @return string
      */
-    public function table_courses($title = ''):string {
+    public function table_courses($title = ''): string {
         global $DB;
         $arr = [[get_string('categories'), $DB->count_records('course_categories', [])]];
         return $this->create_charts($arr, 'course', $title, 'timecreated', 'id > 1');
@@ -144,7 +145,7 @@ class report_growth_renderer extends \plugin_renderer_base {
      * @param string $title Title
      * @return string
      */
-    public function table_enrolments($title = ''):string {
+    public function table_enrolments($title = ''): string {
         global $DB;
         $enabled = array_keys(enrol_get_plugins(true));
         $arr = [];
@@ -160,12 +161,22 @@ class report_growth_renderer extends \plugin_renderer_base {
     }
 
     /**
+     * Table payments.
+     *
+     * @param string $title Title
+     * @return string
+     */
+    public function table_payments($title = ''): string {
+        return $this->create_charts([], 'payments', $title);
+    }
+
+    /**
      * Table mobile.
      *
      * @param string $title Title
      * @return string
      */
-    public function table_mobiles($title = ''):string {
+    public function table_mobiles($title = ''): string {
         return $this->create_charts([], 'user_devices', $title);
     }
 
@@ -175,7 +186,7 @@ class report_growth_renderer extends \plugin_renderer_base {
      * @param string $title Title
      * @return string
      */
-    public function table_badges($title = ''):string {
+    public function table_badges($title = ''): string {
         return $this->create_charts([], 'badge_issued', $title, 'dateissued');
     }
 
@@ -185,7 +196,7 @@ class report_growth_renderer extends \plugin_renderer_base {
      * @param string $title Title
      * @return string
      */
-    public function table_coursecompletions($title = ''):string {
+    public function table_coursecompletions($title = ''): string {
         return $this->create_charts([], 'course_completions', $title, 'timecompleted');
     }
 
@@ -195,7 +206,7 @@ class report_growth_renderer extends \plugin_renderer_base {
      * @param string $title Title
      * @return string
      */
-    public function table_questions($title = ''):string {
+    public function table_questions($title = ''): string {
         return $this->create_charts([], 'question', $title);
     }
 
@@ -205,7 +216,7 @@ class report_growth_renderer extends \plugin_renderer_base {
      * @param string $title Title
      * @return string
      */
-    public function table_resources($title = ''):string {
+    public function table_resources($title = ''): string {
         return $this->create_charts([], 'course_modules', $title, 'added');
     }
 
@@ -215,7 +226,7 @@ class report_growth_renderer extends \plugin_renderer_base {
      * @param string $title Title
      * @return string
      */
-    public function table_logguests($title = ''):string {
+    public function table_logguests($title = ''): string {
         return $this->create_charts([], 'logstore_standard_log', $title, 'timecreated', 'userid = 1');
     }
 
@@ -225,7 +236,7 @@ class report_growth_renderer extends \plugin_renderer_base {
      * @param string $title Title
      * @return string
      */
-    public function table_certificates($title = ''):string {
+    public function table_certificates($title = ''): string {
         return $this->create_charts([], 'certificate_issues', $title);
     }
 
@@ -235,7 +246,7 @@ class report_growth_renderer extends \plugin_renderer_base {
      * @param string $title Title
      * @return string
      */
-    public function table_customcerts($title = ''):string {
+    public function table_customcerts($title = ''): string {
         return $this->create_charts([], 'customcert_issues', $title);
     }
 
@@ -245,7 +256,7 @@ class report_growth_renderer extends \plugin_renderer_base {
      * @param string $title Title
      * @return string
      */
-    public function table_coursecertificates($title = ''):string {
+    public function table_coursecertificates($title = ''): string {
         return $this->create_charts([], 'tool_certificate_issues', $title);
     }
 
@@ -255,7 +266,7 @@ class report_growth_renderer extends \plugin_renderer_base {
      * @param string $title Title
      * @return string
      */
-    public function table_files($title = ''):string {
+    public function table_files($title = ''): string {
         return $this->create_charts([], 'files', $title);
     }
 
@@ -265,7 +276,7 @@ class report_growth_renderer extends \plugin_renderer_base {
      * @param string $title Title
      * @return string
      */
-    public function table_messages($title = ''):string {
+    public function table_messages($title = ''): string {
         return $this->create_charts([], 'messages', $title);
     }
 
@@ -275,7 +286,7 @@ class report_growth_renderer extends \plugin_renderer_base {
      * @param string $title Title
      * @return string
      */
-    public function table_countries($title = ''):string {
+    public function table_countries($title = ''): string {
         global $DB;
         $title = get_string('users');
         $sql = "SELECT country, COUNT(country) AS newusers FROM {user} GROUP BY country ORDER BY country";
@@ -307,7 +318,7 @@ class report_growth_renderer extends \plugin_renderer_base {
      * @param string $where optional
      * @return string
      */
-    private function create_charts($data, $table, $title, $field = 'timecreated', $where = ''):string {
+    private function create_charts($data, $table, $title, $field = 'timecreated', $where = ''): string {
         global $DB;
         $toyear = intval(date("Y"));
 

@@ -24,6 +24,7 @@ to see historical information about number of:
 * Certificates (mod_certificate and mod_customcert and mod_coursecertificate)
 * Courses
 * Enrolments
+* Payments
 * Questions
 * Resources
 * Files

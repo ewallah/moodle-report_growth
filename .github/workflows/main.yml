@@ -55,12 +55,6 @@ jobs:
       - name: add plugin
         uses: actions/checkout@v3
         with:
-          repository: mdjnelson/moodle-mod_customcert
-          path: extras/mod_customcert
-
-      - name: add plugin
-        uses: actions/checkout@v3
-        with:
           repository: mdjnelson/moodle-mod_certificate
           path: extras/mod_certificate
 

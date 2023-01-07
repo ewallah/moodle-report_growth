@@ -1,4 +1,4 @@
- <?php
+<?php
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -29,4 +29,4 @@ $plugin->component = 'report_growth';
 $plugin->requires  = 2021051700;
 $plugin->maturity  = MATURITY_STABLE;
 $plugin->release   = 'v4.0.2';
-$plugin->version   = 2023010600;
+$plugin->version   = 2023010601;

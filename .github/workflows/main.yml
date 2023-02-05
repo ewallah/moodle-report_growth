@@ -58,6 +58,13 @@ jobs:
           repository: mdjnelson/moodle-mod_certificate
           path: extras/mod_certificate
 
+      - name: add plugin
+        uses: actions/checkout@v3
+        with:
+          repository: ewallah/moodle-mod_customcert
+          branch: main
+          path: extras/mod_customcert
+
       - name: setup PHP
         uses: shivammathur/setup-php@v2
         with:

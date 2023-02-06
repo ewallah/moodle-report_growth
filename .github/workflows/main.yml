@@ -150,10 +150,12 @@ jobs:
       - name: admin bookmarks
         if: ${{ always() }}
         run: moodle-plugin-ci --ansi behat --profile chrome blocks/admin_bookmarks
+        working-directory: moodle
 
       - name: admin xmldb
         if: ${{ always() }}
         run: moodle-plugin-ci --ansi behat --profile chrome admin/tool/xmldb
+        working-directory: moodle
 
       - name: coveralls
         if: ${{ always() }}

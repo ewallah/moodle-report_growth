@@ -60,7 +60,8 @@ class index_test extends advanced_testcase {
 
     /**
      * Test settings.
-     * @covers \report_growth_renderer
+     * @covers \report_growth\output\global_renderer
+     * @covers \report_growth\output\growth_renderer
      */
     public function test_settings() {
         global $CFG;
@@ -71,7 +72,8 @@ class index_test extends advanced_testcase {
 
     /**
      * Test index with wrong permission.
-     * @covers \report_growth_renderer
+     * @covers \report_growth\output\global_renderer
+     * @covers \report_growth\output\growth_renderer
      */
     public function test_index_wrong_permissions() {
         global $CFG, $DB, $OUTPUT, $PAGE;
@@ -89,12 +91,13 @@ class index_test extends advanced_testcase {
     }
 
     /**
-     * Test a page.
+     * Test a global page.
      *
      * @dataProvider pageprovider
      * @param int $x
      * @param string $expected
-     * @covers \report_growth_renderer
+     * @covers \report_growth\output\global_renderer
+     * @covers \report_growth\output\growth_renderer
      */
     public function test_page_x($x, $expected): void {
         global $CFG, $DB, $OUTPUT, $PAGE, $USER;
@@ -134,5 +137,85 @@ class index_test extends advanced_testcase {
             [0, '.'],
             [99999, '.'],
         ];
+    }
+
+    /**
+     * Test a course page.
+     *
+     * @dataProvider courseprovider
+     * @param int $x
+     * @param string $expected
+     * @covers \report_growth\output\course_renderer
+     * @covers \report_growth\output\growth_renderer
+     */
+    public function test_course_x($x, $expected): void {
+        global $CFG, $DB, $OUTPUT, $PAGE, $USER;
+        chdir($CFG->dirroot . '/report/growth');
+        $user = $DB->get_record('user', ['id' => $USER->id]);
+        $course = $this->getDataGenerator()->create_course();
+        $context = \context_course::instance($course->id);
+        $this->assertSame($user->id, $USER->id);
+        $this->assertNotEmpty($OUTPUT);
+        $this->assertNotEmpty($PAGE);
+        $_POST['p'] = $x;
+        $_POST['contextid'] = $context->id;
+        ob_start();
+        include($CFG->dirroot . '/report/growth/index.php');
+        $html = ob_get_clean();
+        $this->assertStringContainsString($expected, $html);
+    }
+
+    /**
+     * Test pages.
+     */
+    public function courseprovider() {
+        return [
+            [1, '.'],
+            [2, '.'],
+            [3, '.'],
+            [4, '.'],
+            [5, '.'],
+            [6, '.'],
+            [7, '.'],
+            [8, '.'],
+            [9, '.'],
+            [10, '.'],
+            [11, '.'],
+            [12, '.'],
+            [13, '.'],
+            [14, '.'],
+            [15, '.'],
+            [16, '.'],
+            [0, '.'],
+            [99999, '.'],
+        ];
+    }
+
+    /**
+     * Test a course page.
+     *
+     * @dataProvider courseprovider
+     * @param int $x
+     * @param string $expected
+     * @covers \report_growth\output\category_renderer
+     * @covers \report_growth\output\growth_renderer
+     */
+    public function test_category_x($x, $expected): void {
+        global $CFG, $DB, $OUTPUT, $PAGE, $USER;
+        chdir($CFG->dirroot . '/report/growth');
+        $category = $this->getDataGenerator()->create_category();
+        $context = \context_coursecat::instance($category->id);
+        $user = $DB->get_record('user', ['id' => $USER->id]);
+        $course = $this->getDataGenerator()->create_course(['category' => $category->id]);
+        $this->getDataGenerator()->enrol_user($user->id, $course->id, 'student');
+        $this->assertSame($user->id, $USER->id);
+        $this->assertNotEmpty($OUTPUT);
+        $this->assertNotEmpty($PAGE);
+        $_POST['p'] = $x;
+        $_POST['contextid'] = $context->id;
+        ob_start();
+        include($CFG->dirroot . '/report/growth/index.php');
+        $html = ob_get_clean();
+        $this->assertStringContainsString($expected, $html);
     }
 }

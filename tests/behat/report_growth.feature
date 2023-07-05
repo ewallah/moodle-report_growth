@@ -2,10 +2,16 @@
 Feature: Growth checks
 
   Background:
-    Given the following "courses" exist:
-      | fullname | shortname | startdate  | enddate    |
-      | Course 1 | C1        | 957139200  | 960163200  |
-      | Course 2 | C2        | 2524644000 | 2529741600 |
+    Given the following "categories" exist:
+      | name  | category 0 | idnumber |
+      | cata  | 0          | cata     |
+      | catb  | 0          | catb     |
+    And the following "courses" exist:
+      | fullname | shortname | startdate       | category |
+      | Course 1 | C1        | ##-99 months ## | 0        |
+      | Course 2 | C2        | ##-99 months ## | 0        |
+      | Course 3 | C3        | ##-99 months ## | cata     |
+      | Course 4 | C4        | ##-99 months ## | catb     |
     And the following "users" exist:
       | username | firstname | lastname | country |
       | user1    | Username  | 1        |      BE |
@@ -23,7 +29,7 @@ Feature: Growth checks
       | user    | course   | role    |
       | manager | C1       | manager |
 
-  Scenario: Managers can see growth report
+  Scenario: Managers can see global growth report
     When I am on the "C1" "Course" page logged in as "manager"
     And I navigate to "Reports > Growth" in site administration
     Then I should see "Moodle release"
@@ -37,3 +43,32 @@ Feature: Growth checks
     And I should see "Show chart data"
     And I follow "Payments"
     And I should see "No Payments found"
+
+  Scenario: Managers can see course growth report
+    When I am on the "C1" "Course" page logged in as "manager"
+    And I navigate to "Reports > Growth" in current page administration
+    # There are 4 users enrolled.
+    Then I should see "4"
+    And I should see "Show chart data"
+    And I follow "Badges"
+    And I should see "No Badges found"
+
+  Scenario: Teachers can see course growth report
+    When I am on the "C1" "Course" page logged in as "teacher"
+    And I navigate to "Reports > Growth" in current page administration
+    # There are 3 users enrolled.
+    Then I should see "3"
+    And I should see "Show chart data"
+    And I follow "Badges"
+    And I should see "No Badges found"
+
+  Scenario: Managers can see category growth report
+    When I am on the "C1" "Course" page logged in as "manager"
+    And I go to the courses management page
+    And I should see the "Course categories and courses" management page
+    And I should see "Growth"
+    And I navigate to "Growth" in current page administration
+    Then I should see "4"
+    And I should see "Show chart data"
+    And I follow "Course completions"
+    And I should see "No Course completions found"

@@ -23,7 +23,7 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace report_growth;
+namespace report_growth\event;
 
 use advanced_testcase;
 use context_course;
@@ -42,7 +42,7 @@ use moodle_url;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @coversDefaultClass \report_growth
  */
-class events_test extends advanced_testcase {
+class event_test extends advanced_testcase {
 
     /**
      * Setup testcase.
@@ -64,7 +64,7 @@ class events_test extends advanced_testcase {
         $this->getDataGenerator()->create_course();
         $course = $this->getDataGenerator()->create_course();
         $context = context_system::instance();
-        $event = \report_growth\event\report_viewed::create(['context' => $context, 'other' => ['tab' => 1]]);
+        $event = report_viewed::create(['context' => $context, 'other' => ['tab' => 1]]);
 
         // Trigger and capture the event.
         $sink = $this->redirectEvents();
@@ -75,14 +75,40 @@ class events_test extends advanced_testcase {
         $this->assertInstanceOf('\report_growth\event\report_viewed', $event);
         $this->assertEquals($context, $event->get_context());
         $this->assertEquals('Growth report viewed', $event->get_name());
+        $this->assertEquals("The user with id '2' viewed the global growth report.", $event->get_description());
         $url = new moodle_url('/report/growth/index.php', ['p' => 1]);
         $this->assertEquals($url, $event->get_url());
         $this->assertEventContextNotUsed($event);
 
         $context = context_course::instance($course->id);
-        $this->expectException('coding_exception');
-        $str = 'Coding error detected, it must be fixed by a programmer: Context level must be CONTEXT_SYSTEM.';
-        $this->expectExceptionMessage($str);
-        $event = \report_growth\event\report_viewed::create(['context' => $context, 'other' => ['tab' => 1]]);
+        $event = report_viewed::create(['context' => $context, 'other' => ['tab' => 1]]);
+        $sink = $this->redirectEvents();
+        $event->trigger();
+        $events = $sink->get_events();
+        $event = reset($events);
+        $this->assertInstanceOf('\report_growth\event\report_viewed', $event);
+        $this->assertEquals($context, $event->get_context());
+        $this->assertEquals('Growth report viewed', $event->get_name());
+        $this->assertEquals(
+            "The user with id '2' viewed the growth report for the course with id '" . $course->id . "'.",
+            $event->get_description());
+        $url = new moodle_url('/report/growth/index.php', ['p' => 1, 'contextid' => $context->id]);
+        $this->assertEquals($url, $event->get_url());
+
+        $category = $this->getDataGenerator()->create_category();
+        $context = \context_coursecat::instance($category->id);
+        $event = report_viewed::create(['context' => $context, 'other' => ['tab' => 1]]);
+        $sink = $this->redirectEvents();
+        $event->trigger();
+        $events = $sink->get_events();
+        $event = reset($events);
+        $this->assertInstanceOf('\report_growth\event\report_viewed', $event);
+        $this->assertEquals($context, $event->get_context());
+        $this->assertEquals('Growth report viewed', $event->get_name());
+        $this->assertEquals
+            ("The user with id '2' viewed the growth report for the category with id '" . $category->id . "'.",
+            $event->get_description());
+        $url = new moodle_url('/report/growth/index.php', ['p' => 1, 'contextid' => $context->id]);
+        $this->assertEquals($url, $event->get_url());
     }
 }

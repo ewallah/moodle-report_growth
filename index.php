@@ -28,20 +28,29 @@ global $CFG;
 require_once($CFG->libdir.'/adminlib.php');
 
 $p = optional_param('p', 1, PARAM_INT);
-$context = context_system::instance();
+$contextid = optional_param('contextid', 1, PARAM_INT);
+$context = context::instance_by_id($contextid);
 require_login();
-require_capability('report/growth:view', $context);
 $str = get_string('growth', 'report_growth');
-$url = new moodle_url('/report/growth/index.php');
+$url = new moodle_url('/report/growth/index.php', ['p' => $p, 'contextid' => $context->id]);
 $PAGE->set_url($url);
 $PAGE->set_context($context);
 $PAGE->set_pagelayout('report');
 $PAGE->set_title($str);
 $PAGE->set_heading($str);
-if (is_siteadmin($USER)) {
-    admin_externalpage_setup('reportgrowth', '', ['p' => $p], '', ['pagelayout' => 'report']);
+switch ($context->contextlevel) {
+    case CONTEXT_COURSE:
+        require_capability('report/growth:viewcourse', $context);
+        $output = new \report_growth\output\course_renderer($PAGE, 'general');
+        break;
+    case CONTEXT_COURSECAT:
+        require_capability('report/growth:viewcategory', $context);
+        $output = new \report_growth\output\category_renderer($PAGE, 'general');
+        break;
+    default:
+        require_capability('report/growth:view', $context);
+        $output = new \report_growth\output\global_renderer($PAGE, 'general');
 }
-$output = $PAGE->get_renderer('report_growth');
 echo $output->header();
-echo $output->create_tabtree($p);
+echo $output->create_tabtree($context, $p);
 echo $output->footer();

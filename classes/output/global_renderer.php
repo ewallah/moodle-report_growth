@@ -22,10 +22,11 @@
  * @author    Renaat Debleu <info@eWallah.net>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+namespace report_growth\output;
 
-use core\chart_bar;
-use core\chart_line;
-use core\chart_series;
+use plugin_renderer_base;
+use renderable;
+use core\{chart_bar, chart_line, chart_series};
 
 /**
  * growth report renderer.
@@ -35,17 +36,18 @@ use core\chart_series;
  * @author    Renaat Debleu <info@eWallah.net>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class report_growth_renderer extends \plugin_renderer_base {
+class global_renderer extends growth_renderer {
 
 
     /**
      * Create Tabs.
      *
+     * @param \stdClass $context Selected $coursecontext
      * @param int $p Selected tab
-     * @return string
      */
-    public function create_tabtree($p = 1) {
+    public function create_tabtree($context, $p = 1) {
         global $CFG;
+        $this->context = $context;
         $txt = get_strings(['summary', 'users', 'badges', 'coursecompletions', 'courses', 'resources', 'files']);
         $rows = ['summary' => $txt->summary, 'users' => $txt->users];
         if (isset($CFG->logguests) && $CFG->logguests) {
@@ -77,24 +79,9 @@ class report_growth_renderer extends \plugin_renderer_base {
         $rows['files'] = $txt->files;
         $rows['messages'] = get_string('messages', 'message');
         $rows['countries'] = get_string('countries', 'report_growth');
-        $p = ($p > count($rows) || $p == 0) ? 1 : $p;
-        $i = 1;
-        $tabs = [];
-        $func = 'table_';
-        $fparam = '';
-        foreach ($rows as $key => $value) {
-            $tabs[] = new \tabobject($i, new \moodle_url('/report/growth/index.php', ['p' => $i]), $value);
-            if ($i == $p) {
-                $func .= $key;
-                $fparam = $value;
-            }
-            $i++;
-        }
         // Trigger a report viewed event.
-        $context = \context_system::instance();
-        $event = \report_growth\event\report_viewed::create(['context' => $context,  'other' => ['tab' => $p]]);
-        $event->trigger();
-        return $this->output->tabtree($tabs, $p) . \html_writer::tag('div', $this->$func($fparam), ['class' => 'p-3']);
+        $this->trigger_page($p);
+        return $this->render_page($rows, $p);
     }
 
 
@@ -306,130 +293,5 @@ class report_growth_renderer extends \plugin_renderer_base {
         $chart->add_series($series);
         $chart->set_labels($labels);
         return $this->output->render($chart);
-    }
-
-    /**
-     * Create charts.
-     *
-     * @param array $data
-     * @param string $table
-     * @param string $title
-     * @param string $field optional
-     * @param string $where optional
-     * @return string
-     */
-    private function create_charts($data, $table, $title, $field = 'timecreated', $where = ''): string {
-        global $DB;
-        $toyear = intval(date("Y"));
-
-        $tbl = new \html_table();
-        $tbl->attributes = ['class' => 'table table-sm table-hover w-50'];
-        $tbl->colclasses = ['text-left', 'text-right'];
-        $tbl->size = [null, '5rem'];
-        $tbl->caption = $title;
-        $tbl->data = $data;
-        $wh = ($where == '') ? "$field  > 0" : "($field > 0) AND ($where)";
-        $cnt = $DB->count_records_select($table, $wh);
-        if ($cnt > 0) {
-            $tbl->data[] = [\html_writer::tag('b', get_string('total')), $cnt];
-            if ($rows = $this->get_sql($field, $table, $wh)) {
-                $week = get_string('week');
-                $chart1 = new chart_line();
-                $chart1->set_smooth(true);
-                $series = $labels = $quarter1 = $quarter2 = $quarter3 = $quarter4 = $qlabels = $totals = [];
-                $x = current($rows);
-                $total = 0;
-                $fromyear = is_object($x) ? intval(explode(' ', $x->week)[0]) : $toyear - 7;
-                $fromweek = is_object($x) ? intval(explode(' ', $x->week)[1]) : 1;
-                $nowweek = date('W');
-                for ($i = $fromyear; $i <= $toyear; $i++) {
-                    for ($j = $fromweek; $j <= 52; $j++) {
-                        $str = "$i $j";
-                        $total += array_key_exists($str, $rows) ? $rows[$str]->newitems : 0;
-                        $series[] = $total;
-                        $labels[] = "$i $week $j";
-                        if ($i == $toyear && $j > $nowweek) {
-                            break;
-                        }
-                    }
-                    $fromweek = 1;
-                }
-                $chart1->add_series(new chart_series($title, $series));
-                $chart1->set_labels($labels);
-            }
-            if ($rows = $this->get_sql($field, $table, $wh, false)) {
-                $q = get_string('quarter', 'report_growth');
-                for ($i = $fromyear; $i <= $toyear; $i++) {
-                    $x1 = array_key_exists("$i 1", $rows) ? $rows["$i 1"]->newitems : 0;
-                    $x2 = array_key_exists("$i 2", $rows) ? $rows["$i 2"]->newitems : 0;
-                    $x3 = array_key_exists("$i 3", $rows) ? $rows["$i 3"]->newitems : 0;
-                    $x4 = array_key_exists("$i 4", $rows) ? $rows["$i 4"]->newitems : 0;
-                    $quarter1[] = $x1;
-                    $quarter2[] = $x2;
-                    $quarter3[] = $x3;
-                    $quarter4[] = $x4;
-                    $totals[] = $x1 + $x2 + $x3 + $x4;
-                    $qlabels[] = $i;
-                }
-                $chart2 = new chart_bar();
-                $chart2->set_stacked(true);
-                $series = new chart_series(get_string('total'), $totals);
-                $series->set_type(chart_series::TYPE_LINE);
-                $chart2->add_series($series);
-                $chart2->add_series(new chart_series($q . '1', $quarter1));
-                $chart2->add_series(new chart_series($q . '2', $quarter2));
-                $chart2->add_series(new chart_series($q . '3', $quarter3));
-                $chart2->add_series(new chart_series($q . '4', $quarter4));
-                $chart2->set_labels($qlabels);
-                return \html_writer::table($tbl) . '<br/>' . $this->output->render($chart1, false) .
-                   '<br/>' . $this->output->render($chart2);
-            }
-        }
-        return get_string('nostudentsfound', 'moodle', $title);
-    }
-
-    /**
-     * Create charts.
-     *
-     * @param string $field
-     * @param string $table
-     * @param string $wh
-     * @param bool $weeks optional
-     * @return bool/array
-     */
-    private function get_sql(string $field, string $table, string $wh, bool $weeks = true) {
-        global $DB;
-        $family = $DB->get_dbfamily();
-        switch ($family) {
-            case 'mysql':
-                $func = $weeks ? 'WEEKOFYEAR' : 'QUARTER';
-                $concat = "CONCAT(YEAR(FROM_UNIXTIME($field)), ' ', $func(FROM_UNIXTIME($field)))";
-                $sql = "SELECT $concat AS week, COUNT(*) AS newitems FROM {" . $table . "}
-                        WHERE $wh GROUP BY $concat ORDER BY $field";
-                break;
-            case 'mssql':
-                $func = $weeks ? 'WEEK' : 'qq';
-                $field = "dateadd(S, $field, '1970-01-01')";
-                $concat = $DB->sql_concat_join("' '", ["DATEPART(YEAR, $field)", "DATEPART($func, $field)"]);
-                $sql = "SELECT $concat AS week, COUNT(*) AS newitems FROM {". $table . "}
-                        WHERE $wh GROUP BY $concat ORDER BY $concat";
-                break;
-            case 'postgres':
-                $func = $weeks ? 'YYYY WW' : 'YYYY Q';
-                $sql = "SELECT TO_CHAR(TO_TIMESTAMP($field), '$func') AS week, COUNT(*) AS newitems FROM {" . $table . "}
-                        WHERE $wh GROUP BY 1 ORDER BY 1";
-                break;
-            case 'oracle':
-                $func = $weeks ? 'YYYY WW' : 'YYYY Q';
-                $sql = "SELECT TO_CHAR(TO_DATE('1970-01-01','YYYY-MM-DD') + $field / 86400, '$func') week,
-                        COUNT(*) newitems FROM {" . $table . "}
-                        WHERE $wh GROUP BY TO_CHAR(TO_DATE('1970-01-01','YYYY-MM-DD') + $field / 86400, '$func')
-                        ORDER BY week";
-                break;
-            default:
-                debugging("Database family $family not (yet) supported by this plugin", DEBUG_DEVELOPER);
-                return false;
-        }
-        return $DB->get_records_sql($sql);
     }
 }

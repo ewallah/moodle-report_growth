@@ -59,7 +59,15 @@ class report_viewed extends \core\event\base {
      * @return string
      */
     public function get_description() {
-        return "The user with id '$this->userid' viewed the growth report.";
+        $str = "The user with id '$this->userid' viewed the ";
+        switch ($this->contextlevel) {
+            case CONTEXT_COURSE:
+                return $str . "growth report for the course with id '$this->courseid'.";
+            case CONTEXT_COURSECAT:
+                return $str . "growth report for the category with id '$this->contextinstanceid'.";
+            default:
+                return $str . "global growth report.";
+        }
     }
 
     /**
@@ -68,19 +76,10 @@ class report_viewed extends \core\event\base {
      * @return \moodle_url
      */
     public function get_url() {
-        return new \moodle_url('/report/growth/index.php', ['p' => $this->other['tab']]);
-    }
-
-    /**
-     * custom validations.
-     *
-     * @throws \coding_exception when validation fails.
-     * @return void
-     */
-    protected function validate_data() {
-        parent::validate_data();
-        if ($this->contextlevel != CONTEXT_SYSTEM) {
-            throw new \coding_exception('Context level must be CONTEXT_SYSTEM.');
+        $params = ['p' => $this->other['tab']];
+        if ($this->contextlevel == CONTEXT_COURSE || $this->contextlevel == CONTEXT_COURSECAT) {
+            $params['contextid'] = $this->context->id;
         }
+        return new \moodle_url('/report/growth/index.php', $params);
     }
 }

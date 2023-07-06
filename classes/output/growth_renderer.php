@@ -43,6 +43,29 @@ class growth_renderer extends plugin_renderer_base {
     protected $context;
 
     /**
+     * Collect certificates.
+     *
+     * @return array
+     */
+    protected function certificate_tabs() {
+        global $CFG;
+        $rows = [];
+        if (!empty($CFG->enablebadges)) {
+            $rows['badges'] = get_string('badges');
+        }
+        if (file_exists($CFG->dirroot . '/mod/certificate')) {
+            $rows['certificates'] = get_string('modulenameplural', 'mod_certificate');
+        }
+        if (file_exists($CFG->dirroot . '/mod/customcert')) {
+            $rows['customcerts'] = get_string('modulenameplural', 'mod_customcert');
+        }
+        if (file_exists($CFG->dirroot . '/mod/coursecertificate')) {
+            $rows['coursecertificates'] = get_string('modulenameplural', 'mod_coursecertificate');
+        }
+        return $rows;
+    }
+
+    /**
      * Trigger Event.
      *
      * @param int $page
@@ -83,13 +106,14 @@ class growth_renderer extends plugin_renderer_base {
      * @param string $title Title
      * @param string $table1 First table
      * @param string $table2 Second table
+     * @param string $field to collect from first table
      * @param string $fieldwhere Where lookup
      * @param string $fieldresult The field that has to be calculated
      * @return string
      */
-    protected function collect_course_table($title, $table1, $table2, $fieldwhere, $fieldresult): string {
+    protected function collect_course_table($title, $table1, $table2, $field, $fieldwhere, $fieldresult = 'timemodified'): string {
         global $DB;
-        $ids = $DB->get_fieldset_select($table1, 'id', 'courseid = :courseid', ['courseid' => $this->context->instanceid]);
+        $ids = $DB->get_fieldset_select($table1, 'id', $field . ' = :courseid', ['courseid' => $this->context->instanceid]);
         $insql = $fieldresult . '< 0';
         $inparams = [];
         if (count($ids) > 0) {
@@ -100,57 +124,6 @@ class growth_renderer extends plugin_renderer_base {
         return $this->create_charts([], $table2, $title, $fieldresult, $insql, $inparams);
     }
 
-
-    /**
-     * Collect category table.
-     *
-     * @param string $title Title
-     * @param string $table First table
-     * @param string $fieldwhere Where lookup
-     * @param string $fieldresult The field that has to be calculated
-     * @return string
-     */
-    protected function collect_category_table($title, $table, $fieldwhere, $fieldresult): string {
-        global $DB;
-        $insql = $fieldresult . '< 0';
-        $inparams = [$fieldresult => 0];
-        $courseids = $DB->get_fieldset_select('course', 'id', 'category = :category', ['category' => $this->context->instanceid]);
-        if (count($courseids) > 0) {
-            sort($courseids);
-            list($insql, $inparams) = $DB->get_in_or_equal($courseids);
-            $insql = $fieldwhere . ' ' . $insql;
-        }
-        return $this->create_charts([], $table, $title, $fieldresult, $insql, $inparams);
-    }
-
-    /**
-     * Collect category table.
-     *
-     * @param string $title Title
-     * @param string $table1 First table
-     * @param string $table2 Second table
-     * @param string $fieldwhere Where lookup
-     * @param string $fieldresult The field that has to be calculated
-     * @return string
-     */
-    protected function collect_category_table2($title, $table1, $table2, $fieldwhere, $fieldresult): string {
-        global $DB;
-        $inparams = [];
-        $courseids = $DB->get_fieldset_select('course', 'id', 'category = :category', ['category' => $this->context->instanceid]);
-        if (count($courseids) > 0) {
-            sort($courseids);
-            list($insql, $inparams) = $DB->get_in_or_equal($courseids);
-            $insql = 'courseid ' . $insql;
-            $ids = $DB->get_fieldset_select($table1, 'id', $insql, $inparams);
-            if (count($ids) > 0) {
-                sort($ids);
-                list($insql, $inparams) = $DB->get_in_or_equal($ids);
-                $insql = $fieldwhere . ' ' . $insql;
-            }
-        }
-        $insql = count($inparams) > 0 ? $insql : $fieldresult . '< 0';
-        return $this->create_charts([], $table2, $title, $fieldresult, $insql, $inparams);
-    }
     /**
      * Create charts.
      *

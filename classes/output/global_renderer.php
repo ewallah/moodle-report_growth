@@ -48,34 +48,22 @@ class global_renderer extends growth_renderer {
     public function create_tabtree($context, $p = 1) {
         global $CFG;
         $this->context = $context;
-        $txt = get_strings(['summary', 'users', 'badges', 'coursecompletions', 'courses', 'resources', 'files']);
-        $rows = ['summary' => $txt->summary, 'users' => $txt->users];
+        $txt = get_strings(['summary', 'courses', 'users', 'resources', 'files']);
+        $rows = ['summary' => $txt->summary, 'courses' => $txt->courses, 'users' => $txt->users];
+        $rows['enrolments'] = get_string('enrolments', 'enrol');
         if (isset($CFG->logguests) && $CFG->logguests) {
             $rows['logguests'] = get_string('policydocaudience2', 'tool_policy');
+        }
+        if (!empty($CFG->enablecompletion)) {
+            $rows['activitiescompleted'] = get_string('activitiescompleted', 'completion');
+            $rows['coursecompletions'] = get_string('coursecompletions');
         }
         if (!empty($CFG->enablemobilewebservice)) {
             $rows['mobiles'] = get_string('mobile', 'report_growth');
         }
-        if (!empty($CFG->enablebadges)) {
-            $rows['badges'] = $txt->badges;
-        }
-        if (!empty($CFG->enablecompletion)) {
-            $rows['coursecompletions'] = get_string('coursecompletions');
-        }
-        if (file_exists($CFG->dirroot . '/mod/certificate')) {
-            $rows['certificates'] = get_string('modulenameplural', 'mod_certificate');
-        }
-        if (file_exists($CFG->dirroot . '/mod/customcert')) {
-            $rows['customcerts'] = get_string('modulenameplural', 'mod_customcert');
-        }
-        if (file_exists($CFG->dirroot . '/mod/coursecertificate')) {
-            $rows['coursecertificates'] = get_string('modulenameplural', 'mod_coursecertificate');
-        }
-        $rows['courses'] = $txt->courses;
-        $rows['enrolments'] = get_string('enrolments', 'enrol');
+        $rows = array_merge($rows, $this->certificate_tabs());
         $rows['payments'] = get_string('payments');
         $rows['questions'] = get_string('questions', 'question');
-        $rows['resources'] = $txt->resources;
         $rows['files'] = $txt->files;
         $rows['messages'] = get_string('messages', 'message');
         $rows['countries'] = get_string('countries', 'report_growth');
@@ -175,6 +163,16 @@ class global_renderer extends growth_renderer {
      */
     public function table_badges($title = ''): string {
         return $this->create_charts([], 'badge_issued', $title, 'dateissued');
+    }
+
+    /**
+     * Table Activities completed.
+     *
+     * @param string $title Title
+     * @return string
+     */
+    public function table_activitiescompleted ($title = ''): string {
+        return $this->create_charts([], 'course_modules_completion', $title, 'timemodified');
     }
 
     /**

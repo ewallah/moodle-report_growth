@@ -56,31 +56,17 @@ class course_renderer extends growth_renderer {
         global $CFG;
         $this->courseid = $context->instanceid;
         $this->context = $context;
-        $txt = get_strings(['badges', 'coursecompletions', 'managemodules']);
-        $rows = [];
-        $rows['enrolments'] = get_string('enrolments', 'enrol');
-        $rows['resources'] = $txt->managemodules;
-        if (!empty($CFG->enablebadges)) {
-            $rows['badges'] = $txt->badges;
-        }
+        $rows = ['enrolments' => get_string('enrolments', 'enrol'), 'resources' => get_string('activities')];
         if (!empty($CFG->enablecompletion)) {
+            $rows['activitiescompleted'] = get_string('activitiescompleted', 'completion');
             $rows['coursecompletions'] = get_string('coursecompletions');
         }
-        if (file_exists($CFG->dirroot . '/mod/certificate')) {
-            $rows['certificates'] = get_string('modulenameplural', 'mod_certificate');
-        }
-        if (file_exists($CFG->dirroot . '/mod/customcert')) {
-            $rows['customcerts'] = get_string('modulenameplural', 'mod_customcert');
-        }
-        if (file_exists($CFG->dirroot . '/mod/coursecertificate')) {
-            $rows['coursecertificates'] = get_string('modulenameplural', 'mod_coursecertificate');
-        }
+        $rows = array_merge($rows, $this->certificate_tabs());
         $rows['countries'] = get_string('countries', 'report_growth');
         // Trigger a report viewed event.
         $this->trigger_page($p);
         return $this->render_page($rows, $p);
     }
-
 
     /**
      * Table enrolments.
@@ -89,7 +75,7 @@ class course_renderer extends growth_renderer {
      * @return string
      */
     public function table_enrolments($title = ''): string {
-        return $this->collect_course_table($title, 'enrol', 'user_enrolments', 'enrolid', 'timecreated');
+        return $this->collect_course_table($title, 'enrol', 'user_enrolments', 'courseid', 'enrolid', 'timecreated');
     }
 
     /**
@@ -99,7 +85,17 @@ class course_renderer extends growth_renderer {
      * @return string
      */
     public function table_badges($title = ''): string {
-        return $this->collect_course_table($title, 'badge', 'badge_issued', 'badgeid', 'dateissued');
+        return $this->collect_course_table($title, 'badge', 'badge_issued', 'courseid', 'badgeid', 'dateissued');
+    }
+
+    /**
+     * Table Activities completed.
+     *
+     * @param string $title Title
+     * @return string
+     */
+    public function table_activitiescompleted ($title = ''): string {
+        return $this->collect_course_table($title, 'course_modules', 'course_modules_completion', 'course', 'coursemoduleid');
     }
 
     /**
@@ -129,7 +125,7 @@ class course_renderer extends growth_renderer {
      * @return string
      */
     public function table_certificates($title = ''): string {
-        return $this->create_charts([], 'certificate_issues', $title);
+        return $this->collect_course_table($title, 'certificate', 'certificate_issues', 'course', 'certificateid', 'timecreated');
     }
 
     /**
@@ -139,7 +135,7 @@ class course_renderer extends growth_renderer {
      * @return string
      */
     public function table_customcerts($title = ''): string {
-        return $this->create_charts([], 'customcert_issues', $title);
+        return $this->collect_course_table($title, 'customcert', 'customcert_issues', 'course', 'customcertid', 'timecreated');
     }
 
     /**
@@ -149,7 +145,7 @@ class course_renderer extends growth_renderer {
      * @return string
      */
     public function table_coursecertificates($title = ''): string {
-        return $this->create_charts([], 'tool_certificate_issues', $title);
+        return $this->create_charts([], 'tool_certificate_issues', $title, 'timecreated', 'courseid = ' . $this->courseid);
     }
 
     /**

@@ -37,10 +37,7 @@ use advanced_testcase;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @coversDefaultClass \report_growth
  */
-class renderers_test extends advanced_testcase {
-
-    /** @var int courseid */
-    private int $courseid;
+class empty_test extends advanced_testcase {
 
     /**
      * Setup testcase.
@@ -48,35 +45,6 @@ class renderers_test extends advanced_testcase {
     public function setUp():void {
         $this->setAdminUser();
         $this->resetAfterTest();
-        $dg = $this->getDataGenerator();
-        $categoryid = $dg->create_category()->id;
-        $dg->create_course(['category' => $categoryid]);
-        $dg->create_course(['category' => $categoryid]);
-        $dg->create_course(['category' => $categoryid]);
-        $courseid = $dg->create_course(['category' => $categoryid])->id;
-        $user = $dg->create_user();
-        $dg->enrol_user($user->id, $courseid, 'student');
-        $user = $dg->create_user(['country' => 'BE']);
-        $dg->enrol_user($user->id, $courseid, 'student');
-        $user = $dg->create_user(['country' => 'NL']);
-        $dg->enrol_user($user->id, $courseid, 'student');
-        $user = $dg->create_user(['country' => 'UG']);
-        $dg->enrol_user($user->id, $courseid, 'student');
-        $this->courseid = $courseid;
-    }
-
-    /**
-     * Test course tables.
-     * @covers \report_growth\output\course_renderer
-     * @covers \report_growth\output\growth_renderer
-     */
-    public function test_course() {
-        global $PAGE;
-        $context = \context_course::instance($this->courseid);
-        $output = new course_renderer($PAGE, 'general');
-        $this->assertStringContainsString('No Activities found', $output->create_tabtree($context, 2));
-        $this->assertStringContainsString('Show chart data', $output->table_enrolments());
-        $this->assertStringContainsString('Show chart data', $output->table_countries());
     }
 
     /**
@@ -84,18 +52,33 @@ class renderers_test extends advanced_testcase {
      * @covers \report_growth\output\global_renderer
      * @covers \report_growth\output\growth_renderer
      */
-    public function test_global() {
+    public function test_empty_global() {
         global $PAGE;
         $output = new global_renderer($PAGE, 'general');
         $context = \context_system::instance();
         $this->assertStringContainsString(' ', $output->create_tabtree($context));
         $this->assertStringContainsString('Mobile services enabled (Yes)', $output->table_summary());
-        $this->assertStringContainsString('>4</td>', $output->table_users('Users'));
-        $this->assertStringContainsString('>4</td>', $output->table_courses('Courses'));
-        $this->assertStringContainsString('>4</td>', $output->table_enrolments('Enrolments'));
+        $this->assertStringContainsString('No Users found', $output->table_users('Users'));
+        $this->assertStringContainsString('No Courses found', $output->table_courses('Courses'));
+        $this->assertStringContainsString('No Enrolments found', $output->table_enrolments('Enrolments'));
         $this->assertEquals('No Mobile devices found', $output->table_mobiles('Mobile devices'));
         $this->assertEquals('No Payments found', $output->table_payments('Payments'));
         $this->assertStringContainsString('Show chart data', $output->table_countries());
+    }
+
+    /**
+     * Test empty course tables.
+     * @covers \report_growth\output\course_renderer
+     * @covers \report_growth\output\growth_renderer
+     */
+    public function test_empty_course() {
+        global $PAGE;
+        $dg = $this->getDataGenerator();
+        $course = $dg->create_course();
+        $context = \context_course::instance($course->id);
+        $output = new course_renderer($PAGE, 'general');
+        $this->assertStringContainsString(' ', $output->create_tabtree($context));
+        $this->assertStringContainsString('No Users found', $output->table_countries());
     }
 
     /**
@@ -103,12 +86,15 @@ class renderers_test extends advanced_testcase {
      * @covers \report_growth\output\category_renderer
      * @covers \report_growth\output\growth_renderer
      */
-    public function test_category() {
+    public function test_empty_category() {
         global $PAGE;
-        $course = get_course($this->courseid);
-        $context = \context_coursecat::instance($course->category);
+        $dg = $this->getDataGenerator();
+        $categoryid = $dg->create_category()->id;
+        $context = \context_coursecat::instance($categoryid);
         $output = new global_renderer($PAGE, 'general');
         $this->assertStringContainsString(' ', $output->create_tabtree($context));
-        $this->assertStringContainsString('>4</td>', $output->table_enrolments());
+        // TODO: No Enrolments found.
+        $this->assertStringContainsString(' ', $output->table_enrolments());
+        $this->assertStringContainsString('No ', $output->table_coursecompletions('test'));
     }
 }

@@ -33,8 +33,8 @@ $context = context::instance_by_id($contextid);
 require_login();
 $str = get_string('growth', 'report_growth');
 $url = new moodle_url('/report/growth/index.php', ['p' => $p, 'contextid' => $context->id]);
-$PAGE->set_url($url);
 $PAGE->set_context($context);
+$PAGE->set_url($url);
 $PAGE->set_pagelayout('report');
 $PAGE->set_title($str);
 $PAGE->set_heading($str);
@@ -45,6 +45,7 @@ switch ($context->contextlevel) {
         break;
     case CONTEXT_COURSECAT:
         require_capability('report/growth:viewcategory', $context);
+        core_course_category::page_setup();
         $output = new \report_growth\output\category_renderer($PAGE, 'general');
         break;
     default:

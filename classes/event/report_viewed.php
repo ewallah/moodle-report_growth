@@ -78,7 +78,7 @@ class report_viewed extends \core\event\base {
     public function get_url() {
         $params = ['p' => $this->other['tab']];
         if ($this->contextlevel == CONTEXT_COURSE || $this->contextlevel == CONTEXT_COURSECAT) {
-            $params['contextid'] = $this->context->id;
+            $params['contextid'] = $this->contextid;
         }
         return new \moodle_url('/report/growth/index.php', $params);
     }

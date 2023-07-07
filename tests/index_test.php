@@ -44,6 +44,7 @@ class index_test extends advanced_testcase {
      * Setup testcase.
      */
     public function setUp():void {
+        set_config('logguests', 1, 'logstore_standard');
         $this->setAdminUser();
         $this->resetAfterTest();
         $dg = $this->getDataGenerator();

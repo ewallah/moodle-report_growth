@@ -50,6 +50,7 @@ class event_test extends advanced_testcase {
     public function setUp():void {
         $this->setAdminUser();
         $this->resetAfterTest();
+        set_config('logguests', 1, 'logstore_standard');
     }
 
     /**

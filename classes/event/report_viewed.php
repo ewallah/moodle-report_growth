@@ -59,7 +59,8 @@ class report_viewed extends \core\event\base {
      * @return string
      */
     public function get_description() {
-        $str = "The user with id '$this->userid' viewed the ";
+        $tab = $this->other['tab'];
+        $str = "The user with id '$this->userid' viewed tab '$tab' of the ";
         switch ($this->contextlevel) {
             case CONTEXT_COURSE:
                 return $str . "growth report for the course with id '$this->courseid'.";

@@ -12,6 +12,11 @@ Feature: Growth checks
       | Course 2 | C2        | ##-99 months ## | 0        |
       | Course 3 | C3        | ##-99 months ## | cata     |
       | Course 4 | C4        | ##-99 months ## | catb     |
+    And the following "activities" exist:
+      | activity | name       | intro | course | idnumber |
+      | assign   | sample 1   | Test  | C1     | sample1  |
+      | book     | sample 2   |       | C1     | sample2  |
+      | choice   | sample 3   | Test  | C2     | sample3  |
     And the following "users" exist:
       | username | firstname | lastname | country |
       | user1    | Username  | 1        |      BE |
@@ -50,8 +55,8 @@ Feature: Growth checks
     # There are 4 users enrolled.
     Then I should see "4"
     And I should see "Show chart data"
-    And I follow "Badges"
-    And I should see "No Badges found"
+    And I follow "Activities"
+    And I should see "Show chart data"
 
   Scenario: Teachers can see course growth report
     When I am on the "C1" "Course" page logged in as "teacher"
@@ -59,8 +64,8 @@ Feature: Growth checks
     # There are 3 users enrolled.
     Then I should see "3"
     And I should see "Show chart data"
-    And I follow "Badges"
-    And I should see "No Badges found"
+    And I follow "Activities"
+    And I should see "Show chart data"
 
   Scenario: Managers can see category growth report
     When I am on the "C1" "Course" page logged in as "manager"

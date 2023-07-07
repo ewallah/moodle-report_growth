@@ -38,7 +38,6 @@ use core\{chart_bar, chart_line, chart_series};
  */
 class global_renderer extends growth_renderer {
 
-
     /**
      * Create Tabs.
      *
@@ -48,12 +47,13 @@ class global_renderer extends growth_renderer {
     public function create_tabtree($context, $p = 1) {
         global $CFG;
         $this->context = $context;
-        $txt = get_strings(['summary', 'courses', 'users', 'resources', 'files']);
-        $rows = ['summary' => $txt->summary, 'courses' => $txt->courses, 'users' => $txt->users];
+        $txt = get_strings(['summary', 'courses', 'users', 'lastaccess', 'files']);
+        $rows = ['summary' => $txt->summary, 'courses' => $txt->courses, 'users' => $txt->users, 'lastaccess' => $txt->lastaccess];
         $rows['enrolments'] = get_string('enrolments', 'enrol');
         if (isset($CFG->logguests) && $CFG->logguests) {
             $rows['logguests'] = get_string('policydocaudience2', 'tool_policy');
         }
+        $rows['activities'] = get_string('activities');
         if (!empty($CFG->enablecompletion)) {
             $rows['activitiescompleted'] = get_string('activitiescompleted', 'completion');
             $rows['coursecompletions'] = get_string('coursecompletions');
@@ -91,6 +91,16 @@ class global_renderer extends growth_renderer {
      * @param string $title Title
      * @return string
      */
+    public function table_lastaccess($title = ''): string {
+        return $this->create_charts([], 'user_lastaccess', $title, 'timeaccess');
+    }
+
+    /**
+     * Table users.
+     *
+     * @param string $title Title
+     * @return string
+     */
     public function table_users($title = ''): string {
         global $DB;
         $arr = [
@@ -100,7 +110,6 @@ class global_renderer extends growth_renderer {
            [get_string('activeusers'), $DB->count_records_select('user', 'lastip <> ?', [''])]];
         return $this->create_charts($arr, 'user', $title);
     }
-
 
     /**
      * Table courses.
@@ -166,6 +175,16 @@ class global_renderer extends growth_renderer {
     }
 
     /**
+     * Table activities.
+     *
+     * @param string $title Title
+     * @return string
+     */
+    public function table_activities($title = ''): string {
+        return $this->create_charts([], 'course_modules', $title, 'added');
+    }
+
+    /**
      * Table Activities completed.
      *
      * @param string $title Title
@@ -193,16 +212,6 @@ class global_renderer extends growth_renderer {
      */
     public function table_questions($title = ''): string {
         return $this->create_charts([], 'question', $title);
-    }
-
-    /**
-     * Table resources.
-     *
-     * @param string $title Title
-     * @return string
-     */
-    public function table_resources($title = ''): string {
-        return $this->create_charts([], 'course_modules', $title, 'added');
     }
 
     /**
@@ -273,23 +282,8 @@ class global_renderer extends growth_renderer {
      */
     public function table_countries($title = ''): string {
         global $DB;
-        $title = get_string('users');
         $sql = "SELECT country, COUNT(country) AS newusers FROM {user} GROUP BY country ORDER BY country";
         $rows = $DB->get_records_sql($sql);
-        $chart = new chart_bar();
-        $chart->set_horizontal(true);
-        $series = [];
-        $labels = [];
-        foreach ($rows as $row) {
-            if (empty($row->country) || $row->country == '') {
-                continue;
-            }
-            $series[] = $row->newusers;
-            $labels[] = get_string($row->country, 'countries');
-        }
-        $series = new chart_series($title, $series);
-        $chart->add_series($series);
-        $chart->set_labels($labels);
-        return $this->output->render($chart);
+        return $this->create_countries($rows, $title);
     }
 }

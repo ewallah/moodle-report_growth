@@ -121,8 +121,8 @@ class index_test extends advanced_testcase {
             [1, 'Number of users (5)'],
             [2, '>3</td>'],   // There are 3 courses.
             [3, 'Suspended'], // There are no users suspended.
-            [4, '>2</td>'],   // There are 2 enrolments.
-            [5, '.'],
+            [4, 'No Last '],  // No one there.
+            [5, '>2</td>'],   // There are 2 enrolments.
             [6, '.'],
             [7, '.'],
             [8, '.'],
@@ -134,6 +134,10 @@ class index_test extends advanced_testcase {
             [14, '.'],
             [15, '.'],
             [16, '.'],
+            [17, '.'],
+            [18, '.'],
+            [19, '.'],
+            [20, '.'],
             [0, '.'],
             [99999, '.'],
         ];

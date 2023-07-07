@@ -56,7 +56,7 @@ class course_renderer extends growth_renderer {
         global $CFG;
         $this->courseid = $context->instanceid;
         $this->context = $context;
-        $rows = ['enrolments' => get_string('enrolments', 'enrol'), 'resources' => get_string('activities')];
+        $rows = ['enrolments' => get_string('enrolments', 'enrol'), 'activities' => get_string('activities')];
         if (!empty($CFG->enablecompletion)) {
             $rows['activitiescompleted'] = get_string('activitiescompleted', 'completion');
             $rows['coursecompletions'] = get_string('coursecompletions');
@@ -89,6 +89,16 @@ class course_renderer extends growth_renderer {
     }
 
     /**
+     * Table activities.
+     *
+     * @param string $title Title
+     * @return string
+     */
+    public function table_activities($title = ''): string {
+        return $this->create_charts([], 'course_modules', $title, 'added', 'course = ' . $this->courseid);
+    }
+
+    /**
      * Table Activities completed.
      *
      * @param string $title Title
@@ -106,16 +116,6 @@ class course_renderer extends growth_renderer {
      */
     public function table_coursecompletions($title = ''): string {
         return $this->create_charts([], 'course_completions', $title, 'timecompleted', 'course = ' . $this->courseid);
-    }
-
-    /**
-     * Table resources.
-     *
-     * @param string $title Title
-     * @return string
-     */
-    public function table_resources($title = ''): string {
-        return $this->create_charts([], 'course_modules', $title, 'added', 'course = ' . $this->courseid);
     }
 
     /**
@@ -157,34 +157,18 @@ class course_renderer extends growth_renderer {
     public function table_countries($title = ''): string {
         global $DB;
         $title = get_string('users');
-        $chart = '';
+        $out = get_string('nostudentsfound', 'moodle', $title);
         $ids = $DB->get_fieldset_select('enrol', 'id', 'courseid = :courseid', ['courseid' => $this->context->instanceid]);
         if (count($ids) > 0) {
-            list($insql, $inparams) = $DB->get_in_or_equal($ids);
-            $insql = 'enrolid ' . $insql;
+            list($insql, $inparams) = $this->insql($ids, 'enrolid', 'enrolid');
             $userids = $DB->get_fieldset_select('user_enrolments', 'userid', $insql, $inparams);
             if (count($userids) > 0) {
-                list($insql, $inparams) = $DB->get_in_or_equal($userids);
-                $insql = 'id ' . $insql;
+                list($insql, $inparams) = $this->insql($userids, 'id', 'id');
                 $sql = "SELECT country, COUNT(country) AS newusers FROM {user} WHERE $insql GROUP BY country ORDER BY country";
                 $rows = $DB->get_records_sql($sql, $inparams);
-                $chart = new chart_bar();
-                $chart->set_horizontal(true);
-                $series = [];
-                $labels = [];
-                foreach ($rows as $row) {
-                    if (empty($row->country) || $row->country == '') {
-                        continue;
-                    }
-                    $series[] = $row->newusers;
-                    $labels[] = get_string($row->country, 'countries');
-                }
-                $series = new chart_series($title, $series);
-                $chart->add_series($series);
-                $chart->set_labels($labels);
-                return $this->output->render($chart);
+                $out = $this->create_countries($rows, $title);
             }
         }
-        return get_string('nostudentsfound', 'moodle', $title);
+        return $out;
     }
 }

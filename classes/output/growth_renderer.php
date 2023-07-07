@@ -114,14 +114,56 @@ class growth_renderer extends plugin_renderer_base {
     protected function collect_course_table($title, $table1, $table2, $field, $fieldwhere, $fieldresult = 'timemodified'): string {
         global $DB;
         $ids = $DB->get_fieldset_select($table1, 'id', $field . ' = :courseid', ['courseid' => $this->context->instanceid]);
-        $insql = $fieldresult . '< 0';
+        list($insql, $inparams) = $this->insql($ids, $fieldwhere, $fieldresult);
+        return $this->create_charts([], $table2, $title, $fieldresult, $insql, $inparams);
+    }
+
+    /**
+     * Collect course table.
+     *
+     * @param array $fieldset
+     * @param string $fieldwhere
+     * @param string $fieldresult
+     * @return array
+     */
+    protected function insql($fieldset, $fieldwhere, $fieldresult) {
+        global $DB;
         $inparams = [];
-        if (count($ids) > 0) {
-            sort($ids);
-            list($insql, $inparams) = $DB->get_in_or_equal($ids);
+        $insql = $fieldresult . '< 0';
+        if (count($fieldset) > 0) {
+            list($insql, $inparams) = $DB->get_in_or_equal($fieldset);
             $insql = $fieldwhere . ' ' . $insql;
         }
-        return $this->create_charts([], $table2, $title, $fieldresult, $insql, $inparams);
+        return [$insql, $inparams];
+    }
+
+    /**
+     * Table country.
+     *
+     * @param array $rows
+     * @param string $title
+     * @return string
+     */
+    protected function create_countries(array $rows, string $title = ''): string {
+        $title = get_string('users');
+        $out = get_string('nostudentsfound', 'moodle', $title);
+        if (count($rows) > 0) {
+            $chart = new chart_bar();
+            $chart->set_horizontal(true);
+            $series = [];
+            $labels = [];
+            foreach ($rows as $row) {
+                if (!empty($row->country) && $row->country != '') {
+                    $series[] = $row->newusers;
+                    $labels[] = get_string($row->country, 'countries');
+                }
+            }
+            $series = new chart_series($title, $series);
+            $chart->add_series($series);
+            $chart->set_labels($labels);
+            $out = $this->output->render($chart);
+        }
+        return $out;
     }
 
     /**

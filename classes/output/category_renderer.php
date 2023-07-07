@@ -67,6 +67,7 @@ class category_renderer extends growth_renderer {
             $rows['coursecompletions'] = get_string('coursecompletions');
         }
         $rows = array_merge($rows, $this->certificate_tabs());
+        $rows['countries'] = get_string('countries', 'report_growth');
         // Trigger a report viewed event.
         $this->trigger_page($p);
         return $this->render_page($rows, $p);
@@ -132,6 +133,32 @@ class category_renderer extends growth_renderer {
         return $this->collect_cat($title, 'tool_certificate_issues', 'courseid', 'timecreated');
     }
 
+    /**
+     * Table country.
+     *
+     * @param string $title Title
+     * @return string
+     */
+    public function table_countries($title = ''): string {
+        global $DB;
+        $title = get_string('users');
+        $out = get_string('nostudentsfound', 'moodle', $title);
+        if (count($this->courseids) > 0) {
+            list($insql, $inparams) = $this->insql($this->courseids, 'courseid', 'courseid');
+            $ids = $DB->get_fieldset_select('enrol', 'id', $insql, $inparams);
+            if (count($ids) > 0) {
+                list($insql, $inparams) = $this->insql($ids, 'enrolid', 'enrolid');
+                $userids = $DB->get_fieldset_select('user_enrolments', 'userid', $insql, $inparams);
+                if (count($userids) > 0) {
+                    list($insql, $inparams) = $this->insql($userids, 'id', 'id');
+                    $sql = "SELECT country, COUNT(country) AS newusers FROM {user} WHERE $insql GROUP BY country ORDER BY country";
+                    $rows = $DB->get_records_sql($sql, $inparams);
+                    $out = $this->create_countries($rows, $title);
+                }
+            }
+        }
+        return $out;
+    }
 
     /**
      * Collect category table.
@@ -143,14 +170,8 @@ class category_renderer extends growth_renderer {
      * @return string
      */
     private function collect_cat($title, $table, $fieldwhere, $fieldresult): string {
-        global $DB;
-        $out = get_string('nostudentsfound', 'moodle', $title);
-        if (count($this->courseids) > 0) {
-            list($insql, $inparams) = $DB->get_in_or_equal($this->courseids);
-            $insql = $fieldwhere. ' ' . $insql;
-            $out = $this->create_charts([], $table, $title, $fieldresult, $insql, $inparams);
-        }
-        return $out;
+        list($insql, $inparams) = $this->insql($this->courseids, $fieldwhere, $fieldresult);
+        return $this->create_charts([], $table, $title, $fieldresult, $insql, $inparams);
     }
 
     /**
@@ -167,13 +188,11 @@ class category_renderer extends growth_renderer {
     private function collect_cat2($title, $table1, $field1, $table2, $field2, $fieldresult): string {
         global $DB;
         if (count($this->courseids) > 0) {
-            list($insql, $inparams) = $DB->get_in_or_equal($this->courseids);
-            $insql = $field1 . ' ' . $insql;
+            list($insql, $inparams) = $this->insql($this->courseids, $field1, $fieldresult);
             $ids = $DB->get_fieldset_select($table1, 'id', $insql, $inparams);
             if (count($ids) > 0) {
                 sort($ids);
-                list($insql, $inparams) = $DB->get_in_or_equal($ids);
-                $insql = $field2 . ' ' . $insql;
+                list($insql, $inparams) = $this->insql($ids, $field2, $fieldresult);
                 return $this->create_charts([], $table2, $title, $fieldresult, $insql, $inparams);
             }
         }

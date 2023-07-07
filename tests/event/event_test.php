@@ -75,7 +75,7 @@ class event_test extends advanced_testcase {
         $this->assertInstanceOf('\report_growth\event\report_viewed', $event);
         $this->assertEquals($context, $event->get_context());
         $this->assertEquals('Growth report viewed', $event->get_name());
-        $this->assertEquals("The user with id '2' viewed the global growth report.", $event->get_description());
+        $this->assertEquals("The user with id '2' viewed tab '1' of the global growth report.", $event->get_description());
         $url = new moodle_url('/report/growth/index.php', ['p' => 1]);
         $this->assertEquals($url, $event->get_url());
         $this->assertEventContextNotUsed($event);
@@ -90,14 +90,14 @@ class event_test extends advanced_testcase {
         $this->assertEquals($context, $event->get_context());
         $this->assertEquals('Growth report viewed', $event->get_name());
         $this->assertEquals(
-            "The user with id '2' viewed the growth report for the course with id '" . $course->id . "'.",
+            "The user with id '2' viewed tab '1' of the growth report for the course with id '" . $course->id . "'.",
             $event->get_description());
         $url = new moodle_url('/report/growth/index.php', ['p' => 1, 'contextid' => $context->id]);
         $this->assertEquals($url, $event->get_url());
 
         $category = $this->getDataGenerator()->create_category();
         $context = \context_coursecat::instance($category->id);
-        $event = report_viewed::create(['context' => $context, 'other' => ['tab' => 1]]);
+        $event = report_viewed::create(['context' => $context, 'other' => ['tab' => 2]]);
         $sink = $this->redirectEvents();
         $event->trigger();
         $events = $sink->get_events();
@@ -106,9 +106,9 @@ class event_test extends advanced_testcase {
         $this->assertEquals($context, $event->get_context());
         $this->assertEquals('Growth report viewed', $event->get_name());
         $this->assertEquals
-            ("The user with id '2' viewed the growth report for the category with id '" . $category->id . "'.",
+            ("The user with id '2' viewed tab '2' of the growth report for the category with id '" . $category->id . "'.",
             $event->get_description());
-        $url = new moodle_url('/report/growth/index.php', ['p' => 1, 'contextid' => $context->id]);
+        $url = new moodle_url('/report/growth/index.php', ['p' => 2, 'contextid' => $context->id]);
         $this->assertEquals($url, $event->get_url());
     }
 }

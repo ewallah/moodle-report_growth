@@ -90,8 +90,8 @@ class renderers_test extends advanced_testcase {
         $context = \context_system::instance();
         $this->assertStringContainsString(' ', $output->create_tabtree($context));
         $this->assertStringContainsString('Mobile services enabled (Yes)', $output->table_summary());
-        $this->assertStringContainsString('>4</td>', $output->table_users('Users'));
-        $this->assertStringContainsString('>4</td>', $output->table_courses('Courses'));
+        $this->assertStringContainsString('>5</td>', $output->table_users('Users')); // Users + admin user.
+        $this->assertStringContainsString('>2</td>', $output->table_courses('Courses'));
         $this->assertStringContainsString('>4</td>', $output->table_enrolments('Enrolments'));
         $this->assertEquals('No Mobile devices found', $output->table_mobiles('Mobile devices'));
         $this->assertEquals('No Payments found', $output->table_payments('Payments'));

@@ -31,7 +31,7 @@
  * @param stdClass $context The context of the course
  */
 function report_growth_extend_navigation_course($navigation, $course, $context) {
-    if (has_capability('report/growth:viewcourse', $context)) {
+    if (has_capability('report/growth:viewcourse', $context) && $course->id > 1) {
         $url = new moodle_url('/report/growth/index.php', ['contextid' => $context->id]);
         $txt = get_string('growth', 'report_growth');
         $navigation->add($txt, $url, navigation_node::TYPE_SETTING, null, null, new pix_icon('i/report', ''));

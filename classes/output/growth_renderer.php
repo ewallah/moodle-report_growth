@@ -50,17 +50,18 @@ class growth_renderer extends plugin_renderer_base {
     protected function certificate_tabs() {
         global $CFG;
         $rows = [];
+        $plural = 'modulenameplural';
         if (!empty($CFG->enablebadges)) {
             $rows['badges'] = get_string('badges');
         }
         if (file_exists($CFG->dirroot . '/mod/certificate')) {
-            $rows['certificates'] = get_string('modulenameplural', 'mod_certificate');
+            $rows['certificates'] = get_string($plural, 'mod_certificate');
         }
         if (file_exists($CFG->dirroot . '/mod/customcert')) {
-            $rows['customcerts'] = get_string('modulenameplural', 'mod_customcert');
+            $rows['customcerts'] = get_string($plural, 'mod_customcert');
         }
         if (file_exists($CFG->dirroot . '/mod/coursecertificate')) {
-            $rows['coursecertificates'] = get_string('modulenameplural', 'mod_coursecertificate');
+            $rows['coursecertificates'] = get_string($plural, 'mod_coursecertificate');
         }
         return $rows;
     }
@@ -115,7 +116,7 @@ class growth_renderer extends plugin_renderer_base {
         global $DB;
         $ids = $DB->get_fieldset_select($table1, 'id', $field . ' = :courseid', ['courseid' => $this->context->instanceid]);
         list($insql, $inparams) = $this->insql($ids, $fieldwhere, $fieldresult);
-        return $this->create_charts([], $table2, $title, $fieldresult, $insql, $inparams);
+        return $this->create_charts($table2, $title, $fieldresult, $insql, $inparams);
     }
 
     /**
@@ -167,82 +168,120 @@ class growth_renderer extends plugin_renderer_base {
     }
 
     /**
-     * Create charts.
+     * Create intro table.
      *
      * @param array $data
-     * @param string $table
      * @param string $title
-     * @param string $field optional
-     * @param string $where optional
-     * @param string $params optional
      * @return string
      */
-    protected function create_charts($data, $table, $title, $field = 'timecreated', $where = '', $params = []): string {
-        global $DB;
-        $toyear = intval(date("Y"));
-
+    protected function create_intro(array $data, string $title): string {
+        $cnt = 0;
+        foreach ($data as $row) {
+            $cnt += $row[1];
+        }
         $tbl = new \html_table();
         $tbl->attributes = ['class' => 'table table-sm table-hover w-50'];
         $tbl->colclasses = ['text-left', 'text-right'];
         $tbl->size = [null, '5rem'];
         $tbl->caption = $title;
         $tbl->data = $data;
-        $wh = ($where == '') ? "$field > 0" : "($field > 0) AND ($where)";
-        $cnt = $DB->count_records_select($table, $wh, $params);
-        if ($cnt > 0) {
+        if (count($data) > 1) {
             $tbl->data[] = [\html_writer::tag('b', get_string('total')), $cnt];
-            if ($rows = $this->get_sql($field, $table, $wh, $params)) {
-                $week = get_string('week');
-                $chart1 = new chart_line();
-                $chart1->set_smooth(true);
-                $series = $labels = $quarter1 = $quarter2 = $quarter3 = $quarter4 = $qlabels = $totals = [];
-                $x = current($rows);
-                $total = 0;
-                $fromyear = is_object($x) ? intval(explode(' ', $x->week)[0]) : $toyear - 7;
-                $fromweek = is_object($x) ? intval(explode(' ', $x->week)[1]) : 1;
-                $nowweek = date('W');
-                for ($i = $fromyear; $i <= $toyear; $i++) {
-                    for ($j = $fromweek; $j <= 52; $j++) {
-                        $str = "$i $j";
-                        $total += array_key_exists($str, $rows) ? $rows[$str]->newitems : 0;
-                        $series[] = $total;
-                        $labels[] = "$i $week $j";
-                        if ($i == $toyear && $j > $nowweek) {
-                            break;
-                        }
+        }
+        return $cnt > 0 ? \html_writer::table($tbl) . '<br/>' : '';
+    }
+
+    /**
+     * Create chart 1.
+     *
+     * @param string $title
+     * @param array $series
+     * @param array $labels
+     * @return string
+     */
+    private function create_chart_one(string $title, array $series, array $labels): string {
+        $chart = new chart_line();
+        $chart->set_smooth(true);
+        $chart->add_series(new chart_series($title, $series));
+        $chart->set_labels($labels);
+        return $this->output->render($chart, false);
+    }
+
+    /**
+     * Create chart 2.
+     *
+     * @param array $totals
+     * @param array $labels
+     * @param array $quarters
+     * @return string
+     */
+    private function create_chart_two(array $totals, array $labels, array $quarters): string {
+        $q = get_string('quarter', 'report_growth');
+        $chart = new chart_bar();
+        $chart->set_stacked(true);
+        $series = new chart_series(get_string('total'), $totals);
+        $series->set_type(chart_series::TYPE_LINE);
+        $chart->add_series($series);
+        $chart->add_series(new chart_series($q . '1', $quarters[1]));
+        $chart->add_series(new chart_series($q . '2', $quarters[2]));
+        $chart->add_series(new chart_series($q . '3', $quarters[3]));
+        $chart->add_series(new chart_series($q . '4', $quarters[4]));
+        $chart->set_labels($labels);
+        return $this->output->render($chart);
+    }
+
+    /**
+     * Create charts.
+     *
+     * @param string $table
+     * @param string $title
+     * @param string $field optional
+     * @param string $where optional
+     * @param array $params optional
+     * @return string
+     */
+    protected function create_charts($table, $title, $field = 'timecreated', $where = '', $params = []): string {
+        $toyear = intval(date("Y"));
+        $wh = ($where == '') ? "$field > 0" : "($field > 0) AND ($where)";
+        if ($rows = $this->get_sql($field, $table, $wh, $params)) {
+            $week = get_string('week');
+            $series = $labels = $quarter1 = $quarter2 = $quarter3 = $quarter4 = $qlabels = $totals = [];
+            $x = current($rows);
+            $total = 0;
+            $fromyear = is_object($x) ? intval(explode(' ', $x->week)[0]) : $toyear - 7;
+            $fromyear = max($fromyear, $toyear - 7);
+            $fromweek = is_object($x) ? intval(explode(' ', $x->week)[1]) : 1;
+            $nowweek = date('W');
+            for ($i = $fromyear; $i <= $toyear; $i++) {
+                for ($j = $fromweek; $j <= 52; $j++) {
+                    $str = "$i $j";
+                    $total += array_key_exists($str, $rows) ? $rows[$str]->newitems : 0;
+                    $series[] = $total;
+                    $labels[] = "$i $week $j";
+                    if ($i == $toyear && $j > $nowweek) {
+                        break;
                     }
-                    $fromweek = 1;
                 }
-                $chart1->add_series(new chart_series($title, $series));
-                $chart1->set_labels($labels);
+                $fromweek = 1;
             }
-            if ($rows = $this->get_sql($field, $table, $wh, $params, false)) {
-                $q = get_string('quarter', 'report_growth');
-                for ($i = $fromyear; $i <= $toyear; $i++) {
-                    $x1 = array_key_exists("$i 1", $rows) ? $rows["$i 1"]->newitems : 0;
-                    $x2 = array_key_exists("$i 2", $rows) ? $rows["$i 2"]->newitems : 0;
-                    $x3 = array_key_exists("$i 3", $rows) ? $rows["$i 3"]->newitems : 0;
-                    $x4 = array_key_exists("$i 4", $rows) ? $rows["$i 4"]->newitems : 0;
-                    $quarter1[] = $x1;
-                    $quarter2[] = $x2;
-                    $quarter3[] = $x3;
-                    $quarter4[] = $x4;
-                    $totals[] = $x1 + $x2 + $x3 + $x4;
-                    $qlabels[] = $i;
-                }
-                $chart2 = new chart_bar();
-                $chart2->set_stacked(true);
-                $series = new chart_series(get_string('total'), $totals);
-                $series->set_type(chart_series::TYPE_LINE);
-                $chart2->add_series($series);
-                $chart2->add_series(new chart_series($q . '1', $quarter1));
-                $chart2->add_series(new chart_series($q . '2', $quarter2));
-                $chart2->add_series(new chart_series($q . '3', $quarter3));
-                $chart2->add_series(new chart_series($q . '4', $quarter4));
-                $chart2->set_labels($qlabels);
-                $out = count($data) == 0 ? '' : \html_writer::table($tbl) . '<br/>';
-                return  $out . $this->output->render($chart1, false) . '<br/>' . $this->output->render($chart2);
+            $chart1 = $this->create_chart_one($title, $series, $labels);
+            // If it worked the first time...
+            $rows = $this->get_sql($field, $table, $wh, $params, false);
+            for ($i = $fromyear; $i <= $toyear; $i++) {
+                $x1 = array_key_exists("$i 1", $rows) ? $rows["$i 1"]->newitems : 0;
+                $x2 = array_key_exists("$i 2", $rows) ? $rows["$i 2"]->newitems : 0;
+                $x3 = array_key_exists("$i 3", $rows) ? $rows["$i 3"]->newitems : 0;
+                $x4 = array_key_exists("$i 4", $rows) ? $rows["$i 4"]->newitems : 0;
+                $quarter1[] = $x1;
+                $quarter2[] = $x2;
+                $quarter3[] = $x3;
+                $quarter4[] = $x4;
+                $totals[] = $x1 + $x2 + $x3 + $x4;
+                $qlabels[] = $i;
             }
+            $quarters = [null, $quarter1, $quarter2, $quarter3, $quarter4];
+            $chart2 = $this->create_chart_two($totals, $qlabels, $quarters);
+            return  $chart1 . '<br/>' . $chart2;
         }
         return get_string('nostudentsfound', 'moodle', $title);
     }

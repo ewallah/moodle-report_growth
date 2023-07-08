@@ -92,7 +92,7 @@ class global_renderer extends growth_renderer {
      * @return string
      */
     public function table_lastaccess($title = ''): string {
-        return $this->create_charts([], 'user_lastaccess', $title, 'timeaccess');
+        return $this->create_charts('user_lastaccess', $title, 'timeaccess');
     }
 
     /**
@@ -108,7 +108,7 @@ class global_renderer extends growth_renderer {
            [get_string('suspended'), $DB->count_records('user', ['suspended' => 1])],
            [get_string('confirmed', 'admin'), $DB->count_records('user', ['confirmed' => 1])],
            [get_string('activeusers'), $DB->count_records_select('user', 'lastip <> ?', [''])]];
-        return $this->create_charts($arr, 'user', $title);
+        return $this->create_intro($arr, $title) . $this->create_charts('user', $title);
     }
 
     /**
@@ -120,7 +120,7 @@ class global_renderer extends growth_renderer {
     public function table_courses($title = ''): string {
         global $DB;
         $arr = [[get_string('categories'), $DB->count_records('course_categories', [])]];
-        return $this->create_charts($arr, 'course', $title, 'timecreated', 'id > 1');
+        return $this->create_intro($arr, $title) . $this->create_charts('course', $title, 'timecreated', 'id > 1');
     }
 
     /**
@@ -141,7 +141,7 @@ class global_renderer extends growth_renderer {
                 $arr[] = [get_string('pluginname', 'enrol_'. $key), $cnt];
             }
         }
-        return $this->create_charts($arr, 'user_enrolments', $title);
+        return $this->create_intro($arr, $title) . $this->create_charts('user_enrolments', $title);
     }
 
     /**
@@ -151,7 +151,7 @@ class global_renderer extends growth_renderer {
      * @return string
      */
     public function table_payments($title = ''): string {
-        return $this->create_charts([], 'payments', $title);
+        return $this->create_charts('payments', $title);
     }
 
     /**
@@ -161,7 +161,7 @@ class global_renderer extends growth_renderer {
      * @return string
      */
     public function table_mobiles($title = ''): string {
-        return $this->create_charts([], 'user_devices', $title);
+        return $this->create_charts('user_devices', $title);
     }
 
     /**
@@ -171,7 +171,7 @@ class global_renderer extends growth_renderer {
      * @return string
      */
     public function table_badges($title = ''): string {
-        return $this->create_charts([], 'badge_issued', $title, 'dateissued');
+        return $this->create_charts('badge_issued', $title, 'dateissued');
     }
 
     /**
@@ -181,7 +181,7 @@ class global_renderer extends growth_renderer {
      * @return string
      */
     public function table_activities($title = ''): string {
-        return $this->create_charts([], 'course_modules', $title, 'added');
+        return $this->create_charts('course_modules', $title, 'added');
     }
 
     /**
@@ -191,7 +191,7 @@ class global_renderer extends growth_renderer {
      * @return string
      */
     public function table_activitiescompleted ($title = ''): string {
-        return $this->create_charts([], 'course_modules_completion', $title, 'timemodified');
+        return $this->create_charts('course_modules_completion', $title, 'timemodified');
     }
 
     /**
@@ -201,7 +201,7 @@ class global_renderer extends growth_renderer {
      * @return string
      */
     public function table_coursecompletions($title = ''): string {
-        return $this->create_charts([], 'course_completions', $title, 'timecompleted');
+        return $this->create_charts('course_completions', $title, 'timecompleted');
     }
 
     /**
@@ -211,7 +211,7 @@ class global_renderer extends growth_renderer {
      * @return string
      */
     public function table_questions($title = ''): string {
-        return $this->create_charts([], 'question', $title);
+        return $this->create_charts('question', $title);
     }
 
     /**
@@ -221,7 +221,7 @@ class global_renderer extends growth_renderer {
      * @return string
      */
     public function table_logguests($title = ''): string {
-        return $this->create_charts([], 'logstore_standard_log', $title, 'timecreated', 'userid = 1');
+        return $this->create_charts('logstore_standard_log', $title, 'timecreated', 'userid = 1');
     }
 
     /**
@@ -231,7 +231,7 @@ class global_renderer extends growth_renderer {
      * @return string
      */
     public function table_certificates($title = ''): string {
-        return $this->create_charts([], 'certificate_issues', $title);
+        return $this->create_charts('certificate_issues', $title);
     }
 
     /**
@@ -241,7 +241,7 @@ class global_renderer extends growth_renderer {
      * @return string
      */
     public function table_customcerts($title = ''): string {
-        return $this->create_charts([], 'customcert_issues', $title);
+        return $this->create_charts('customcert_issues', $title);
     }
 
     /**
@@ -251,7 +251,7 @@ class global_renderer extends growth_renderer {
      * @return string
      */
     public function table_coursecertificates($title = ''): string {
-        return $this->create_charts([], 'tool_certificate_issues', $title);
+        return $this->create_charts('tool_certificate_issues', $title);
     }
 
     /**
@@ -261,7 +261,7 @@ class global_renderer extends growth_renderer {
      * @return string
      */
     public function table_files($title = ''): string {
-        return $this->create_charts([], 'files', $title);
+        return $this->create_charts('files', $title);
     }
 
     /**
@@ -271,7 +271,7 @@ class global_renderer extends growth_renderer {
      * @return string
      */
     public function table_messages($title = ''): string {
-        return $this->create_charts([], 'messages', $title);
+        return $this->create_charts('messages', $title);
     }
 
     /**

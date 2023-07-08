@@ -169,9 +169,9 @@ class category_renderer extends growth_renderer {
      * @param string $fieldresult The field that has to be calculated
      * @return string
      */
-    private function collect_cat($title, $table, $fieldwhere, $fieldresult): string {
+    protected function collect_cat($title, $table, $fieldwhere, $fieldresult): string {
         list($insql, $inparams) = $this->insql($this->courseids, $fieldwhere, $fieldresult);
-        return $this->create_charts([], $table, $title, $fieldresult, $insql, $inparams);
+        return $this->create_charts($table, $title, $fieldresult, $insql, $inparams);
     }
 
     /**
@@ -185,7 +185,7 @@ class category_renderer extends growth_renderer {
      * @param string $fieldresult The field that has to be calculated
      * @return string
      */
-    private function collect_cat2($title, $table1, $field1, $table2, $field2, $fieldresult): string {
+    protected function collect_cat2($title, $table1, $field1, $table2, $field2, $fieldresult): string {
         global $DB;
         if (count($this->courseids) > 0) {
             list($insql, $inparams) = $this->insql($this->courseids, $field1, $fieldresult);
@@ -193,7 +193,7 @@ class category_renderer extends growth_renderer {
             if (count($ids) > 0) {
                 sort($ids);
                 list($insql, $inparams) = $this->insql($ids, $field2, $fieldresult);
-                return $this->create_charts([], $table2, $title, $fieldresult, $insql, $inparams);
+                return $this->create_charts($table2, $title, $fieldresult, $insql, $inparams);
             }
         }
         return get_string('nostudentsfound', 'moodle', $title);

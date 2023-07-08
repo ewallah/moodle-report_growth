@@ -120,7 +120,7 @@ class index_test extends advanced_testcase {
     public function pageprovider() {
         return [
             [1, 'Number of users (5)'],
-            [2, '>3</td>'],   // There are 3 courses.
+            [2, '>1</td>'],   // There is 1 course category.
             [3, 'Suspended'], // There are no users suspended.
             [4, 'No Last '],  // No one there.
             [5, '>2</td>'],   // There are 2 enrolments.

@@ -95,7 +95,7 @@ class course_renderer extends growth_renderer {
      * @return string
      */
     public function table_activities($title = ''): string {
-        return $this->create_charts([], 'course_modules', $title, 'added', 'course = ' . $this->courseid);
+        return $this->create_charts('course_modules', $title, 'added', 'course = ' . $this->courseid);
     }
 
     /**
@@ -115,7 +115,7 @@ class course_renderer extends growth_renderer {
      * @return string
      */
     public function table_coursecompletions($title = ''): string {
-        return $this->create_charts([], 'course_completions', $title, 'timecompleted', 'course = ' . $this->courseid);
+        return $this->create_charts('course_completions', $title, 'timecompleted', 'course = ' . $this->courseid);
     }
 
     /**
@@ -145,7 +145,7 @@ class course_renderer extends growth_renderer {
      * @return string
      */
     public function table_coursecertificates($title = ''): string {
-        return $this->create_charts([], 'tool_certificate_issues', $title, 'timecreated', 'courseid = ' . $this->courseid);
+        return $this->create_charts('tool_certificate_issues', $title, 'timecreated', 'courseid = ' . $this->courseid);
     }
 
     /**

@@ -24,7 +24,6 @@ Feature: Growth checks for empty system
     And I follow "Users"
     And I follow "Last access"
     And I follow "Enrolments"
-    And I follow "Guests"
     And I follow "Activities"
     And I follow "Activity completion"
     And I follow "Course completions"

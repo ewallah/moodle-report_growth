@@ -53,7 +53,7 @@ class renderers_test extends advanced_testcase {
         $dg->create_course(['category' => $categoryid]);
         $dg->create_course(['category' => $categoryid]);
         $dg->create_course(['category' => $categoryid]);
-        $courseid = $dg->create_course(['category' => $categoryid])->id;
+        $courseid = $dg->create_course(['category' => $categoryid, 'enablecompletion' => true])->id;
         $user = $dg->create_user();
         $dg->enrol_user($user->id, $courseid, 'student');
         $user = $dg->create_user(['country' => 'BE']);

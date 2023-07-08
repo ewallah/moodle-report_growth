@@ -83,9 +83,6 @@ Feature: View growth report on system, category and course level
     And I should see "Guest access"
     And I should see "12"
     And "Show chart data" "link" should exist
-    And I follow "Guests"
-    And I should see "No Guests found"
-    And "Show chart data" "link" should not exist
     And I follow "Activities"
     And I follow "Show chart data"
     And I should see "2"

@@ -44,19 +44,64 @@ class index_test extends advanced_testcase {
      * Setup testcase.
      */
     public function setUp():void {
+        global $CFG, $DB;
+        require_once($CFG->libdir . '/badgeslib.php');
+        require_once($CFG->dirroot . '/badges/lib.php');
+
+        $CFG->enablecompletion = true;
         set_config('logguests', 1, 'logstore_standard');
         $this->setAdminUser();
         $this->resetAfterTest();
         $dg = $this->getDataGenerator();
-        $course = $dg->create_course();
+        $course = $dg->create_course(['enablecompletion' => true]);
         $user = $dg->create_user(['country' => 'BE']);
-        $course = $dg->create_course();
+        $course = $dg->create_course(['enablecompletion' => true]);
         $dg->create_module('page', ['course' => $course->id]);
         $user = $dg->create_user(['country' => 'NL']);
         $dg->enrol_user($user->id, $course->id);
-        $course = $dg->create_course();
+        $course = $dg->create_course(['enablecompletion' => true]);
         $user = $dg->create_user(['country' => 'UG']);
         $dg->enrol_user($user->id, $course->id);
+        $fordb = new \stdClass();
+        $fordb->id = null;
+        $fordb->name = 'Test badge';
+        $fordb->description = 'Testing badges';
+        $fordb->timecreated = time();
+        $fordb->timemodified = time();
+        $fordb->usercreated = $user->id;
+        $fordb->usermodified = $user->id;
+        $fordb->issuername = "Test issuer";
+        $fordb->issuerurl = "http://issuer-url.domain.co.nz";
+        $fordb->issuercontact = "issuer@example.com";
+        $fordb->expiredate = null;
+        $fordb->expireperiod = null;
+        $fordb->type = BADGE_TYPE_SITE;
+        $fordb->version = 1;
+        $fordb->language = 'en';
+        $fordb->courseid = null;
+        $fordb->messagesubject = "Test message subject";
+        $fordb->message = "Test message body";
+        $fordb->attachment = 1;
+        $fordb->notification = 0;
+        $fordb->imageauthorname = "Image Author 1";
+        $fordb->imageauthoremail = "author@example.com";
+        $fordb->imageauthorurl = "http://author-url.example.com";
+        $fordb->imagecaption = "Test caption image";
+        $fordb->status = BADGE_STATUS_INACTIVE;
+        $DB->insert_record('badge', $fordb, true);
+
+        // Set the default Issuer (because OBv2 needs them).
+        set_config('badges_defaultissuername', $fordb->issuername);
+        set_config('badges_defaultissuercontact', $fordb->issuercontact);
+
+        $completionauto = ['completion' => COMPLETION_TRACKING_AUTOMATIC];
+        $this->module = $dg->create_module('forum', ['course' => $course->id], $completionauto);
+
+        // Build badge and criteria.
+        $fordb->type = BADGE_TYPE_COURSE;
+        $fordb->courseid = $course->id;
+        $fordb->status = BADGE_STATUS_ACTIVE;
+        $DB->insert_record('badge', $fordb, true);
     }
 
     /**

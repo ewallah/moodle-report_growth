@@ -210,15 +210,15 @@ class growth_renderer extends plugin_renderer_base {
     /**
      * Create chart 2.
      *
-     * @param array $totals
-     * @param array $labels
      * @param array $quarters
+     * @param array $labels
      * @return string
      */
-    private function create_chart_two(array $totals, array $labels, array $quarters): string {
+    private function create_chart_two(array $quarters, array $labels): string {
         $q = get_string('quarter', 'report_growth');
         $chart = new chart_bar();
         $chart->set_stacked(true);
+        $totals = [array_sum($quarters[1]), array_sum($quarters[2]), array_sum($quarters[3]), array_sum($quarters[4])];
         $series = new chart_series(get_string('total'), $totals);
         $series->set_type(chart_series::TYPE_LINE);
         $chart->add_series($series);
@@ -242,16 +242,15 @@ class growth_renderer extends plugin_renderer_base {
      */
     protected function create_charts($table, $title, $field = 'timecreated', $where = '', $params = []): string {
         $toyear = intval(date("Y"));
+        $nowweek = date('W');
         $wh = ($where == '') ? "$field > 0" : "($field > 0) AND ($where)";
         if ($rows = $this->get_sql($field, $table, $wh, $params)) {
             $week = get_string('week');
-            $series = $labels = $quarter1 = $quarter2 = $quarter3 = $quarter4 = $qlabels = $totals = [];
+            $series = $labels = [];
             $x = current($rows);
             $total = 0;
-            $fromyear = is_object($x) ? intval(explode(' ', $x->week)[0]) : $toyear - 7;
-            $fromyear = max($fromyear, $toyear - 7);
+            $fromyear = is_object($x) ? intval(explode(' ', $x->week)[0]) : $toyear;
             $fromweek = is_object($x) ? intval(explode(' ', $x->week)[1]) : 1;
-            $nowweek = date('W');
             for ($i = $fromyear; $i <= $toyear; $i++) {
                 for ($j = $fromweek; $j <= 52; $j++) {
                     $str = "$i $j";
@@ -265,22 +264,20 @@ class growth_renderer extends plugin_renderer_base {
                 $fromweek = 1;
             }
             $chart1 = $this->create_chart_one($title, $series, $labels);
+            $labels = $quarter1 = $quarter2 = $quarter3 = $quarter4 = [];
             // If it worked the first time...
             $rows = $this->get_sql($field, $table, $wh, $params, false);
+            print_object($rows);
+                
             for ($i = $fromyear; $i <= $toyear; $i++) {
-                $x1 = array_key_exists("$i 1", $rows) ? $rows["$i 1"]->newitems : 0;
-                $x2 = array_key_exists("$i 2", $rows) ? $rows["$i 2"]->newitems : 0;
-                $x3 = array_key_exists("$i 3", $rows) ? $rows["$i 3"]->newitems : 0;
-                $x4 = array_key_exists("$i 4", $rows) ? $rows["$i 4"]->newitems : 0;
-                $quarter1[] = $x1;
-                $quarter2[] = $x2;
-                $quarter3[] = $x3;
-                $quarter4[] = $x4;
-                $totals[] = $x1 + $x2 + $x3 + $x4;
-                $qlabels[] = $i;
+                $quarter1[] = array_key_exists("$i 1", $rows) ? $rows["$i 1"]->newitems : 0;
+                $quarter2[] = array_key_exists("$i 2", $rows) ? $rows["$i 2"]->newitems : 0;
+                $quarter3[] = array_key_exists("$i 3", $rows) ? $rows["$i 3"]->newitems : 0;
+                $quarter4[] = array_key_exists("$i 4", $rows) ? $rows["$i 4"]->newitems : 0;
+                $labels[] = $i;
             }
             $quarters = [null, $quarter1, $quarter2, $quarter3, $quarter4];
-            $chart2 = $this->create_chart_two($totals, $qlabels, $quarters);
+            $chart2 = $this->create_chart_two($quarters, $labels);
             return  $chart1 . '<br/>' . $chart2;
         }
         return get_string('nostudentsfound', 'moodle', $title);

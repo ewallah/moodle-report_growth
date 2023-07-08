@@ -212,13 +212,13 @@ class growth_renderer extends plugin_renderer_base {
      *
      * @param array $quarters
      * @param array $labels
+     * @param array $totals
      * @return string
      */
-    private function create_chart_two(array $quarters, array $labels): string {
+    private function create_chart_two(array $quarters, array $labels, array $totals): string {
         $q = get_string('quarter', 'report_growth');
         $chart = new chart_bar();
         $chart->set_stacked(true);
-        $totals = [array_sum($quarters[1]), array_sum($quarters[2]), array_sum($quarters[3]), array_sum($quarters[4])];
         $series = new chart_series(get_string('total'), $totals);
         $series->set_type(chart_series::TYPE_LINE);
         $chart->add_series($series);
@@ -264,18 +264,23 @@ class growth_renderer extends plugin_renderer_base {
                 $fromweek = 1;
             }
             $chart1 = $this->create_chart_one($title, $series, $labels);
-            $labels = $quarter1 = $quarter2 = $quarter3 = $quarter4 = [];
+            $labels = $totals = $quarter1 = $quarter2 = $quarter3 = $quarter4 = [];
             // If it worked the first time...
             $rows = $this->get_sql($field, $table, $wh, $params, false);
             for ($i = $fromyear; $i <= $toyear; $i++) {
-                $quarter1[] = array_key_exists("$i 1", $rows) ? $rows["$i 1"]->newitems : 0;
-                $quarter2[] = array_key_exists("$i 2", $rows) ? $rows["$i 2"]->newitems : 0;
-                $quarter3[] = array_key_exists("$i 3", $rows) ? $rows["$i 3"]->newitems : 0;
-                $quarter4[] = array_key_exists("$i 4", $rows) ? $rows["$i 4"]->newitems : 0;
+                $x1 = array_key_exists("$i 1", $rows) ? $rows["$i 1"]->newitems : 0;
+                $x2 = array_key_exists("$i 2", $rows) ? $rows["$i 2"]->newitems : 0;
+                $x3 = array_key_exists("$i 3", $rows) ? $rows["$i 3"]->newitems : 0;
+                $x4 = array_key_exists("$i 4", $rows) ? $rows["$i 4"]->newitems : 0;
+                $quarter1[] = $x1;
+                $quarter2[] = $x2;
+                $quarter3[] = $x3;
+                $quarter4[] = $x4;
+                $totals[] = $x1 + $x2 + $x3 + $x4;
                 $labels[] = $i;
             }
             $quarters = [null, $quarter1, $quarter2, $quarter3, $quarter4];
-            $chart2 = $this->create_chart_two($quarters, $labels);
+            $chart2 = $this->create_chart_two($quarters, $labels, $totals);
             return  $chart1 . '<br/>' . $chart2;
         }
         return get_string('nostudentsfound', 'moodle', $title);

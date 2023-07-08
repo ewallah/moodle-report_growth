@@ -267,8 +267,6 @@ class growth_renderer extends plugin_renderer_base {
             $labels = $quarter1 = $quarter2 = $quarter3 = $quarter4 = [];
             // If it worked the first time...
             $rows = $this->get_sql($field, $table, $wh, $params, false);
-            print_object($rows);
-                
             for ($i = $fromyear; $i <= $toyear; $i++) {
                 $quarter1[] = array_key_exists("$i 1", $rows) ? $rows["$i 1"]->newitems : 0;
                 $quarter2[] = array_key_exists("$i 2", $rows) ? $rows["$i 2"]->newitems : 0;

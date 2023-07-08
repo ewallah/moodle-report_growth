@@ -62,8 +62,12 @@ class category_renderer extends growth_renderer {
         $coursecat = \core_course_category::get($this->categoryid);
         $this->courseids = array_keys($coursecat->get_courses());
         sort($this->courseids);
-        $rows = ['enrolments' => get_string('enrolments', 'enrol')];
+        $rows = [
+            'enrolments' => get_string('enrolments', 'enrol'),
+            'lastaccess' => get_string('lastaccess'),
+            'activities' => get_string('activities')];
         if (!empty($CFG->enablecompletion)) {
+            $rows['activitiescompleted'] = get_string('activitiescompleted', 'completion');
             $rows['coursecompletions'] = get_string('coursecompletions');
         }
         $rows = array_merge($rows, $this->certificate_tabs());
@@ -81,6 +85,42 @@ class category_renderer extends growth_renderer {
      */
     public function table_enrolments($title = ''): string {
         return $this->collect_cat2($title, 'enrol', 'courseid', 'user_enrolments', 'enrolid', 'timecreated');
+    }
+
+    /**
+     * Table last access.
+     *
+     * @param string $title Title
+     * @return string
+     */
+    public function table_lastaccess($title = ''): string {
+        return $this->collect_cat($title, 'user_lastaccess', 'courseid', 'timeaccess');
+    }
+
+    /**
+     * Table activities.
+     *
+     * @param string $title Title
+     * @return string
+     */
+    public function table_activities($title = ''): string {
+        return $this->collect_cat($title, 'course_modules', 'course', 'added');
+    }
+
+    /**
+     * Table activities completed.
+     *
+     * @param string $title Title
+     * @return string
+     */
+    public function table_activitiescompleted($title = ''): string {
+        return $this->collect_cat2(
+            $title,
+            'course_modules',
+            'course',
+            'course_modules_completion',
+            'coursemoduleid',
+            'timemodified');
     }
 
     /**

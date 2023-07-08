@@ -175,20 +175,13 @@ class growth_renderer extends plugin_renderer_base {
      * @return string
      */
     protected function create_intro(array $data, string $title): string {
-        $cnt = 0;
-        foreach ($data as $row) {
-            $cnt += $row[1];
-        }
         $tbl = new \html_table();
         $tbl->attributes = ['class' => 'table table-sm table-hover w-50'];
         $tbl->colclasses = ['text-left', 'text-right'];
         $tbl->size = [null, '5rem'];
         $tbl->caption = $title;
         $tbl->data = $data;
-        if (count($data) > 1) {
-            $tbl->data[] = [\html_writer::tag('b', get_string('total')), $cnt];
-        }
-        return $cnt > 0 ? \html_writer::table($tbl) . '<br/>' : '';
+        return count($data) > 0 ? \html_writer::table($tbl) . '<br/>' : '';
     }
 
     /**

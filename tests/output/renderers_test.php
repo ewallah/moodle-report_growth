@@ -74,7 +74,7 @@ class renderers_test extends advanced_testcase {
         global $PAGE;
         $context = \context_course::instance($this->courseid);
         $output = new course_renderer($PAGE, 'general');
-        $this->assertStringContainsString('No Activities found', $output->create_tabtree($context, 2));
+        $this->assertStringContainsString('No Activities found', $output->create_tabtree($context, 3));
         $this->assertStringContainsString('Show chart data', $output->table_enrolments());
         $this->assertStringContainsString('Show chart data', $output->table_countries());
     }

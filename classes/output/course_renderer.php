@@ -56,7 +56,10 @@ class course_renderer extends growth_renderer {
         global $CFG;
         $this->courseid = $context->instanceid;
         $this->context = $context;
-        $rows = ['enrolments' => get_string('enrolments', 'enrol'), 'activities' => get_string('activities')];
+        $rows = [
+            'enrolments' => get_string('enrolments', 'enrol'),
+            'lastaccess' => get_string('lastaccess'),
+            'activities' => get_string('activities')];
         if (!empty($CFG->enablecompletion)) {
             $rows['activitiescompleted'] = get_string('activitiescompleted', 'completion');
             $rows['coursecompletions'] = get_string('coursecompletions');
@@ -79,13 +82,13 @@ class course_renderer extends growth_renderer {
     }
 
     /**
-     * Table badges.
+     * Table last access.
      *
      * @param string $title Title
      * @return string
      */
-    public function table_badges($title = ''): string {
-        return $this->collect_course_table($title, 'badge', 'badge_issued', 'courseid', 'badgeid', 'dateissued');
+    public function table_lastaccess($title = ''): string {
+        return $this->create_charts('user_lastaccess', $title, 'timeaccess', 'courseid = ' . $this->courseid);
     }
 
     /**
@@ -116,6 +119,16 @@ class course_renderer extends growth_renderer {
      */
     public function table_coursecompletions($title = ''): string {
         return $this->create_charts('course_completions', $title, 'timecompleted', 'course = ' . $this->courseid);
+    }
+
+    /**
+     * Table badges.
+     *
+     * @param string $title Title
+     * @return string
+     */
+    public function table_badges($title = ''): string {
+        return $this->collect_course_table($title, 'badge', 'badge_issued', 'courseid', 'badgeid', 'dateissued');
     }
 
     /**

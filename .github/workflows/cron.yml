@@ -32,7 +32,7 @@ jobs:
 
       - name: composer
         run: |
-           composer create-project -n --no-dev --prefer-dist moodlehq/moodle-plugin-ci ci ^3
+           composer create-project -n --no-dev --prefer-dist moodlehq/moodle-plugin-ci ci ^4
            echo $(cd ci/bin; pwd) >> $GITHUB_PATH
            echo $(cd ci/vendor/bin; pwd) >> $GITHUB_PATH
            sudo locale-gen en_AU.UTF-8
@@ -87,3 +87,9 @@ jobs:
       - name: behat
         if: ${{ always() }}
         run: moodle-plugin-ci --ansi behat --profile=chrome
+
+      - name: coveralls
+        if: ${{ always() }}
+        run: moodle-plugin-ci coveralls-upload
+        env:
+          COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -47,22 +47,22 @@ class global_renderer extends growth_renderer {
     public function create_tabtree($context, $p = 1) {
         global $CFG;
         $this->context = $context;
-        $txt = get_strings(['summary', 'courses', 'users', 'lastaccess', 'files']);
+        $txt = get_strings(['summary', 'courses', 'users', 'activities', 'lastaccess', 'coursecompletions', 'files', 'payments']);
         $rows = ['summary' => $txt->summary, 'courses' => $txt->courses, 'users' => $txt->users, 'lastaccess' => $txt->lastaccess];
         $rows['enrolments'] = get_string('enrolments', 'enrol');
         if (!empty($CFG->logguests)) {
             $rows['logguests'] = get_string('policydocaudience2', 'tool_policy');
         }
-        $rows['activities'] = get_string('activities');
+        $rows['activities'] = $txt->activities;
         if (!empty($CFG->enablecompletion)) {
             $rows['activitiescompleted'] = get_string('activitiescompleted', 'completion');
-            $rows['coursecompletions'] = get_string('coursecompletions');
+            $rows['coursecompletions'] = $txt->coursecompletions;
         }
         if (!empty($CFG->enablemobilewebservice)) {
             $rows['mobiles'] = get_string('mobile', 'report_growth');
         }
         $rows = array_merge($rows, $this->certificate_tabs());
-        $rows['payments'] = get_string('payments');
+        $rows['payments'] = $txt->payments;
         $rows['questions'] = get_string('questions', 'question');
         $rows['files'] = $txt->files;
         $rows['messages'] = get_string('messages', 'message');
@@ -71,7 +71,6 @@ class global_renderer extends growth_renderer {
         $this->trigger_page($p);
         return $this->render_page($rows, $p);
     }
-
 
     /**
      * Table summary.

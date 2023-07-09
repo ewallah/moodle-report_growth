@@ -62,13 +62,14 @@ class category_renderer extends growth_renderer {
         $coursecat = \core_course_category::get($this->categoryid);
         $this->courseids = array_keys($coursecat->get_courses());
         sort($this->courseids);
+        $txt = get_strings(['activities', 'lastaccess', 'coursecompletions']);
         $rows = [
             'enrolments' => get_string('enrolments', 'enrol'),
-            'lastaccess' => get_string('lastaccess'),
-            'activities' => get_string('activities')];
+            'lastaccess' => $txt->lastaccess,
+            'activities' => $txt->activities];
         if (!empty($CFG->enablecompletion)) {
             $rows['activitiescompleted'] = get_string('activitiescompleted', 'completion');
-            $rows['coursecompletions'] = get_string('coursecompletions');
+            $rows['coursecompletions'] = $txt->coursecompletions;
         }
         $rows = array_merge($rows, $this->certificate_tabs());
         $rows['countries'] = get_string('countries', 'report_growth');

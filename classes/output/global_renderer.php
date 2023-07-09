@@ -50,9 +50,7 @@ class global_renderer extends growth_renderer {
         $txt = get_strings(['summary', 'courses', 'users', 'activities', 'lastaccess', 'coursecompletions', 'files', 'payments']);
         $rows = ['summary' => $txt->summary, 'courses' => $txt->courses, 'users' => $txt->users, 'lastaccess' => $txt->lastaccess];
         $rows['enrolments'] = get_string('enrolments', 'enrol');
-        if (!empty($CFG->logguests)) {
-            $rows['logguests'] = get_string('policydocaudience2', 'tool_policy');
-        }
+        $rows['logguests'] = get_string('policydocaudience2', 'tool_policy');
         $rows['activities'] = $txt->activities;
         if (!empty($CFG->enablecompletion)) {
             $rows['activitiescompleted'] = get_string('activitiescompleted', 'completion');

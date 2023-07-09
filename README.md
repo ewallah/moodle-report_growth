@@ -96,3 +96,4 @@ detailed support.
 ### Maturity: Stable
 
 [![Build Status](https://github.com/ewallah/moodle-report_growth/workflows/Tests/badge.svg)](https://github.com/ewallah/moodle-moodle-report_growth/actions)
+[![Coverage Status](https://coveralls.io/repos/github/ewallah/moodle-report_growth/badge.svg?branch=main)](https://coveralls.io/github/ewallah/moodle-report_growth?branch=main)

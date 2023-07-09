@@ -90,6 +90,9 @@ jobs:
           DB: ${{ matrix.database }}
           MOODLE_BRANCH: ${{ matrix.moodle-branch }}
 
+      - name: add guestlogin
+        run: moodle-plugin-ci add-config -q -n '$CFG->logguests = true;'
+
       - name: phplint
         if: ${{ always() }}
         run: moodle-plugin-ci --ansi phplint

@@ -60,7 +60,7 @@ class category_renderer extends growth_renderer {
         $this->categoryid = $context->instanceid;
         $this->context = $context;
         $coursecat = \core_course_category::get($this->categoryid);
-        $this->courseids = array_keys($coursecat->get_courses());
+        $this->courseids = array_values($coursecat->get_courses(['recursive' => true, 'idonly' => true]));
         sort($this->courseids);
         $txt = get_strings(['activities', 'lastaccess', 'coursecompletions']);
         $rows = [

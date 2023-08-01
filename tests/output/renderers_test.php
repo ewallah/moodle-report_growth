@@ -62,7 +62,13 @@ class renderers_test extends advanced_testcase {
         $dg->enrol_user($user->id, $courseid, 'student');
         $user = $dg->create_user(['country' => 'UG']);
         $dg->enrol_user($user->id, $courseid, 'student');
+        $user = $dg->create_user(['country' => 'UG']);
+        $dg->enrol_user($user->id, $courseid, 'editingteacher');
+        $this->setUser($user->id);
+        $params = ['objectid' => $courseid, 'context' => \context_course::instance($courseid)];
+        \core\event\course_information_viewed::create($params);
         $this->courseid = $courseid;
+        $this->setUser(null);
     }
 
     /**
@@ -77,6 +83,8 @@ class renderers_test extends advanced_testcase {
         $this->assertStringContainsString('No Activities found', $output->create_tabtree($context, 3));
         $this->assertStringContainsString('Show chart data', $output->table_enrolments());
         $this->assertStringContainsString('Show chart data', $output->table_countries());
+        // TODO: Why are there no teacher logs.
+        $this->assertStringContainsString('No teachers found', $output->table_teachers('teachers'));
     }
 
     /**
@@ -90,9 +98,9 @@ class renderers_test extends advanced_testcase {
         $context = \context_system::instance();
         $this->assertStringContainsString(' ', $output->create_tabtree($context));
         $this->assertStringContainsString('Mobile services enabled (Yes)', $output->table_summary());
-        $this->assertStringContainsString('>5</td>', $output->table_users('Users')); // Users + admin user.
+        $this->assertStringContainsString('>6</td>', $output->table_users('Users')); // Users + admin user.
         $this->assertStringContainsString('>2</td>', $output->table_courses('Courses'));
-        $this->assertStringContainsString('>4</td>', $output->table_enrolments('Enrolments'));
+        $this->assertStringContainsString('>5</td>', $output->table_enrolments('Enrolments'));
         $this->assertEquals('No Mobile devices found', $output->table_mobiles('Mobile devices'));
         $this->assertEquals('No Payments found', $output->table_payments('Payments'));
         $this->assertStringContainsString('Show chart data', $output->table_countries());
@@ -109,6 +117,6 @@ class renderers_test extends advanced_testcase {
         $context = \context_coursecat::instance($course->category);
         $output = new global_renderer($PAGE, 'general');
         $this->assertStringContainsString(' ', $output->create_tabtree($context));
-        $this->assertStringContainsString('>4</td>', $output->table_enrolments());
+        $this->assertStringContainsString('>5</td>', $output->table_enrolments());
     }
 }

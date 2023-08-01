@@ -56,11 +56,12 @@ class course_renderer extends growth_renderer {
         global $CFG;
         $this->courseid = $context->instanceid;
         $this->context = $context;
-        $txt = get_strings(['activities', 'lastaccess', 'coursecompletions']);
+        $txt = get_strings(['activities', 'lastaccess', 'coursecompletions', 'defaultcourseteachers']);
         $rows = [
             'enrolments' => get_string('enrolments', 'enrol'),
             'lastaccess' => $txt->lastaccess,
-            'activities' => $txt->activities];
+            'activities' => $txt->activities,
+            'teachers' => $txt->defaultcourseteachers];
         if (!empty($CFG->enablecompletion)) {
             $rows['activitiescompleted'] = get_string('activitiescompleted', 'completion');
             $rows['coursecompletions'] = $txt->coursecompletions;
@@ -140,6 +141,28 @@ class course_renderer extends growth_renderer {
      */
     public function table_certificates($title = ''): string {
         return $this->collect_course_table($title, 'certificate', 'certificate_issues', 'course', 'certificateid', 'timecreated');
+    }
+
+    /**
+     * Table teacher logs.
+     *
+     * @param string $title Title
+     * @return string
+     */
+    public function table_teachers($title = ''): string {
+        global $DB;
+        $roleid = $DB->get_field('role', 'id', ['shortname' => 'editingteacher']);
+        $out = get_string('nostudentsfound', 'moodle', $title);
+        $teachers = get_role_users($roleid, $this->context, false, 'u.id', 'u.id');
+        if ($teachers) {
+            list($insql, $inparams) = $DB->get_in_or_equal(array_keys($teachers));
+            $insql .= ' AND courseid = ? AND contextlevel = ? AND contextinstanceid = ?';
+            $inparams[] = $this->courseid;
+            $inparams[] = $this->context->contextlevel;
+            $inparams[] = $this->context->instanceid;
+            $out = $this->create_charts('logstore_standard_log', $title, 'timecreated', 'userid ' . $insql, $inparams);
+        }
+        return $out;
     }
 
     /**

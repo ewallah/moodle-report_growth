@@ -95,7 +95,7 @@ class index_test extends advanced_testcase {
         set_config('badges_defaultissuercontact', $fordb->issuercontact);
 
         $completionauto = ['completion' => COMPLETION_TRACKING_AUTOMATIC];
-        $this->module = $dg->create_module('forum', ['course' => $course->id], $completionauto);
+        $dg->create_module('forum', ['course' => $course->id], $completionauto);
 
         // Build badge and criteria.
         $fordb->type = BADGE_TYPE_COURSE;

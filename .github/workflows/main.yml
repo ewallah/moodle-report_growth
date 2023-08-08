@@ -158,13 +158,13 @@ jobs:
 
       - name: admin bookmarks
         if: ${{ always() }}
-        run: moodle-plugin-ci --ansi behat --profile chrome blocks/admin_bookmarks
+        run: moodle-plugin-ci --ansi behat --auto-rerun=0 --profile chrome blocks/admin_bookmarks
         working-directory: moodle
 
       - name: admin xmldb
         continue-on-error: true # subplugins generate xmldb errors
         if: ${{ always() }}
-        run: moodle-plugin-ci --ansi behat --profile chrome admin/tool/xmldb
+        run: moodle-plugin-ci --ansi behat --auto-rerun=0 --profile chrome admin/tool/xmldb
         working-directory: moodle
 
       - name: coveralls

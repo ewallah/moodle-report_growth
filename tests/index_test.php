@@ -161,8 +161,9 @@ class index_test extends advanced_testcase {
 
     /**
      * Test pages.
+     * @return array
      */
-    public function pageprovider() {
+    public static function pageprovider(): array {
         return [
             [1, 'Number of users (5)'],
             [2, '>1</td>'],   // There is 1 course category.
@@ -217,8 +218,9 @@ class index_test extends advanced_testcase {
 
     /**
      * Test pages.
+     * @return array
      */
-    public function courseprovider() {
+    public static function courseprovider(): array {
         return [
             [1, '.'],
             [2, '.'],

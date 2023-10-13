@@ -66,7 +66,7 @@ class category_renderer extends growth_renderer {
         $rows = [
             'enrolments' => get_string('enrolments', 'enrol'),
             'lastaccess' => $txt->lastaccess,
-            'activities' => $txt->activities];
+            'activities' => $txt->activities, ];
         if (!empty($CFG->enablecompletion)) {
             $rows['activitiescompleted'] = get_string('activitiescompleted', 'completion');
             $rows['coursecompletions'] = $txt->coursecompletions;

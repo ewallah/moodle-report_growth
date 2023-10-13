@@ -104,7 +104,7 @@ class global_renderer extends growth_renderer {
            [get_string('deleted'), $DB->count_records('user', ['deleted' => 1])],
            [get_string('suspended'), $DB->count_records('user', ['suspended' => 1])],
            [get_string('confirmed', 'admin'), $DB->count_records('user', ['confirmed' => 1]) - 1],
-           [get_string('activeusers'), $DB->count_records_select('user', 'lastip <> ?', [''])]];
+           [get_string('activeusers'), $DB->count_records_select('user', 'lastip <> ?', [''])], ];
         return $this->create_intro($arr, $title) . $this->create_charts('user', $title);
     }
 

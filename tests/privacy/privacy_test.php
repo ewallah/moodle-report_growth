@@ -24,7 +24,7 @@
  */
 namespace report_growth\privacy;
 
-use \core_privacy\tests\provider_testcase;
+use core_privacy\tests\provider_testcase;
 
 /**
  * Privacy tests for growth report.

@@ -61,7 +61,7 @@ class course_renderer extends growth_renderer {
             'enrolments' => get_string('enrolments', 'enrol'),
             'lastaccess' => $txt->lastaccess,
             'activities' => $txt->activities,
-            'teachers' => $txt->defaultcourseteachers];
+            'teachers' => $txt->defaultcourseteachers, ];
         if (!empty($CFG->enablecompletion)) {
             $rows['activitiescompleted'] = get_string('activitiescompleted', 'completion');
             $rows['coursecompletions'] = $txt->coursecompletions;

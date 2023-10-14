@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:noNamespaceSchemaLocation="../../lib/phpunit/phpunit.xsd"
-    bootstrap="../../lib/phpunit/bootstrap.php"
+  xsi:noNamespaceSchemaLocation="../../../lib/phpunit/phpunit.xsd"
+    bootstrap="../../../lib/phpunit/bootstrap.php"
     convertErrorsToExceptions="true"
     convertNoticesToExceptions="true"
     convertWarningsToExceptions="true"
@@ -31,7 +31,7 @@
   </php>
 
   <testsuites>
-    <testsuite name="report_growth_testsuite">
+    <testsuite name="report_growth_tests_testsuite">
       <directory suffix="_test.php">.</directory>
     </testsuite>
   </testsuites>
@@ -46,12 +46,6 @@
       <file>renderer.php</file>
       <file>rsslib.php</file>
     </include>
-    <exclude>
-      <directory suffix=".php">db</directory>
-      <directory suffix=".php">lang/en</directory>
-      <file>settings.php</file>
-      <file>index.php</file>
-    </exclude>
   </coverage>
 
 </phpunit>

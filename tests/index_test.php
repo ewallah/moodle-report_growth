@@ -109,7 +109,7 @@ class index_test extends advanced_testcase {
      * @covers \report_growth\output\global_renderer
      * @covers \report_growth\output\growth_renderer
      */
-    public function test_settings() {
+    public function test_settings(): void {
         global $CFG;
         require_once($CFG->libdir . '/adminlib.php');
         $admin = admin_get_root(true, true);
@@ -121,7 +121,7 @@ class index_test extends advanced_testcase {
      * @covers \report_growth\output\global_renderer
      * @covers \report_growth\output\growth_renderer
      */
-    public function test_index_wrong_permissions() {
+    public function test_index_wrong_permissions(): void {
         global $CFG, $DB, $OUTPUT, $PAGE;
         $generator = $this->getDataGenerator();
         $user = $generator->create_user();

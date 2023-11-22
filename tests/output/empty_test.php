@@ -52,7 +52,7 @@ class empty_test extends advanced_testcase {
      * @covers \report_growth\output\global_renderer
      * @covers \report_growth\output\growth_renderer
      */
-    public function test_empty_global() {
+    public function test_empty_global(): void {
         global $PAGE;
         $output = new global_renderer($PAGE, 'general');
         $context = \context_system::instance();
@@ -71,7 +71,7 @@ class empty_test extends advanced_testcase {
      * @covers \report_growth\output\course_renderer
      * @covers \report_growth\output\growth_renderer
      */
-    public function test_empty_course() {
+    public function test_empty_course(): void {
         global $PAGE;
         $dg = $this->getDataGenerator();
         $course = $dg->create_course();
@@ -86,7 +86,7 @@ class empty_test extends advanced_testcase {
      * @covers \report_growth\output\category_renderer
      * @covers \report_growth\output\growth_renderer
      */
-    public function test_empty_category() {
+    public function test_empty_category(): void {
         global $PAGE;
         $dg = $this->getDataGenerator();
         $categoryid = $dg->create_category()->id;

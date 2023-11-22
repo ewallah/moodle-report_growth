@@ -76,7 +76,7 @@ class renderers_test extends advanced_testcase {
      * @covers \report_growth\output\course_renderer
      * @covers \report_growth\output\growth_renderer
      */
-    public function test_course() {
+    public function test_course(): void {
         global $PAGE;
         $context = \context_course::instance($this->courseid);
         $output = new course_renderer($PAGE, 'general');
@@ -92,7 +92,7 @@ class renderers_test extends advanced_testcase {
      * @covers \report_growth\output\global_renderer
      * @covers \report_growth\output\growth_renderer
      */
-    public function test_global() {
+    public function test_global(): void {
         global $PAGE;
         $output = new global_renderer($PAGE, 'general');
         $context = \context_system::instance();
@@ -112,7 +112,7 @@ class renderers_test extends advanced_testcase {
      * @covers \report_growth\output\category_renderer
      * @covers \report_growth\output\growth_renderer
      */
-    public function test_category() {
+    public function test_category(): void {
         global $PAGE;
         $course = get_course($this->courseid);
         $context = \context_coursecat::instance($course->category);

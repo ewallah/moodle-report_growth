@@ -60,7 +60,7 @@ class event_test extends advanced_testcase {
      * simply create the event and trigger it.
      * @covers \report_growth\event\report_viewed
      */
-    public function test_report_viewed() {
+    public function test_report_viewed(): void {
         $this->getDataGenerator()->create_course();
         $this->getDataGenerator()->create_course();
         $course = $this->getDataGenerator()->create_course();

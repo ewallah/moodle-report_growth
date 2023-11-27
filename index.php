@@ -58,6 +58,6 @@ $PAGE->set_pagelayout('report');
 $PAGE->set_title($str);
 $PAGE->set_heading($str);
 echo $output->header();
-\core\report_helper::print_report_selector($pluginname);
+\core\report_helper::print_report_selector(get_string('growth', 'report_growth'));
 echo $output->create_tabtree($context, $p);
 echo $output->footer();

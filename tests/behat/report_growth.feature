@@ -113,7 +113,7 @@ Feature: View growth report on system, category and course level
     And I should see "1"
     And I follow "Activity completion"
     And I follow "Show chart data"
-    And I should see "5"
+    And I should see "##today##%Y##"
     And I follow "Course completions"
     And I should see "No Course completions found"
     And I follow "Countries"

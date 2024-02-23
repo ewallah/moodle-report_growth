@@ -30,13 +30,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        moodle-branch: ['MOODLE_401_STABLE', 'MOODLE_402_STABLE', 'MOODLE_403_STABLE', 'main']
+        moodle-branch: ['MOODLE_402_STABLE', 'MOODLE_403_STABLE', 'main']
         php: ['8.1']
         database: ['mariadb', 'pgsql']
-        include:
-          - php: '8.0'
-            moodle-branch: 'MOODLE_401_STABLE'
-            database: 'pgsql'
           - php: '8.2'
             moodle-branch: 'MOODLE_403_STABLE'
             database: 'pgsql'
@@ -64,13 +60,6 @@ jobs:
         with:
           repository: mdjnelson/moodle-mod_certificate
           path: extras/mod_certificate
-
-      - name: add plugin
-        uses: actions/checkout@v3
-        with:
-          repository: ewallah/moodle-mod_customcert
-          ref: main
-          path: extras/mod_customcert
 
       - name: setup PHP
         uses: shivammathur/setup-php@v2

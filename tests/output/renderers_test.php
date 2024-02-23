@@ -45,7 +45,7 @@ class renderers_test extends advanced_testcase {
     /**
      * Setup testcase.
      */
-    public function setUp():void {
+    public function setUp(): void {
         $this->setAdminUser();
         $this->resetAfterTest();
         $dg = $this->getDataGenerator();

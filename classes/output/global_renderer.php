@@ -187,7 +187,7 @@ class global_renderer extends growth_renderer {
      * @param string $title Title
      * @return string
      */
-    public function table_activitiescompleted ($title = ''): string {
+    public function table_activitiescompleted($title = ''): string {
         return $this->create_charts('course_modules_completion', $title, 'timemodified');
     }
 

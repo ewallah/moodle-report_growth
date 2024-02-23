@@ -43,7 +43,7 @@ class index_test extends advanced_testcase {
     /**
      * Setup testcase.
      */
-    public function setUp():void {
+    public function setUp(): void {
         global $CFG, $DB;
         require_once($CFG->libdir . '/badgeslib.php');
         require_once($CFG->dirroot . '/badges/lib.php');

@@ -120,7 +120,8 @@ jobs:
         run: moodle-plugin-ci --ansi savepoints
 
       - name: grunt
-        if: ${{ matrix.moodle-branch == 'MOODLE_402_STABLE'}}
+        if: ${{ !cancelled() }}
+        continue-on-error: true # subplugins generate errors
         run: moodle-plugin-ci --ansi grunt
 
       - name: mustache

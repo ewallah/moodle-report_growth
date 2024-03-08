@@ -40,30 +40,30 @@ jobs:
 
     steps:
       - name: checkout plugin
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           path: this-plugin
 
       - name: add plugin
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: moodleworkplace/moodle-tool_certificate
           path: extras/tool_certificate
 
       - name: add plugin
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: moodleworkplace/moodle-mod_coursecertificate
           path: extras/mod_coursecertificate
 
       - name: add plugin
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: mdjnelson/moodle-mod_certificate
           path: extras/mod_certificate
 
       - name: add plugin
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: mdjnelson/moodle-mod_customcert
           path: extras/mod_certificate

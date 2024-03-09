@@ -37,7 +37,7 @@ use advanced_testcase;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @coversDefaultClass \report_growth
  */
-class empty_test extends advanced_testcase {
+final class empty_test extends advanced_testcase {
 
     /**
      * Setup testcase.
@@ -93,7 +93,6 @@ class empty_test extends advanced_testcase {
         $context = \context_coursecat::instance($categoryid);
         $output = new global_renderer($PAGE, 'general');
         $this->assertStringContainsString(' ', $output->create_tabtree($context));
-        // TODO: No Enrolments found.
         $this->assertStringContainsString(' ', $output->table_enrolments());
         $this->assertStringContainsString('No ', $output->table_coursecompletions('test'));
     }

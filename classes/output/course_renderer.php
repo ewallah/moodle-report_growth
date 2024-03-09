@@ -153,8 +153,8 @@ class course_renderer extends growth_renderer {
         global $DB;
         $roleid = $DB->get_field('role', 'id', ['shortname' => 'editingteacher']);
         $out = get_string('nostudentsfound', 'moodle', $title);
-        $teachers = get_role_users($roleid, $this->context, false, 'u.id', 'u.id');
-        if ($teachers) {
+        $teachers = get_role_users($roleid, $this->context, true, 'u.id', 'u.id');
+        if ($teachers && count($teachers) > 0) {
             list($insql, $inparams) = $DB->get_in_or_equal(array_keys($teachers));
             $insql .= ' AND courseid = ? AND contextlevel = ? AND contextinstanceid = ?';
             $inparams[] = $this->courseid;

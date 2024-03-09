@@ -37,7 +37,7 @@ use advanced_testcase;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @coversDefaultClass \report_growth
  */
-class renderers_test extends advanced_testcase {
+final class renderers_test extends advanced_testcase {
 
     /** @var int courseid */
     private int $courseid;
@@ -53,21 +53,16 @@ class renderers_test extends advanced_testcase {
         $dg->create_course(['category' => $categoryid]);
         $dg->create_course(['category' => $categoryid]);
         $dg->create_course(['category' => $categoryid]);
-        $courseid = $dg->create_course(['category' => $categoryid, 'enablecompletion' => true])->id;
-        $user = $dg->create_user();
-        $dg->enrol_user($user->id, $courseid, 'student');
-        $user = $dg->create_user(['country' => 'BE']);
-        $dg->enrol_user($user->id, $courseid, 'student');
-        $user = $dg->create_user(['country' => 'NL']);
-        $dg->enrol_user($user->id, $courseid, 'student');
-        $user = $dg->create_user(['country' => 'UG']);
-        $dg->enrol_user($user->id, $courseid, 'student');
-        $user = $dg->create_user(['country' => 'UG']);
-        $dg->enrol_user($user->id, $courseid, 'editingteacher');
+        $course = $dg->create_course(['category' => $categoryid, 'enablecompletion' => true]);
+        $dg->create_and_enrol($course, 'student');
+        $dg->create_and_enrol($course, 'student', ['country' => 'BE']);
+        $dg->create_and_enrol($course, 'student', ['country' => 'NL']);
+        $dg->create_and_enrol($course, 'student', ['country' => 'UG']);
+        $user = $dg->create_and_enrol($course, 'editingteacher');
         $this->setUser($user->id);
-        $params = ['objectid' => $courseid, 'context' => \context_course::instance($courseid)];
-        \core\event\course_information_viewed::create($params);
-        $this->courseid = $courseid;
+        $params = ['context' => \context_course::instance($course->id), 'objectid' => $course->id];
+        \core\event\course_information_viewed::create($params)->trigger();
+        $this->courseid = $course->id;
         $this->setUser(null);
     }
 

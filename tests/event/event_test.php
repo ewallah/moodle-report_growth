@@ -42,7 +42,7 @@ use moodle_url;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @coversDefaultClass \report_growth
  */
-class event_test extends advanced_testcase {
+final class event_test extends advanced_testcase {
 
     /**
      * Setup testcase.

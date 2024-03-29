@@ -38,7 +38,6 @@ use advanced_testcase;
  * @coversDefaultClass \report_growth
  */
 final class empty_test extends advanced_testcase {
-
     /**
      * Setup testcase.
      */

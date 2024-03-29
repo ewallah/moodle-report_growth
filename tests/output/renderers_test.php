@@ -38,7 +38,6 @@ use advanced_testcase;
  * @coversDefaultClass \report_growth
  */
 final class renderers_test extends advanced_testcase {
-
     /** @var int courseid */
     private int $courseid;
 

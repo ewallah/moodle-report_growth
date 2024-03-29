@@ -52,4 +52,3 @@ function report_growth_extend_navigation_category_settings($navigation, $context
         $navigation->add($txt, $url, navigation_node::TYPE_SETTING, null, null, new pix_icon('i/report', ''));
     }
 }
-

@@ -37,7 +37,6 @@ use core\{chart_bar, chart_line, chart_series};
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class global_renderer extends growth_renderer {
-
     /**
      * Create Tabs.
      *
@@ -79,7 +78,7 @@ class global_renderer extends growth_renderer {
     public function table_summary($title = ''): string {
         $siteinfo = \core\hub\registration::get_site_info([]);
         $lis = strip_tags(\core\hub\registration::get_stats_summary($siteinfo), '<ul><li>');
-        return \html_writer::tag('h3', $title) . str_replace(get_string('sendfollowinginfo_help', 'hub') , '', $lis);
+        return \html_writer::tag('h3', $title) . str_replace(get_string('sendfollowinginfo_help', 'hub'), '', $lis);
     }
 
     /**
@@ -133,9 +132,9 @@ class global_renderer extends growth_renderer {
         foreach ($enabled as $key) {
             $ids = $DB->get_fieldset_select('enrol', 'id', "enrol = '$key'");
             if (count($ids) > 0) {
-                list($insql, $inparams) = $DB->get_in_or_equal($ids);
+                [$insql, $inparams] = $DB->get_in_or_equal($ids);
                 $cnt = $DB->count_records_sql("SELECT COUNT('x') FROM {user_enrolments} WHERE enrolid {$insql}", $inparams);
-                $arr[] = [get_string('pluginname', 'enrol_'. $key), $cnt];
+                $arr[] = [get_string('pluginname', 'enrol_' . $key), $cnt];
             }
         }
         return $this->create_intro($arr, $title) . $this->create_charts('user_enrolments', $title);

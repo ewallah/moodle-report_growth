@@ -10,3 +10,4 @@ Feature: Growth Report installation succeeds
     Then the following should exist in the "plugins-control-panel" table:
       |Growth report |
       |report_growth |
+    And I should not see "[pluginname,report_growth]"

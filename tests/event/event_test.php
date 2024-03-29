@@ -43,7 +43,6 @@ use moodle_url;
  * @coversDefaultClass \report_growth
  */
 final class event_test extends advanced_testcase {
-
     /**
      * Setup testcase.
      */
@@ -92,7 +91,8 @@ final class event_test extends advanced_testcase {
         $this->assertEquals('Growth report viewed', $event->get_name());
         $this->assertEquals(
             "The user with id '2' viewed tab '1' of the growth report for the course with id '" . $course->id . "'.",
-            $event->get_description());
+            $event->get_description()
+        );
         $url = new moodle_url('/report/growth/index.php', ['p' => 1, 'contextid' => $context->id]);
         $this->assertEquals($url, $event->get_url());
 
@@ -106,9 +106,10 @@ final class event_test extends advanced_testcase {
         $this->assertInstanceOf('\report_growth\event\report_viewed', $event);
         $this->assertEquals($context, $event->get_context());
         $this->assertEquals('Growth report viewed', $event->get_name());
-        $this->assertEquals
-            ("The user with id '2' viewed tab '2' of the growth report for the category with id '" . $category->id . "'.",
-            $event->get_description());
+        $this->assertEquals(
+            "The user with id '2' viewed tab '2' of the growth report for the category with id '" . $category->id . "'.",
+            $event->get_description()
+        );
         $url = new moodle_url('/report/growth/index.php', ['p' => 2, 'contextid' => $context->id]);
         $this->assertEquals($url, $event->get_url());
     }

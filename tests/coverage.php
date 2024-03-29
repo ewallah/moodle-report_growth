@@ -37,4 +37,3 @@ return new class extends phpunit_coverage_info {
     /** @var array The list of files relative to the plugin root to exclude from coverage generation. */
     protected $excludelistfiles = ['settings.php', 'index.php', 'lib.php'];
 };
-

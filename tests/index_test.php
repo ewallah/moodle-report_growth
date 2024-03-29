@@ -39,7 +39,6 @@ use moodle_exception;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 final class index_test extends advanced_testcase {
-
     /**
      * Setup testcase.
      */
@@ -166,10 +165,10 @@ final class index_test extends advanced_testcase {
     public static function pageprovider(): array {
         return [
             [1, 'Number of users (5)'],
-            [2, '</td>'],     // There is a course category.
+            [2, '</td>'], // There is a course category.
             [3, 'Suspended'], // There are no users suspended.
-            [4, 'No Last '],  // No one there.
-            [5, '>2</td>'],   // There are 2 enrolments.
+            [4, 'No Last '], // No one there.
+            [5, '>2</td>'], // There are 2 enrolments.
             [6, '.'],
             [7, '.'],
             [8, '.'],

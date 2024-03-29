@@ -38,7 +38,6 @@ use core\{chart_bar, chart_line, chart_series};
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class growth_renderer extends plugin_renderer_base {
-
     /** @var stdClass context. */
     protected $context;
 
@@ -73,7 +72,7 @@ class growth_renderer extends plugin_renderer_base {
      */
     protected function trigger_page(int $page = 1) {
         // Trigger a report viewed event.
-        $event = \report_growth\event\report_viewed::create(['context' => $this->context,  'other' => ['tab' => $page]]);
+        $event = \report_growth\event\report_viewed::create(['context' => $this->context, 'other' => ['tab' => $page]]);
         $event->trigger();
     }
 
@@ -115,7 +114,7 @@ class growth_renderer extends plugin_renderer_base {
     protected function collect_course_table($title, $table1, $table2, $field, $fieldwhere, $fieldresult = 'timemodified'): string {
         global $DB;
         $ids = $DB->get_fieldset_select($table1, 'id', $field . ' = :courseid', ['courseid' => $this->context->instanceid]);
-        list($insql, $inparams) = $this->insql($ids, $fieldwhere, $fieldresult);
+        [$insql, $inparams] = $this->insql($ids, $fieldwhere, $fieldresult);
         return $this->create_charts($table2, $title, $fieldresult, $insql, $inparams);
     }
 
@@ -132,7 +131,7 @@ class growth_renderer extends plugin_renderer_base {
         $inparams = [];
         $insql = $fieldresult . '< 0';
         if (count($fieldset) > 0) {
-            list($insql, $inparams) = $DB->get_in_or_equal($fieldset);
+            [$insql, $inparams] = $DB->get_in_or_equal($fieldset);
             $insql = $fieldwhere . ' ' . $insql;
         }
         return [$insql, $inparams];
@@ -303,7 +302,7 @@ class growth_renderer extends plugin_renderer_base {
                 $func = $weeks ? 'WEEK' : 'qq';
                 $field = "dateadd(S, $field, '1970-01-01')";
                 $concat = $DB->sql_concat_join("' '", ["DATEPART(YEAR, $field)", "DATEPART($func, $field)"]);
-                $sql = "SELECT $concat AS week, COUNT(*) AS newitems FROM {". $table . "}
+                $sql = "SELECT $concat AS week, COUNT(*) AS newitems FROM {" . $table . "}
                         WHERE $wh GROUP BY $concat ORDER BY $concat";
                 break;
             case 'oracle':

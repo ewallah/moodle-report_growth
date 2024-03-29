@@ -41,7 +41,6 @@ use core\{chart_bar, chart_line, chart_series};
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class category_renderer extends growth_renderer {
-
     /** @var int categoryid. */
     private int $categoryid;
 
@@ -121,7 +120,8 @@ class category_renderer extends growth_renderer {
             'course',
             'course_modules_completion',
             'coursemoduleid',
-            'timemodified');
+            'timemodified'
+        );
     }
 
     /**
@@ -185,13 +185,13 @@ class category_renderer extends growth_renderer {
         $title = get_string('users');
         $out = get_string('nostudentsfound', 'moodle', $title);
         if (count($this->courseids) > 0) {
-            list($insql, $inparams) = $this->insql($this->courseids, 'courseid', 'courseid');
+            [$insql, $inparams] = $this->insql($this->courseids, 'courseid', 'courseid');
             $ids = $DB->get_fieldset_select('enrol', 'id', $insql, $inparams);
             if (count($ids) > 0) {
-                list($insql, $inparams) = $this->insql($ids, 'enrolid', 'enrolid');
+                [$insql, $inparams] = $this->insql($ids, 'enrolid', 'enrolid');
                 $userids = $DB->get_fieldset_select('user_enrolments', 'userid', $insql, $inparams);
                 if (count($userids) > 0) {
-                    list($insql, $inparams) = $this->insql($userids, 'id', 'id');
+                    [$insql, $inparams] = $this->insql($userids, 'id', 'id');
                     $sql = "SELECT country, COUNT(country) AS newusers FROM {user} WHERE $insql GROUP BY country ORDER BY country";
                     $rows = $DB->get_records_sql($sql, $inparams);
                     $out = $this->create_countries($rows, $title);
@@ -211,7 +211,7 @@ class category_renderer extends growth_renderer {
      * @return string
      */
     protected function collect_cat($title, $table, $fieldwhere, $fieldresult): string {
-        list($insql, $inparams) = $this->insql($this->courseids, $fieldwhere, $fieldresult);
+        [$insql, $inparams] = $this->insql($this->courseids, $fieldwhere, $fieldresult);
         return $this->create_charts($table, $title, $fieldresult, $insql, $inparams);
     }
 
@@ -229,11 +229,11 @@ class category_renderer extends growth_renderer {
     protected function collect_cat2($title, $table1, $field1, $table2, $field2, $fieldresult): string {
         global $DB;
         if (count($this->courseids) > 0) {
-            list($insql, $inparams) = $this->insql($this->courseids, $field1, $fieldresult);
+            [$insql, $inparams] = $this->insql($this->courseids, $field1, $fieldresult);
             $ids = $DB->get_fieldset_select($table1, 'id', $insql, $inparams);
             if (count($ids) > 0) {
                 sort($ids);
-                list($insql, $inparams) = $this->insql($ids, $field2, $fieldresult);
+                [$insql, $inparams] = $this->insql($ids, $field2, $fieldresult);
                 return $this->create_charts($table2, $title, $fieldresult, $insql, $inparams);
             }
         }

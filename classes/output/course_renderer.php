@@ -41,7 +41,6 @@ use core\{chart_bar, chart_line, chart_series};
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class course_renderer extends growth_renderer {
-
     /** @var int courseid. */
     private int $courseid;
 
@@ -155,7 +154,7 @@ class course_renderer extends growth_renderer {
         $out = get_string('nostudentsfound', 'moodle', $title);
         $teachers = get_role_users($roleid, $this->context, true, 'u.id', 'u.id');
         if ($teachers && count($teachers) > 0) {
-            list($insql, $inparams) = $DB->get_in_or_equal(array_keys($teachers));
+            [$insql, $inparams] = $DB->get_in_or_equal(array_keys($teachers));
             $insql .= ' AND courseid = ? AND contextlevel = ? AND contextinstanceid = ?';
             $inparams[] = $this->courseid;
             $inparams[] = $this->context->contextlevel;
@@ -197,10 +196,10 @@ class course_renderer extends growth_renderer {
         $out = get_string('nostudentsfound', 'moodle', $title);
         $ids = $DB->get_fieldset_select('enrol', 'id', 'courseid = :courseid', ['courseid' => $this->context->instanceid]);
         if (count($ids) > 0) {
-            list($insql, $inparams) = $this->insql($ids, 'enrolid', 'enrolid');
+            [$insql, $inparams] = $this->insql($ids, 'enrolid', 'enrolid');
             $userids = $DB->get_fieldset_select('user_enrolments', 'userid', $insql, $inparams);
             if (count($userids) > 0) {
-                list($insql, $inparams) = $this->insql($userids, 'id', 'id');
+                [$insql, $inparams] = $this->insql($userids, 'id', 'id');
                 $sql = "SELECT country, COUNT(country) AS newusers FROM {user} WHERE $insql GROUP BY country ORDER BY country";
                 $rows = $DB->get_records_sql($sql, $inparams);
                 $out = $this->create_countries($rows, $title);

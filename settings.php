@@ -29,5 +29,6 @@ $ADMIN->add('reports', new admin_externalpage(
     'reportgrowth',
     get_string('growth', 'report_growth'),
     $CFG->wwwroot . '/report/growth/index.php',
-    'report/growth:view'));
+    'report/growth:view'
+));
 $settings = null;

@@ -31,10 +31,10 @@ jobs:
       fail-fast: false
       matrix:
         moodle-branch: ['MOODLE_402_STABLE', 'MOODLE_403_STABLE', 'MOODLE_404_STABLE']
-        php: ['8.1']
+        php: ['8.2']
         database: ['mariadb', 'pgsql']
         include:
-          - php: '8.2'
+          - php: '8.3'
             moodle-branch: 'MOODLE_403_STABLE'
             database: 'pgsql'
 
@@ -43,30 +43,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           path: this-plugin
-
-      - name: add plugin
-        uses: actions/checkout@v4
-        with:
-          repository: moodleworkplace/moodle-tool_certificate
-          path: extras/tool_certificate
-
-      - name: add plugin
-        uses: actions/checkout@v4
-        with:
-          repository: moodleworkplace/moodle-mod_coursecertificate
-          path: extras/mod_coursecertificate
-
-      - name: add plugin
-        uses: actions/checkout@v4
-        with:
-          repository: mdjnelson/moodle-mod_certificate
-          path: extras/mod_certificate
-
-      - name: add plugin
-        uses: actions/checkout@v4
-        with:
-          repository: mdjnelson/moodle-mod_customcert
-          path: extras/mod_certificate
 
       - name: setup PHP
         uses: shivammathur/setup-php@v2
@@ -83,7 +59,7 @@ jobs:
           sudo locale-gen en_AU.UTF-8
 
       - name: install Moodle
-        run: moodle-plugin-ci install --db-host=127.0.0.1 --plugin this-plugin --extra-plugins=extras
+        run: moodle-plugin-ci install --db-host=127.0.0.1 --plugin this-plugin
         env:
           DB: ${{ matrix.database }}
           MOODLE_BRANCH: ${{ matrix.moodle-branch }}

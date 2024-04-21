@@ -26,8 +26,8 @@
 defined('MOODLE_INTERNAL') || die;
 
 $plugin->component = 'report_growth';
-$plugin->requires = 2022112800;
+$plugin->requires = 2023042400;
 $plugin->maturity = MATURITY_STABLE;
 $plugin->supported = [402, 404];
-$plugin->release = 'v4.1.5';
-$plugin->version = 2024010500;
+$plugin->release = 'v4.4.1';
+$plugin->version = 2024042100;

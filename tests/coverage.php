@@ -18,7 +18,7 @@
  * Coverage for growth report.
  *
  * @package   report_growth
- * @copyright 2020 eWallah
+ * @copyright eWallah (www.eWallah.net)
  * @author    Renaat Debleu <info@eWallah.net>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -28,7 +28,7 @@ defined('MOODLE_INTERNAL') || die();
  * Coverage for growth report.
  *
  * @package   report_growth
- * @copyright 2020 eWallah
+ * @copyright eWallah (www.eWallah.net)
  * @author    Renaat Debleu <info@eWallah.net>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

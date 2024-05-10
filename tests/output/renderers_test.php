@@ -18,7 +18,7 @@
  * Tests for growth report events.
  *
  * @package   report_growth
- * @copyright 2020 eWallah
+ * @copyright eWallah (www.eWallah.net)
  * @author    Renaat Debleu <info@eWallah.net>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -32,7 +32,7 @@ use advanced_testcase;
  * Class for tests related to growth report events.
  *
  * @package   report_growth
- * @copyright 2020 eWallah
+ * @copyright eWallah (www.eWallah.net)
  * @author    Renaat Debleu <info@eWallah.net>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @coversDefaultClass \report_growth

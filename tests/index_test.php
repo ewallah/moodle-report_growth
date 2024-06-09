@@ -46,6 +46,7 @@ final class index_test extends advanced_testcase {
         global $CFG, $DB;
         require_once($CFG->libdir . '/badgeslib.php');
         require_once($CFG->dirroot . '/badges/lib.php');
+        parent::setUp();
 
         $CFG->enablecompletion = true;
         set_config('logguests', 1, 'logstore_standard');

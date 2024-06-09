@@ -47,6 +47,7 @@ final class event_test extends advanced_testcase {
      * Setup testcase.
      */
     public function setUp(): void {
+        parent::setUp();
         $this->setAdminUser();
         $this->resetAfterTest();
         set_config('logguests', 1, 'logstore_standard');

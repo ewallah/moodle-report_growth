@@ -15,6 +15,12 @@ course to get a better overview what happened when.
 * Log into Moodle as administrator.
 * Visit Site admin => Notifications.
 
+## Warning
+
+This plugin is 100% open source and has NOT been tested in Moodle Workplace, Totara, or any other proprietary software system.
+As long as the latter do not reward plugin developers, you can use this plugin only in 100% open source environments.
+
+
 ### System level
 
 The site report is only available for admins and managers. Visit "Site Administration > Reports > Growth"

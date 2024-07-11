@@ -8,6 +8,6 @@ Feature: Growth Report installation succeeds
     Given I log in as "admin"
     And I navigate to "Plugins > Plugins overview" in site administration
     Then the following should exist in the "plugins-control-panel" table:
-      |Growth report |
-      |report_growth |
+      | Plugin name   |
+      | Growth report |
     And I should not see "[pluginname,report_growth]"

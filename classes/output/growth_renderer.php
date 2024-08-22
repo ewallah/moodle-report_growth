@@ -87,17 +87,22 @@ class growth_renderer extends plugin_renderer_base {
         $i = 1;
         $tabs = [];
         $func = 'table_';
+        $help = 'help_';
+        $repo = 'report_growth';
+        $manager = get_string_manager();
         $fparam = '';
         foreach ($rows as $key => $value) {
             $params = ['p' => $i, 'contextid' => $this->context->id];
             $tabs[] = new \tabobject($i, new \moodle_url('/report/growth/index.php', $params), $value);
+            $str = $help . $key;
+            $extra = $manager->string_exists($str, $repo) ? get_string($str, $repo) : '';
             if ($i == $page) {
                 $func .= $key;
                 $fparam = $value;
             }
             $i++;
         }
-        return $this->output->tabtree($tabs, $page) . \html_writer::tag('div', $this->$func($fparam), ['class' => 'p-3']);
+        return $this->output->tabtree($tabs, $page) . \html_writer::tag('div', $this->$func($fparam), ['class' => 'p-3']) . $extra;
     }
 
     /**

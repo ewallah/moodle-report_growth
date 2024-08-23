@@ -256,10 +256,10 @@ class growth_renderer extends plugin_renderer_base {
                 $fromweek = 1;
             }
             $search = 'help_' . $table;
-            $charts = [$search];
+            $charts = [];
             $manager = get_string_manager();
             if ($manager->string_exists($search, 'report_growth')) {
-                $charts[] = get_string($search, 'report_growth');
+                $charts[] = html_writer::tag('figcaption', get_string($search, 'report_growth'), ['class' => 'figure-caption']);
             }
             $charts[] = $this->create_chart_one($title, $series, $labels);
             $labels = $totals = $quarter1 = $quarter2 = $quarter3 = $quarter4 = [];
@@ -312,6 +312,8 @@ class growth_renderer extends plugin_renderer_base {
                         WHERE $wh GROUP BY $concat ORDER BY $concat";
                 break;
             case 'oracle':
+                // MDL-80166 deprecated.
+                debugging('Plan for cessation of support for Oracle', DEBUG_DEVELOPER);
                 $func = $weeks ? 'YYYY WW' : 'YYYY Q';
                 $sql = "SELECT TO_CHAR(TO_DATE('1970-01-01','YYYY-MM-DD') + $field / 86400, '$func') week,
                         COUNT(*) newitems FROM {" . $table . "}

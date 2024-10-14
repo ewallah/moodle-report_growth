@@ -51,7 +51,7 @@ class course_renderer extends growth_renderer {
      * @param int $p Selected tab
      * @return string
      */
-    public function create_tabtree($context, $p = 1) {
+    public function create_tabtree($context, int $p = 1) {
         global $CFG;
         $this->courseid = $context->instanceid;
         $this->context = $context;

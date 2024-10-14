@@ -25,6 +25,7 @@
 
 namespace report_growth\output;
 
+use html_writer;
 use plugin_renderer_base;
 use renderable;
 use core\{chart_bar, chart_line, chart_series};
@@ -87,22 +88,17 @@ class growth_renderer extends plugin_renderer_base {
         $i = 1;
         $tabs = [];
         $func = 'table_';
-        $help = 'help_';
-        $repo = 'report_growth';
-        $manager = get_string_manager();
         $fparam = '';
         foreach ($rows as $key => $value) {
             $params = ['p' => $i, 'contextid' => $this->context->id];
             $tabs[] = new \tabobject($i, new \moodle_url('/report/growth/index.php', $params), $value);
-            $str = $help . $key;
-            $extra = $manager->string_exists($str, $repo) ? get_string($str, $repo) : '';
             if ($i == $page) {
                 $func .= $key;
                 $fparam = $value;
             }
             $i++;
         }
-        return $this->output->tabtree($tabs, $page) . \html_writer::tag('div', $this->$func($fparam), ['class' => 'p-3']) . $extra;
+        return $this->output->tabtree($tabs, $page) . \html_writer::tag('div', $this->$func($fparam), ['class' => 'p-3']);
     }
 
     /**
@@ -150,8 +146,7 @@ class growth_renderer extends plugin_renderer_base {
      * @return string
      */
     protected function create_countries(array $rows, string $title = ''): string {
-        $title = get_string('users');
-        $out = get_string('nostudentsfound', 'moodle', $title);
+        $out = get_string('nostudentsfound', 'moodle', get_string('users'));
         if (count($rows) > 0) {
             $chart = new chart_bar();
             $chart->set_horizontal(true);
@@ -185,7 +180,7 @@ class growth_renderer extends plugin_renderer_base {
         $tbl->size = [null, '5rem'];
         $tbl->caption = $title;
         $tbl->data = $data;
-        return count($data) > 0 ? \html_writer::table($tbl) . '<br/>' : '';
+        return count($data) > 0 ? html_writer::table($tbl) . html_writer::empty_tag('br') : '';
     }
 
     /**
@@ -260,7 +255,13 @@ class growth_renderer extends plugin_renderer_base {
                 }
                 $fromweek = 1;
             }
-            $chart1 = $this->create_chart_one($title, $series, $labels);
+            $search = 'help_' . $table;
+            $charts = [];
+            $manager = get_string_manager();
+            if ($manager->string_exists($search, 'report_growth')) {
+                $charts[] = html_writer::tag('figcaption', get_string($search, 'report_growth'), ['class' => 'figure-caption']);
+            }
+            $charts[] = $this->create_chart_one($title, $series, $labels);
             $labels = $totals = $quarter1 = $quarter2 = $quarter3 = $quarter4 = [];
             // If it worked the first time...
             $rows = $this->get_sql($field, $table, $wh, $params, false);
@@ -277,8 +278,8 @@ class growth_renderer extends plugin_renderer_base {
                 $labels[] = $i;
             }
             $quarters = [null, $quarter1, $quarter2, $quarter3, $quarter4];
-            $chart2 = $this->create_chart_two($quarters, $labels, $totals);
-            return  $chart1 . '<br/>' . $chart2;
+            $charts[] = $this->create_chart_two($quarters, $labels, $totals);
+            return implode(html_writer::empty_tag('br'), $charts);
         }
         return get_string('nostudentsfound', 'moodle', $title);
     }
@@ -311,6 +312,8 @@ class growth_renderer extends plugin_renderer_base {
                         WHERE $wh GROUP BY $concat ORDER BY $concat";
                 break;
             case 'oracle':
+                // MDL-80166 deprecated.
+                debugging('Plan for cessation of support for Oracle', DEBUG_DEVELOPER);
                 $func = $weeks ? 'YYYY WW' : 'YYYY Q';
                 $sql = "SELECT TO_CHAR(TO_DATE('1970-01-01','YYYY-MM-DD') + $field / 86400, '$func') week,
                         COUNT(*) newitems FROM {" . $table . "}

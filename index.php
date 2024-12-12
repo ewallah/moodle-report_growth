@@ -30,26 +30,30 @@ require_once($CFG->libdir . '/adminlib.php');
 $p = optional_param('p', 1, PARAM_INT);
 $contextid = optional_param('contextid', 1, PARAM_INT);
 $context = context::instance_by_id($contextid);
-require_login();
 $str = get_string('growth', 'report_growth');
 $pluginname = get_string('pluginname', 'report_growth');
 $url = new moodle_url('/report/growth/index.php', ['p' => $p, 'contextid' => $context->id]);
-$PAGE->set_url($url);
 switch ($context->contextlevel) {
     case CONTEXT_COURSE:
         $course = get_course($context->instanceid);
+        require_login($course);
         $PAGE->set_course($course);
+        $PAGE->set_url($url);
         $str = format_text($course->fullname);
         require_capability('report/growth:viewcourse', $context);
         $output = new \report_growth\output\course_renderer($PAGE, 'general');
         break;
     case CONTEXT_COURSECAT:
+        require_login();
+        $PAGE->set_url($url);
         $PAGE->set_context($context);
         require_capability('report/growth:viewcategory', $context);
         core_course_category::page_setup();
         $output = new \report_growth\output\category_renderer($PAGE, 'general');
         break;
     default:
+        require_login();
+        $PAGE->set_url($url);
         $PAGE->set_context($context);
         require_capability('report/growth:view', $context);
         $output = new \report_growth\output\global_renderer($PAGE, 'general');

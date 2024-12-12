@@ -52,3 +52,19 @@ function report_growth_extend_navigation_category_settings($navigation, $context
         $navigation->add($txt, $url, navigation_node::TYPE_SETTING, null, null, new pix_icon('i/report', ''));
     }
 }
+
+/**
+ * Return a list of page types
+ * @param string $pagetype current page type
+ * @param stdClass $parentcontext Block's parent context
+ * @param stdClass $currentcontext Current context of block
+ * @return array
+ */
+function report_growth_page_type_list($pagetype, $parentcontext, $currentcontext) {
+    return [
+        '*' => get_string('page-x', 'pagetype'),
+        'report-*' => get_string('page-report-x', 'pagetype'),
+        'report-growth-*'     => get_string('page-report-growth-x',  'report_growth'),
+        'report-growth-index' => get_string('page-report-growth-index', 'report_growth'),
+    ];
+}

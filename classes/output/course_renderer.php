@@ -150,9 +150,8 @@ class course_renderer extends growth_renderer {
      */
     public function table_teachers($title = ''): string {
         global $DB;
-        $roleid = $DB->get_field('role', 'id', ['shortname' => 'editingteacher']);
         $out = get_string('nostudentsfound', 'moodle', $title);
-        $teachers = get_role_users($roleid, $this->context, true, 'u.id', 'u.id');
+        $teachers = get_users_by_capability($this->context, 'moodle/course:viewhiddenactivities', 'u.id', 'u.id');
         if ($teachers && count($teachers) > 0) {
             [$insql, $inparams] = $DB->get_in_or_equal(array_keys($teachers));
             $insql .= ' AND courseid = ? AND contextlevel = ? AND contextinstanceid = ?';

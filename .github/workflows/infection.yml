@@ -20,7 +20,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        moodle-branch: [main]
+        moodle-branch: [MOODLE_405_STABLE]
         php: [8.3]
         database: [pgsql]
 
@@ -47,6 +47,12 @@ jobs:
         with:
           repository: mdjnelson/moodle-mod_certificate
           path: extras/mod_certificate
+
+      - name: add plugin
+        uses: actions/checkout@v4
+        with:
+          repository: mdjnelson/moodle-mod_customcert
+          path: extras/mod_customcert
 
       - name: setup PHP
         uses: shivammathur/setup-php@v2

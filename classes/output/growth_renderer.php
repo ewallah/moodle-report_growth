@@ -311,15 +311,6 @@ class growth_renderer extends plugin_renderer_base {
                 $sql = "SELECT $concat AS week, COUNT(*) AS newitems FROM {" . $table . "}
                         WHERE $wh GROUP BY $concat ORDER BY $concat";
                 break;
-            case 'oracle':
-                // MDL-80166 deprecated.
-                debugging('Plan for cessation of support for Oracle', DEBUG_DEVELOPER);
-                $func = $weeks ? 'YYYY WW' : 'YYYY Q';
-                $sql = "SELECT TO_CHAR(TO_DATE('1970-01-01','YYYY-MM-DD') + $field / 86400, '$func') week,
-                        COUNT(*) newitems FROM {" . $table . "}
-                        WHERE $wh GROUP BY TO_CHAR(TO_DATE('1970-01-01','YYYY-MM-DD') + $field / 86400, '$func')
-                        ORDER BY week";
-                break;
             default:
                 $func = $weeks ? 'YYYY WW' : 'YYYY Q';
                 $sql = "SELECT TO_CHAR(TO_TIMESTAMP($field), '$func') AS week, COUNT(*) AS newitems FROM {" . $table . "}

@@ -78,6 +78,7 @@ final class renderers_test extends advanced_testcase {
         $this->assertStringContainsString('No Activities found', $output->create_tabtree($context, 3));
         $this->assertStringContainsString('Show chart data', $output->table_enrolments());
         $this->assertStringContainsString('Show chart data', $output->table_countries());
+        $this->assertStringContainsString('No  found', $output->table_certificates());
         // TODO: Why are there no teacher logs.
         $this->assertStringContainsString('No teachers found', $output->table_teachers('teachers'));
     }
@@ -100,6 +101,7 @@ final class renderers_test extends advanced_testcase {
         $this->assertEquals('No Mobile devices found', $output->table_mobiles('Mobile devices'));
         $this->assertEquals('No Payments found', $output->table_payments('Payments'));
         $this->assertStringContainsString('Show chart data', $output->table_countries());
+        $this->assertStringContainsString('No  found', $output->table_certificates());
     }
 
     /**
@@ -114,5 +116,6 @@ final class renderers_test extends advanced_testcase {
         $output = new global_renderer($PAGE, 'general');
         $this->assertStringContainsString(' ', $output->create_tabtree($context));
         $this->assertStringContainsString('>5</td>', $output->table_enrolments());
+        $this->assertStringContainsString('No  found', $output->table_certificates());
     }
 }

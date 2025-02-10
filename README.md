@@ -78,13 +78,13 @@ This plugin has been tested on
 * MariaDB
 * PostgreSQL
 * MSSQL
-* OracleDB
 
 ### Theme support
 
 This plugin is developed and tested on Moodle Core's Boost theme and Boost child themes, including Moodle Core's Classic theme.
 
 ### Moodle release support
+
 This plugin is maintained for the latest major releases of Moodle.
 
 ### Bug Reports / Support
@@ -103,3 +103,4 @@ detailed support.
 
 [![Build Status](https://github.com/ewallah/moodle-report_growth/workflows/Tests/badge.svg)](https://github.com/ewallah/moodle-report_growth/actions)
 [![Coverage Status](https://coveralls.io/repos/github/ewallah/moodle-report_growth/badge.svg?branch=main)](https://coveralls.io/github/ewallah/moodle-report_growth?branch=main)
+![Mutation score](https://badgen.net/badge/Mutation%20Score%20Indicator/100)

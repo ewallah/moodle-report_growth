@@ -48,12 +48,6 @@ jobs:
           repository: mdjnelson/moodle-mod_certificate
           path: extras/mod_certificate
 
-      - name: add plugin
-        uses: actions/checkout@v4
-        with:
-          repository: mdjnelson/moodle-mod_customcert
-          path: extras/mod_customcert
-
       - name: setup PHP
         uses: shivammathur/setup-php@v2
         with:

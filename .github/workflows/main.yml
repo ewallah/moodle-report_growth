@@ -62,7 +62,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: mdjnelson/moodle-mod_customcert
-          path: extras/mod_certificate
+          path: extras/mod_customcert
 
       - name: setup PHP
         uses: shivammathur/setup-php@v2

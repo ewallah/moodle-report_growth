@@ -33,6 +33,8 @@ $context = context::instance_by_id($contextid);
 $str = get_string('growth', 'report_growth');
 $pluginname = get_string('pluginname', 'report_growth');
 $url = new moodle_url('/report/growth/index.php', ['p' => $p, 'contextid' => $context->id]);
+$PAGE->set_pagelayout('report');
+
 switch ($context->contextlevel) {
     case CONTEXT_COURSE:
         $course = get_course($context->instanceid);
@@ -58,7 +60,6 @@ switch ($context->contextlevel) {
         require_capability('report/growth:view', $context);
         $output = new \report_growth\output\global_renderer($PAGE, 'general');
 }
-$PAGE->set_pagelayout('report');
 $PAGE->set_title($str);
 $PAGE->set_heading($str);
 echo $output->header();

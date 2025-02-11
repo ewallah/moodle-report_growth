@@ -133,21 +133,6 @@ class course_renderer extends growth_renderer {
     }
 
     /**
-     * Table certificates.
-     *
-     * @param string $title Title
-     * @return string
-     */
-    public function table_certificates($title = ''): string {
-        global $CFG;
-        $s = '';
-        if (file_exists($CFG->dirroot . '/mod/certificate')) {
-            $s = $this->collect_course_table($title, 'certificate', 'certificate_issues', 'course', 'certificateid', 'timecreated');
-        }
-        return $s;
-    }
-
-    /**
      * Table teacher logs.
      *
      * @param string $title Title
@@ -166,6 +151,21 @@ class course_renderer extends growth_renderer {
             $out = $this->create_charts('logstore_standard_log', $title, 'timecreated', 'userid ' . $insql, $inparams);
         }
         return $out;
+    }
+
+    /**
+     * Table certificates.
+     *
+     * @param string $title Title
+     * @return string
+     */
+    public function table_certificates($title = ''): string {
+        global $CFG;
+        $s = '';
+        if (file_exists($CFG->dirroot . '/mod/certificate')) {
+            $s = $this->collect_course_table($title, 'certificate', 'certificate_issues', 'course', 'certificateid', 'timecreated');
+        }
+        return $s;
     }
 
     /**

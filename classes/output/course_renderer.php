@@ -139,7 +139,12 @@ class course_renderer extends growth_renderer {
      * @return string
      */
     public function table_certificates($title = ''): string {
-        return $this->collect_course_table($title, 'certificate', 'certificate_issues', 'course', 'certificateid', 'timecreated');
+        global $CFG;
+        $s = '';
+        if (file_exists($CFG->dirroot . '/mod/certificate')) {
+            $s = $this->collect_course_table($title, 'certificate', 'certificate_issues', 'course', 'certificateid', 'timecreated');
+        }
+        return $s;
     }
 
     /**
@@ -170,7 +175,12 @@ class course_renderer extends growth_renderer {
      * @return string
      */
     public function table_customcerts($title = ''): string {
-        return $this->collect_course_table($title, 'customcert', 'customcert_issues', 'course', 'customcertid', 'timecreated');
+        global $CFG;
+        $s = '';
+        if (file_exists($CFG->dirroot . '/mod/customcert')) {
+            $s = $this->collect_course_table($title, 'customcert', 'customcert_issues', 'course', 'customcertid', 'timecreated');
+        }
+        return $s;
     }
 
     /**
@@ -180,7 +190,12 @@ class course_renderer extends growth_renderer {
      * @return string
      */
     public function table_coursecertificates($title = ''): string {
-        return $this->create_charts('tool_certificate_issues', $title, 'timecreated', 'courseid = ' . $this->courseid);
+        global $CFG;
+        $s = '';
+        if (file_exists($CFG->dirroot . '/mod/coursecertificate')) {
+            $s = $this->create_charts('tool_certificate_issues', $title, 'timecreated', 'courseid = ' . $this->courseid);
+        }
+        return $s;
     }
 
     /**

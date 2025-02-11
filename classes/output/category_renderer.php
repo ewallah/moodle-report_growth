@@ -151,7 +151,13 @@ class category_renderer extends growth_renderer {
      * @return string
      */
     public function table_certificates($title = ''): string {
-        return $this->collect_cat2($title, 'certificate', 'course', 'certificate_issues', 'certificateid', 'timecreated');
+        global $CFG;
+        $s = '';
+        if (file_exists($CFG->dirroot . '/mod/certificate')) {
+            $s = $this->collect_cat2($title, 'certificate', 'course', 'certificate_issues', 'certificateid', 'timecreated');
+        }
+        return $s;
+
     }
 
     /**
@@ -161,7 +167,12 @@ class category_renderer extends growth_renderer {
      * @return string
      */
     public function table_customcerts($title = ''): string {
-        return $this->collect_cat2($title, 'customcert', 'course', 'customcert_issues', 'customcertid', 'timecreated');
+        global $CFG;
+        $s = '';
+        if (file_exists($CFG->dirroot . '/mod/customcert')) {
+            $s = $this->collect_cat2($title, 'customcert', 'course', 'customcert_issues', 'customcertid', 'timecreated');
+        }
+        return $s;
     }
 
     /**
@@ -171,7 +182,12 @@ class category_renderer extends growth_renderer {
      * @return string
      */
     public function table_coursecertificates($title = ''): string {
-        return $this->collect_cat($title, 'tool_certificate_issues', 'courseid', 'timecreated');
+        global $CFG;
+        $s = '';
+        if (file_exists($CFG->dirroot . '/mod/coursecertificate')) {
+            $s = $this->collect_cat($title, 'tool_certificate_issues', 'courseid', 'timecreated');
+        }
+        return $s;
     }
 
     /**

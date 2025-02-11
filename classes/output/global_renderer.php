@@ -227,7 +227,12 @@ class global_renderer extends growth_renderer {
      * @return string
      */
     public function table_certificates($title = ''): string {
-        return $this->create_charts('certificate_issues', $title);
+        global $CFG;
+        $s = '';
+        if (file_exists($CFG->dirroot . '/mod/certificate')) {
+            $s = $this->create_charts('certificate_issues', $title);
+        }
+        return $s;
     }
 
     /**
@@ -237,7 +242,12 @@ class global_renderer extends growth_renderer {
      * @return string
      */
     public function table_customcerts($title = ''): string {
-        return $this->create_charts('customcert_issues', $title);
+        global $CFG;
+        $s = '';
+        if (file_exists($CFG->dirroot . '/mod/customcert')) {
+            $s = $this->create_charts('customcert_issues', $title);
+        }
+        return $s;
     }
 
     /**
@@ -247,7 +257,12 @@ class global_renderer extends growth_renderer {
      * @return string
      */
     public function table_coursecertificates($title = ''): string {
-        return $this->create_charts('tool_certificate_issues', $title);
+        global $CFG;
+        $s = '';
+        if (file_exists($CFG->dirroot . '/mod/coursecertificate')) {
+            $s = $this->create_charts('tool_certificate_issues', $title);
+        }
+        return $s;
     }
 
     /**

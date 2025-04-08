@@ -106,8 +106,8 @@ final class index_test extends advanced_testcase {
 
     /**
      * Test settings.
-     * #[CoversClass(report_growth\output\global_renderer)]
-     * #[CoversClass(report_growth\output\growth_renderer)]
+     * @covers \report_growth\output\global_renderer
+     * @covers \report_growth\output\growth_renderer
      */
     public function test_settings(): void {
         global $CFG;
@@ -118,8 +118,8 @@ final class index_test extends advanced_testcase {
 
     /**
      * Test index with wrong permission.
-     * #[CoversClass(report_growth\output\global_renderer)]
-     * #[CoversClass(report_growth\output\growth_renderer)]
+     * @covers \report_growth\output\global_renderer
+     * @covers \report_growth\output\growth_renderer
      */
     public function test_index_wrong_permissions(): void {
         global $CFG, $DB, $OUTPUT, $PAGE;
@@ -142,8 +142,8 @@ final class index_test extends advanced_testcase {
      * @dataProvider pageprovider
      * @param int $x
      * @param string $expected
-     * #[CoversClass(report_growth\output\global_renderer)]
-     * #[CoversClass(report_growth\output\growth_renderer)]
+     * @covers \report_growth\output\global_renderer
+     * @covers \report_growth\output\growth_renderer
      */
     public function test_page_x($x, $expected): void {
         global $CFG, $DB, $OUTPUT, $PAGE, $USER;
@@ -196,8 +196,8 @@ final class index_test extends advanced_testcase {
      * @dataProvider courseprovider
      * @param int $x
      * @param string $expected
-     * #[CoversClass(report_growth\output\course_renderer)]
-     * #[CoversClass(report_growth\output\growth_renderer)]
+     * @covers \report_growth\output\course_renderer
+     * @covers \report_growth\output\growth_renderer
      */
     public function test_course_x($x, $expected): void {
         global $CFG, $DB, $OUTPUT, $PAGE, $USER;
@@ -249,8 +249,8 @@ final class index_test extends advanced_testcase {
      * @dataProvider courseprovider
      * @param int $x
      * @param string $expected
-     * #[CoversClass(report_growth\output\category_renderer)]
-     * #[CoversClass(report_growth\output\growth_renderer)]
+     * @covers \report_growth\output\category_renderer
+     * @covers \report_growth\output\growth_renderer
      */
     public function test_category_x($x, $expected): void {
         global $CFG, $DB, $OUTPUT, $PAGE, $USER;

@@ -22,7 +22,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        moodle-branch: ['MOODLE_405_STABLE']
+        moodle-branch: ['MOODLE_500_STABLE']
         php: ['8.3']
         database: ['pgsql']
 

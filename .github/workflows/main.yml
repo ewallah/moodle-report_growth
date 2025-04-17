@@ -30,7 +30,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        moodle-branch: ['MOODLE_404_STABLE', 'MOODLE_405_STABLE']
+        moodle-branch: ['MOODLE_405_STABLE', 'MOODLE_500_STABLE']
         php: ['8.3']
         database: ['mariadb', 'pgsql']
 
@@ -45,12 +45,14 @@ jobs:
         with:
           repository: moodleworkplace/moodle-tool_certificate
           path: extras/tool_certificate
+          ref: MOODLE_500_STABLE
 
       - name: add plugin
         uses: actions/checkout@v4
         with:
           repository: moodleworkplace/moodle-mod_coursecertificate
           path: extras/mod_coursecertificate
+          ref: MOODLE_500_STABLE
 
       - name: add plugin
         uses: actions/checkout@v4

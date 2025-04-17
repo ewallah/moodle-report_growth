@@ -35,24 +35,20 @@ jobs:
         with:
           repository: moodleworkplace/moodle-tool_certificate
           path: extras/tool_certificate
+          ref: MOODLE_500_STABLE
 
       - name: add plugin
         uses: actions/checkout@v4
         with:
           repository: moodleworkplace/moodle-mod_coursecertificate
           path: extras/mod_coursecertificate
+          ref: MOODLE_500_STABLE
 
       - name: add plugin
         uses: actions/checkout@v4
         with:
           repository: mdjnelson/moodle-mod_certificate
           path: extras/mod_certificate
-
-      - name: add plugin
-        uses: actions/checkout@v4
-        with:
-          repository: mdjnelson/moodle-mod_customcert
-          path: extras/mod_customcert
 
       - name: setup PHP
         uses: shivammathur/setup-php@v2

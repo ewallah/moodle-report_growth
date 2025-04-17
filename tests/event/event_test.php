@@ -31,7 +31,6 @@ use context_system;
 use moodle_url;
 use PHPUnit\Framework\Attributes\CoversClass;
 
-
 /**
  * Class report_growth_events_testcase
  *
@@ -42,7 +41,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
  * @author    Renaat Debleu <info@eWallah.net>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-#[CoversClass(\report_growth::class)]
 #[CoversClass(report_viewed::class)]
 final class event_test extends advanced_testcase {
     /**

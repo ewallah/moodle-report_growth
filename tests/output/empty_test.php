@@ -26,9 +26,9 @@
 namespace report_growth\output;
 
 use advanced_testcase;
+use PHPUnit\Framework\Attributes\CoversClass;
+
 /**
- * Class report_growth_renderers_testcase
- *
  * Class for tests related to growth report events.
  *
  * @package   report_growth
@@ -36,6 +36,10 @@ use advanced_testcase;
  * @author    Renaat Debleu <info@eWallah.net>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+#[CoversClass(category_renderer::class)]
+#[CoversClass(global_renderer::class)]
+#[CoversClass(growth_renderer::class)]
+#[CoversClass(course_renderer::class)]
 final class empty_test extends advanced_testcase {
     /**
      * Setup testcase.
@@ -48,8 +52,6 @@ final class empty_test extends advanced_testcase {
 
     /**
      * Test global tables.
-     * @covers \report_growth\output\global_renderer
-     * @covers \report_growth\output\growth_renderer
      */
     public function test_empty_global(): void {
         global $PAGE;
@@ -67,8 +69,6 @@ final class empty_test extends advanced_testcase {
 
     /**
      * Test empty course tables.
-     * @covers \report_growth\output\course_renderer
-     * @covers \report_growth\output\growth_renderer
      */
     public function test_empty_course(): void {
         global $PAGE;
@@ -82,8 +82,6 @@ final class empty_test extends advanced_testcase {
 
     /**
      * Test category tables.
-     * @covers \report_growth\output\category_renderer
-     * @covers \report_growth\output\growth_renderer
      */
     public function test_empty_category(): void {
         global $PAGE;

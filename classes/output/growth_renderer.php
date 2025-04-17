@@ -89,9 +89,11 @@ class growth_renderer extends plugin_renderer_base {
         $tabs = [];
         $func = 'table_';
         $fparam = '';
+        // Hack for behat testing.
+        $extra = defined('BEHAT_SITE_RUNNING') ? '.' : '';
         foreach ($rows as $key => $value) {
             $params = ['p' => $i, 'contextid' => $this->context->id];
-            $tabs[] = new \tabobject($i, new \moodle_url('/report/growth/index.php', $params), $value);
+            $tabs[] = new \tabobject($i, new \moodle_url('/report/growth/index.php', $params), $value . $extra);
             if ($i == $page) {
                 $func .= $key;
                 $fparam = $value;
@@ -176,7 +178,7 @@ class growth_renderer extends plugin_renderer_base {
     protected function create_intro(array $data, string $title): string {
         $tbl = new \html_table();
         $tbl->attributes = ['class' => 'table table-sm table-hover w-50'];
-        $tbl->colclasses = ['text-left', 'text-right'];
+        $tbl->colclasses = ['text-start', 'text-end'];
         $tbl->size = [null, '5rem'];
         $tbl->caption = $title;
         $tbl->data = $data;

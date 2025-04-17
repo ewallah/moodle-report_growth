@@ -27,6 +27,7 @@ namespace report_growth;
 
 use advanced_testcase;
 use moodle_exception;
+use PHPUnit\Framework\Attributes\{CoversClass, DataProvider};
 
 /**
  * Class report_growth_index_testcase
@@ -38,6 +39,10 @@ use moodle_exception;
  * @author    Renaat Debleu <info@eWallah.net>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+#[CoversClass(output\category_renderer::class)]
+#[CoversClass(output\global_renderer::class)]
+#[CoversClass(output\growth_renderer::class)]
+#[CoversClass(output\course_renderer::class)]
 final class index_test extends advanced_testcase {
     /**
      * Setup testcase.
@@ -106,8 +111,6 @@ final class index_test extends advanced_testcase {
 
     /**
      * Test settings.
-     * @covers \report_growth\output\global_renderer
-     * @covers \report_growth\output\growth_renderer
      */
     public function test_settings(): void {
         global $CFG;
@@ -118,8 +121,6 @@ final class index_test extends advanced_testcase {
 
     /**
      * Test index with wrong permission.
-     * @covers \report_growth\output\global_renderer
-     * @covers \report_growth\output\growth_renderer
      */
     public function test_index_wrong_permissions(): void {
         global $CFG, $DB, $OUTPUT, $PAGE;
@@ -142,9 +143,8 @@ final class index_test extends advanced_testcase {
      * @dataProvider pageprovider
      * @param int $x
      * @param string $expected
-     * @covers \report_growth\output\global_renderer
-     * @covers \report_growth\output\growth_renderer
      */
+    #[DataProvider('pageprovider')]
     public function test_page_x($x, $expected): void {
         global $CFG, $DB, $OUTPUT, $PAGE, $USER;
         chdir($CFG->dirroot . '/report/growth');
@@ -196,9 +196,8 @@ final class index_test extends advanced_testcase {
      * @dataProvider courseprovider
      * @param int $x
      * @param string $expected
-     * @covers \report_growth\output\course_renderer
-     * @covers \report_growth\output\growth_renderer
      */
+    #[DataProvider('courseprovider')]
     public function test_course_x($x, $expected): void {
         global $CFG, $DB, $OUTPUT, $PAGE, $USER;
         chdir($CFG->dirroot . '/report/growth');
@@ -249,9 +248,8 @@ final class index_test extends advanced_testcase {
      * @dataProvider courseprovider
      * @param int $x
      * @param string $expected
-     * @covers \report_growth\output\category_renderer
-     * @covers \report_growth\output\growth_renderer
      */
+    #[DataProvider('courseprovider')]
     public function test_category_x($x, $expected): void {
         global $CFG, $DB, $OUTPUT, $PAGE, $USER;
         chdir($CFG->dirroot . '/report/growth');

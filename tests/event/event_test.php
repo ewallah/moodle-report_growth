@@ -29,6 +29,7 @@ use advanced_testcase;
 use context_course;
 use context_system;
 use moodle_url;
+use PHPUnit\Framework\Attributes\CoversClass;
 
 
 /**
@@ -40,8 +41,9 @@ use moodle_url;
  * @copyright eWallah (www.eWallah.net)
  * @author    Renaat Debleu <info@eWallah.net>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @covers \report_growth
  */
+#[CoversClass(\report_growth::class)]
+#[CoversClass(report_viewed::class)]
 final class event_test extends advanced_testcase {
     /**
      * Setup testcase.
@@ -58,7 +60,6 @@ final class event_test extends advanced_testcase {
      *
      * It's not possible to use the moodle API to simulate the viewing of log report, so here we
      * simply create the event and trigger it.
-     * @covers \report_growth\event\report_viewed
      */
     public function test_report_viewed(): void {
         $this->getDataGenerator()->create_course();

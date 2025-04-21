@@ -29,5 +29,5 @@ $plugin->component = 'report_growth';
 $plugin->requires = 2024042200;
 $plugin->maturity = MATURITY_STABLE;
 $plugin->supported = [405, 500];
-$plugin->release = 'v4.5.3';
-$plugin->version = 2025021100;
+$plugin->release = 'v5.0.1';
+$plugin->version = 2025042100;

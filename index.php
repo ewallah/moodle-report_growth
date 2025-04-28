@@ -63,6 +63,7 @@ switch ($context->contextlevel) {
 $PAGE->set_title($str);
 $PAGE->set_heading($str);
 echo $output->header();
+navigation_node::override_active_url($url, true);
 \core\report_helper::print_report_selector(get_string('growth', 'report_growth'));
 echo $output->create_tabtree($context, $p);
 echo $output->footer();

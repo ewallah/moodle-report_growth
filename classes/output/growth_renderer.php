@@ -100,7 +100,7 @@ class growth_renderer extends plugin_renderer_base {
             }
             $i++;
         }
-        return $this->output->tabtree($tabs, $page) . \html_writer::tag('div', $this->$func($fparam), ['class' => 'p-3']);
+        return $this->output->tabtree($tabs, $page) . html_writer::tag('div', $this->$func($fparam), ['class' => 'p-3']);
     }
 
     /**

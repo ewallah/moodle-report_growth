@@ -1,10 +1,10 @@
-name: Tests
+name: Infection
 
 on: [push, pull_request]
 
 jobs:
   ci:
-    name: infection
+    name: ci
     runs-on: ubuntu-latest
 
     services:
@@ -20,35 +20,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        moodle-branch: [MOODLE_500_STABLE]
-        php: [8.3]
-        database: [pgsql]
+        moodle-branch: ['main']
+        php: ['8.3']
+        database: ['pgsql']
 
     steps:
       - name: checkout plugin
         uses: actions/checkout@v4
         with:
           path: this-plugin
-
-      - name: add plugin
-        uses: actions/checkout@v4
-        with:
-          repository: moodleworkplace/moodle-tool_certificate
-          path: extras/tool_certificate
-          ref: MOODLE_500_STABLE
-
-      - name: add plugin
-        uses: actions/checkout@v4
-        with:
-          repository: moodleworkplace/moodle-mod_coursecertificate
-          path: extras/mod_coursecertificate
-          ref: MOODLE_500_STABLE
-
-      - name: add plugin
-        uses: actions/checkout@v4
-        with:
-          repository: mdjnelson/moodle-mod_certificate
-          path: extras/mod_certificate
 
       - name: setup PHP
         uses: shivammathur/setup-php@v2
@@ -66,7 +46,7 @@ jobs:
            sudo locale-gen en_AU.UTF-8
 
       - name: install Moodle
-        run: moodle-plugin-ci install --db-host=127.0.0.1 --plugin this-plugin --extra-plugins=extras
+        run: moodle-plugin-ci install --db-host=127.0.0.1 --plugin this-plugin
         env:
           DB: ${{ matrix.database }}
           MOODLE_BRANCH: ${{ matrix.moodle-branch }}
@@ -76,10 +56,9 @@ jobs:
         run: |
            echo '<?php' > vendor/autoloadmoodle.php
            echo 'define("PHPUNIT_UTIL", true);' >> vendor/autoloadmoodle.php
-           echo 'require(__DIR__ . "/../lib/phpunit/bootstrap.php");' >> vendor/autoloadmoodle.php
+           echo 'require(__DIR__ . "/../public/lib/phpunit/bootstrap.php");' >> vendor/autoloadmoodle.php
            echo 'require("autoload.php");' >> vendor/autoloadmoodle.php
 
       - name: infection
-        if: ${{ !cancelled() }}
-        run: infection -s --only-covered --configuration=report/growth/.infection.json5
+        run: infection -s --configuration=public/report/growth/.infection.json5
         working-directory: moodle

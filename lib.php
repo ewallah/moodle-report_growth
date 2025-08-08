@@ -64,7 +64,7 @@ function report_growth_page_type_list($pagetype, $parentcontext, $currentcontext
     return [
         '*' => get_string('page-x', 'pagetype'),
         'report-*' => get_string('page-report-x', 'pagetype'),
-        'report-growth-*'     => get_string('page-report-growth-x',  'report_growth'),
+        'report-growth-*'     => get_string('page-report-growth-x', 'report_growth'),
         'report-growth-index' => get_string('page-report-growth-index', 'report_growth'),
     ];
 }

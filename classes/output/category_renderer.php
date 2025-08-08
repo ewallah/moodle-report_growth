@@ -157,7 +157,6 @@ class category_renderer extends growth_renderer {
             $s = $this->collect_cat2($title, 'certificate', 'course', 'certificate_issues', 'certificateid', 'timecreated');
         }
         return $s;
-
     }
 
     /**

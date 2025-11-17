@@ -58,16 +58,13 @@ class report_viewed extends \core\event\base {
      * @return string
      */
     public function get_description() {
+        $str = match ($this->contextlevel) {
+            CONTEXT_COURSE => "growth report for the course with id '$this->courseid'.",
+            CONTEXT_COURSECAT => "growth report for the category with id '$this->contextinstanceid'.",
+            default => "global growth report.",
+        };
         $tab = $this->other['tab'];
-        $str = "The user with id '$this->userid' viewed tab '$tab' of the ";
-        switch ($this->contextlevel) {
-            case CONTEXT_COURSE:
-                return $str . "growth report for the course with id '$this->courseid'.";
-            case CONTEXT_COURSECAT:
-                return $str . "growth report for the category with id '$this->contextinstanceid'.";
-            default:
-                return $str . "global growth report.";
-        }
+        return "The user with id '$this->userid' viewed tab '$tab' of the " . $str;
     }
 
     /**

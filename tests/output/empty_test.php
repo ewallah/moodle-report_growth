@@ -65,6 +65,9 @@ final class empty_test extends advanced_testcase {
         $this->assertEquals('No Mobile devices found', $output->table_mobiles('Mobile devices'));
         $this->assertEquals('No Payments found', $output->table_payments('Payments'));
         $this->assertStringContainsString('Show chart data', $output->table_countries());
+        $output->table_certificates();
+        $output->table_customcerts();
+        $output->table_coursecertificates();
     }
 
     /**
@@ -78,6 +81,9 @@ final class empty_test extends advanced_testcase {
         $output = new course_renderer($PAGE, 'general');
         $this->assertStringContainsString(' ', $output->create_tabtree($context));
         $this->assertStringContainsString('No Users found', $output->table_countries());
+        $output->table_certificates();
+        $output->table_customcerts();
+        $output->table_coursecertificates();
     }
 
     /**
@@ -92,5 +98,8 @@ final class empty_test extends advanced_testcase {
         $this->assertStringContainsString(' ', $output->create_tabtree($context));
         $this->assertStringContainsString(' ', $output->table_enrolments());
         $this->assertStringContainsString('No ', $output->table_coursecompletions('test'));
+        $output->table_certificates();
+        $output->table_customcerts();
+        $output->table_coursecertificates();
     }
 }

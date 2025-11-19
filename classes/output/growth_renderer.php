@@ -44,34 +44,36 @@ class growth_renderer extends plugin_renderer_base {
 
     /**
      * Collect certificates.
-     *
-     * @return array
      */
-    protected function certificate_tabs() {
+    protected function certificate_tabs(): array {
         global $CFG;
         $rows = [];
         $plural = 'modulenameplural';
         if (!empty($CFG->enablebadges)) {
             $rows['badges'] = get_string('badges');
         }
-        if (file_exists($CFG->dirroot . '/mod/certificate')) {
+
+        if ($this->dir_exists('certificate')) {
             $rows['certificates'] = get_string($plural, 'mod_certificate');
         }
-        if (file_exists($CFG->dirroot . '/mod/customcert')) {
+
+        if ($this->dir_exists('customcert')) {
             $rows['customcerts'] = get_string($plural, 'mod_customcert');
         }
-        if (file_exists($CFG->dirroot . '/mod/coursecertificate')) {
+
+        if ($this->dir_exists('coursecertificate')) {
             $rows['coursecertificates'] = get_string($plural, 'mod_coursecertificate');
         }
+
         return $rows;
     }
 
     /**
      * Trigger Event.
      *
-     * @param int $page
+     * @param int $page Page
      */
-    protected function trigger_page(int $page = 1) {
+    protected function trigger_page(int $page = 1): void {
         // Trigger a report viewed event.
         $event = \report_growth\event\report_viewed::create(['context' => $this->context, 'other' => ['tab' => $page]]);
         $event->trigger();
@@ -80,11 +82,11 @@ class growth_renderer extends plugin_renderer_base {
     /**
      * Render page.
      *
-     * @param array $rows
-     * @param int $page
+     * @param array $rows Rows
+     * @param int $page Page
      */
     protected function render_page(array $rows, int $page = 1): string {
-        $page = ($page > count($rows) || $page == 0) ? 1 : $page;
+        $page = ($page > count($rows) || $page === 0) ? 1 : $page;
         $i = 1;
         $tabs = [];
         $func = 'table_';
@@ -94,12 +96,14 @@ class growth_renderer extends plugin_renderer_base {
         foreach ($rows as $key => $value) {
             $params = ['p' => $i, 'contextid' => $this->context->id];
             $tabs[] = new \tabobject($i, new \moodle_url('/report/growth/index.php', $params), $value . $extra);
-            if ($i == $page) {
+            if ($i === $page) {
                 $func .= $key;
                 $fparam = $value;
             }
+
             $i++;
         }
+
         return $this->output->tabtree($tabs, $page) . html_writer::tag('div', $this->$func($fparam), ['class' => 'p-3']);
     }
 
@@ -112,9 +116,16 @@ class growth_renderer extends plugin_renderer_base {
      * @param string $field to collect from first table
      * @param string $fieldwhere Where lookup
      * @param string $fieldresult The field that has to be calculated
-     * @return string
      */
-    protected function collect_course_table($title, $table1, $table2, $field, $fieldwhere, $fieldresult = 'timemodified'): string {
+    protected function collect_course_table(
+        string $title,
+        string $table1,
+        string $table2,
+        string $field,
+        string $fieldwhere,
+        string $fieldresult = 'timemodified'
+    ): string {
+
         global $DB;
         $ids = $DB->get_fieldset_select($table1, 'id', $field . ' = :courseid', ['courseid' => $this->context->instanceid]);
         [$insql, $inparams] = $this->insql($ids, $fieldwhere, $fieldresult);
@@ -123,33 +134,32 @@ class growth_renderer extends plugin_renderer_base {
 
     /**
      * Collect course table.
+     * @param array $fieldset Fieldset
+     * @param string $fieldwhere Field where
+     * @param string $fieldresult Field result
      *
-     * @param array $fieldset
-     * @param string $fieldwhere
-     * @param string $fieldresult
-     * @return array
      */
-    protected function insql($fieldset, $fieldwhere, $fieldresult) {
+    protected function insql(array $fieldset, string $fieldwhere, string $fieldresult): array {
         global $DB;
         $inparams = [];
         $insql = $fieldresult . '< 0';
-        if (count($fieldset) > 0) {
+        if ($fieldset !== []) {
             [$insql, $inparams] = $DB->get_in_or_equal($fieldset);
             $insql = $fieldwhere . ' ' . $insql;
         }
+
         return [$insql, $inparams];
     }
 
     /**
      * Table country.
      *
-     * @param array $rows
-     * @param string $title
-     * @return string
+     * @param array $rows Rows
+     * @param string $title Title
      */
     protected function create_countries(array $rows, string $title = ''): string {
         $out = get_string('nostudentsfound', 'moodle', get_string('users'));
-        if (count($rows) > 0) {
+        if ($rows !== []) {
             $chart = new chart_bar();
             $chart->set_horizontal(true);
             $series = [];
@@ -160,20 +170,21 @@ class growth_renderer extends plugin_renderer_base {
                     $labels[] = get_string($row->country, 'countries');
                 }
             }
+
             $series = new chart_series($title, $series);
             $chart->add_series($series);
             $chart->set_labels($labels);
             $out = $this->output->render($chart);
         }
+
         return $out;
     }
 
     /**
      * Create intro table.
      *
-     * @param array $data
-     * @param string $title
-     * @return string
+     * @param array $data Data
+     * @param string $title Title
      */
     protected function create_intro(array $data, string $title): string {
         $tbl = new \html_table();
@@ -182,16 +193,15 @@ class growth_renderer extends plugin_renderer_base {
         $tbl->size = [null, '5rem'];
         $tbl->caption = $title;
         $tbl->data = $data;
-        return count($data) > 0 ? html_writer::table($tbl) . html_writer::empty_tag('br') : '';
+        return $data !== [] ? html_writer::table($tbl) . html_writer::empty_tag('br') : '';
     }
 
     /**
      * Create chart 1.
      *
-     * @param string $title
-     * @param array $series
-     * @param array $labels
-     * @return string
+     * @param string $title Title
+     * @param array $series Series
+     * @param array $labels Labels
      */
     private function create_chart_one(string $title, array $series, array $labels): string {
         $chart = new chart_line();
@@ -203,18 +213,18 @@ class growth_renderer extends plugin_renderer_base {
 
     /**
      * Create chart 2.
-     *
-     * @param array $quarters
-     * @param array $labels
-     * @param array $totals
-     * @return string
+     * @param array $quarters Quarters
+     * @param array $labels Labels
+     * @param array $totals Totals
      */
     private function create_chart_two(array $quarters, array $labels, array $totals): string {
         $q = get_string('quarter', 'report_growth');
         $chart = new chart_bar();
         $chart->set_stacked(true);
+
         $series = new chart_series(get_string('total'), $totals);
         $series->set_type(chart_series::TYPE_LINE);
+
         $chart->add_series($series);
         $chart->add_series(new chart_series($q . '1', $quarters[1]));
         $chart->add_series(new chart_series($q . '2', $quarters[2]));
@@ -227,51 +237,66 @@ class growth_renderer extends plugin_renderer_base {
     /**
      * Create charts.
      *
-     * @param string $table
-     * @param string $title
-     * @param string $field optional
-     * @param string $where optional
-     * @param array $params optional
-     * @return string
+     * @param string $table Table
+     * @param string $title Title
+     * @param string $field Field optional
+     * @param string $where Where optional
+     * @param array $params Params optional
      */
-    protected function create_charts($table, $title, $field = 'timecreated', $where = '', $params = []): string {
+    protected function create_charts(
+        string $table,
+        string $title,
+        string $field = 'timecreated',
+        string $where = '',
+        array $params = []
+    ): string {
+
         $toyear = intval(date("Y"));
         $nowweek = date('W');
-        $wh = ($where == '') ? "$field > 0" : "($field > 0) AND ($where)";
+        $wh = ($where === '') ? "{$field} > 0" : "({$field} > 0) AND ({$where})";
         if ($rows = $this->get_sql($field, $table, $wh, $params)) {
             $week = get_string('week');
-            $series = $labels = [];
+            $series = [];
+            $labels = [];
             $x = current($rows);
             $total = 0;
             $fromyear = is_object($x) ? intval(explode(' ', $x->week)[0]) : $toyear;
             $fromweek = is_object($x) ? intval(explode(' ', $x->week)[1]) : 1;
             for ($i = $fromyear; $i <= $toyear; $i++) {
                 for ($j = $fromweek; $j <= 52; $j++) {
-                    $str = "$i $j";
+                    $str = "{$i} {$j}";
                     $total += array_key_exists($str, $rows) ? $rows[$str]->newitems : 0;
                     $series[] = $total;
-                    $labels[] = "$i $week $j";
-                    if ($i == $toyear && $j > $nowweek) {
+                    $labels[] = "{$i} {$week} {$j}";
+                    if ($i === $toyear && $j > $nowweek) {
                         break;
                     }
                 }
+
                 $fromweek = 1;
             }
+
             $search = 'help_' . $table;
             $charts = [];
             $manager = get_string_manager();
             if ($manager->string_exists($search, 'report_growth')) {
                 $charts[] = html_writer::tag('figcaption', get_string($search, 'report_growth'), ['class' => 'figure-caption']);
             }
+
             $charts[] = $this->create_chart_one($title, $series, $labels);
-            $labels = $totals = $quarter1 = $quarter2 = $quarter3 = $quarter4 = [];
+            $labels = [];
+            $totals = [];
+            $quarter1 = [];
+            $quarter2 = [];
+            $quarter3 = [];
+            $quarter4 = [];
             // If it worked the first time...
             $rows = $this->get_sql($field, $table, $wh, $params, false);
             for ($i = $fromyear; $i <= $toyear; $i++) {
-                $x1 = array_key_exists("$i 1", $rows) ? $rows["$i 1"]->newitems : 0;
-                $x2 = array_key_exists("$i 2", $rows) ? $rows["$i 2"]->newitems : 0;
-                $x3 = array_key_exists("$i 3", $rows) ? $rows["$i 3"]->newitems : 0;
-                $x4 = array_key_exists("$i 4", $rows) ? $rows["$i 4"]->newitems : 0;
+                $x1 = array_key_exists("{$i} 1", $rows) ? $rows["{$i} 1"]->newitems : 0;
+                $x2 = array_key_exists("{$i} 2", $rows) ? $rows["{$i} 2"]->newitems : 0;
+                $x3 = array_key_exists("{$i} 3", $rows) ? $rows["{$i} 3"]->newitems : 0;
+                $x4 = array_key_exists("{$i} 4", $rows) ? $rows["{$i} 4"]->newitems : 0;
                 $quarter1[] = $x1;
                 $quarter2[] = $x2;
                 $quarter3[] = $x3;
@@ -279,21 +304,32 @@ class growth_renderer extends plugin_renderer_base {
                 $totals[] = $x1 + $x2 + $x3 + $x4;
                 $labels[] = $i;
             }
+
             $quarters = [null, $quarter1, $quarter2, $quarter3, $quarter4];
             $charts[] = $this->create_chart_two($quarters, $labels, $totals);
             return implode(html_writer::empty_tag('br'), $charts);
         }
+
         return get_string('nostudentsfound', 'moodle', $title);
+    }
+
+    /**
+     * If directory exists
+     * @param string $module Module
+     */
+    protected function dir_exists(string $module): bool {
+        global $CFG;
+        return file_exists("{$CFG->dirroot}/mod/{$module}");
     }
 
     /**
      * Collect data for charts.
      *
-     * @param string $field
-     * @param string $table
-     * @param string $wh
-     * @param array $params
-     * @param bool $weeks optional
+     * @param string $field Field
+     * @param string $table Table
+     * @param string $wh Wh
+     * @param array $params Params
+     * @param bool $weeks Weeks or Quarters optional
      * @return bool/array
      */
     protected function get_sql(string $field, string $table, string $wh, array $params = [], bool $weeks = true) {
@@ -302,23 +338,24 @@ class growth_renderer extends plugin_renderer_base {
         switch ($family) {
             case 'mysql':
                 $func = $weeks ? 'WEEKOFYEAR' : 'QUARTER';
-                $concat = "CONCAT(YEAR(FROM_UNIXTIME($field)), ' ', $func(FROM_UNIXTIME($field)))";
-                $sql = "SELECT $concat AS week, COUNT(*) AS newitems FROM {" . $table . "}
-                        WHERE $wh GROUP BY $concat ORDER BY $field";
+                $concat = "CONCAT(YEAR(FROM_UNIXTIME({$field})), ' ', {$func}(FROM_UNIXTIME({$field})))";
+                $sql = "SELECT {$concat} AS week, COUNT(*) AS newitems FROM {" . $table . "}
+                        WHERE {$wh} GROUP BY {$concat} ORDER BY {$field}";
                 break;
             case 'mssql':
                 $func = $weeks ? 'WEEK' : 'qq';
-                $field = "dateadd(S, $field, '1970-01-01')";
-                $concat = $DB->sql_concat_join("' '", ["DATEPART(YEAR, $field)", "DATEPART($func, $field)"]);
-                $sql = "SELECT $concat AS week, COUNT(*) AS newitems FROM {" . $table . "}
-                        WHERE $wh GROUP BY $concat ORDER BY $concat";
+                $field = "dateadd(S, {$field}, '1970-01-01')";
+                $concat = $DB->sql_concat_join("' '", ["DATEPART(YEAR, {$field})", "DATEPART({$func}, {$field})"]);
+                $sql = "SELECT {$concat} AS week, COUNT(*) AS newitems FROM {" . $table . "}
+                        WHERE {$wh} GROUP BY {$concat} ORDER BY {$concat}";
                 break;
             default:
                 $func = $weeks ? 'YYYY WW' : 'YYYY Q';
-                $sql = "SELECT TO_CHAR(TO_TIMESTAMP($field), '$func') AS week, COUNT(*) AS newitems FROM {" . $table . "}
-                        WHERE $wh GROUP BY 1 ORDER BY 1";
+                $sql = "SELECT TO_CHAR(TO_TIMESTAMP({$field}), '{$func}') AS week, COUNT(*) AS newitems FROM {" . $table . "}
+                        WHERE {$wh} GROUP BY 1 ORDER BY 1";
                 break;
         }
+
         return $DB->get_records_sql($sql, $params);
     }
 }

@@ -23,7 +23,7 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once(dirname(__FILE__) . '/../../config.php');
+require_once(__DIR__ . '/../../config.php');
 global $CFG;
 require_once($CFG->libdir . '/adminlib.php');
 
@@ -60,6 +60,7 @@ switch ($context->contextlevel) {
         require_capability('report/growth:view', $context);
         $output = new \report_growth\output\global_renderer($PAGE, 'general');
 }
+
 $PAGE->set_title($str);
 $PAGE->set_heading($str);
 echo $output->header();

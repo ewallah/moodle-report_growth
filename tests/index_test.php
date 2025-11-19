@@ -93,6 +93,7 @@ final class index_test extends advanced_testcase {
         $fordb->imageauthorurl = "http://author-url.example.com";
         $fordb->imagecaption = "Test caption image";
         $fordb->status = BADGE_STATUS_INACTIVE;
+
         $DB->insert_record('badge', $fordb, true);
 
         // Set the default Issuer (because OBv2 needs them).
@@ -106,6 +107,7 @@ final class index_test extends advanced_testcase {
         $fordb->type = BADGE_TYPE_COURSE;
         $fordb->courseid = $course->id;
         $fordb->status = BADGE_STATUS_ACTIVE;
+
         $DB->insert_record('badge', $fordb, true);
     }
 
@@ -161,7 +163,6 @@ final class index_test extends advanced_testcase {
 
     /**
      * Test pages.
-     * @return array
      */
     public static function pageprovider(): array {
         return [
@@ -217,7 +218,6 @@ final class index_test extends advanced_testcase {
 
     /**
      * Test pages.
-     * @return array
      */
     public static function courseprovider(): array {
         return [

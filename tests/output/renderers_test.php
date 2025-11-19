@@ -59,11 +59,13 @@ final class renderers_test extends advanced_testcase {
         $dg->create_course(['category' => $categoryid]);
         $dg->create_course(['category' => $categoryid]);
         $dg->create_course(['category' => $categoryid]);
+
         $course = $dg->create_course(['category' => $categoryid, 'enablecompletion' => true]);
         $dg->create_and_enrol($course, 'student');
         $dg->create_and_enrol($course, 'student', ['country' => 'BE']);
         $dg->create_and_enrol($course, 'student', ['country' => 'NL']);
         $dg->create_and_enrol($course, 'student', ['country' => 'UG']);
+
         $user = $dg->create_and_enrol($course, 'editingteacher');
         $this->setUser($user->id);
         $params = ['context' => \context_course::instance($course->id), 'objectid' => $course->id];
@@ -83,6 +85,8 @@ final class renderers_test extends advanced_testcase {
         $this->assertStringContainsString('Show chart data', $output->table_enrolments());
         $this->assertStringContainsString('Show chart data', $output->table_countries());
         $output->table_certificates();
+        $output->table_customcerts();
+        $output->table_coursecertificates();
         // TODO: Why are there no teacher logs.
         $this->assertStringContainsString('No teachers found', $output->table_teachers('teachers'));
     }
@@ -104,6 +108,8 @@ final class renderers_test extends advanced_testcase {
         $this->assertEquals('No Payments found', $output->table_payments('Payments'));
         $this->assertStringContainsString('Show chart data', $output->table_countries());
         $output->table_certificates();
+        $output->table_customcerts();
+        $output->table_coursecertificates();
     }
 
     /**
@@ -113,9 +119,11 @@ final class renderers_test extends advanced_testcase {
         global $PAGE;
         $course = get_course($this->courseid);
         $context = \context_coursecat::instance($course->category);
-        $output = new global_renderer($PAGE, 'general');
+        $output = new category_renderer($PAGE, 'general');
         $this->assertStringContainsString(' ', $output->create_tabtree($context));
-        $this->assertStringContainsString('>5</td>', $output->table_enrolments());
+        $this->assertStringContainsString('Show chart', $output->table_enrolments());
         $output->table_certificates();
+        $output->table_customcerts();
+        $output->table_coursecertificates();
     }
 }

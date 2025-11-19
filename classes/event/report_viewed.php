@@ -64,7 +64,7 @@ class report_viewed extends \core\event\base {
             default => "global growth report.",
         };
         $tab = $this->other['tab'];
-        return "The user with id '$this->userid' viewed tab '$tab' of the " . $str;
+        return "The user with id '$this->userid' viewed tab '{$tab}' of the " . $str;
     }
 
     /**
@@ -77,6 +77,7 @@ class report_viewed extends \core\event\base {
         if ($this->contextlevel == CONTEXT_COURSE || $this->contextlevel == CONTEXT_COURSECAT) {
             $params['contextid'] = $this->contextid;
         }
+
         return new \moodle_url('/report/growth/index.php', $params);
     }
 }

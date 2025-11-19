@@ -30,6 +30,7 @@ use html_writer;
 use plugin_renderer_base;
 use renderable;
 use tabobject;
+use stdClass;
 use core\{chart_bar, chart_line, chart_series};
 
 /**
@@ -52,9 +53,8 @@ class category_renderer extends growth_renderer {
      *
      * @param \stdClass $context Selected $coursecontext
      * @param int $p Selected tab
-     * @return string
      */
-    public function create_tabtree($context, $p = 1) {
+    public function create_tabtree(stdClass $context, int $p = 1): string {
         global $CFG;
         $this->categoryid = $context->instanceid;
         $this->context = $context;
@@ -70,6 +70,7 @@ class category_renderer extends growth_renderer {
             $rows['activitiescompleted'] = get_string('activitiescompleted', 'completion');
             $rows['coursecompletions'] = $txt->coursecompletions;
         }
+
         $rows = array_merge($rows, $this->certificate_tabs());
         $rows['countries'] = get_string('countries', 'report_growth');
         // Trigger a report viewed event.
@@ -81,9 +82,8 @@ class category_renderer extends growth_renderer {
      * Table enrolments.
      *
      * @param string $title Title
-     * @return string
      */
-    public function table_enrolments($title = ''): string {
+    public function table_enrolments(string $title = ''): string {
         return $this->collect_cat2($title, 'enrol', 'courseid', 'user_enrolments', 'enrolid', 'timecreated');
     }
 
@@ -91,9 +91,8 @@ class category_renderer extends growth_renderer {
      * Table last access.
      *
      * @param string $title Title
-     * @return string
      */
-    public function table_lastaccess($title = ''): string {
+    public function table_lastaccess(string $title = ''): string {
         return $this->collect_cat($title, 'user_lastaccess', 'courseid', 'timeaccess');
     }
 
@@ -101,9 +100,8 @@ class category_renderer extends growth_renderer {
      * Table activities.
      *
      * @param string $title Title
-     * @return string
      */
-    public function table_activities($title = ''): string {
+    public function table_activities(string $title = ''): string {
         return $this->collect_cat($title, 'course_modules', 'course', 'added');
     }
 
@@ -111,9 +109,8 @@ class category_renderer extends growth_renderer {
      * Table activities completed.
      *
      * @param string $title Title
-     * @return string
      */
-    public function table_activitiescompleted($title = ''): string {
+    public function table_activitiescompleted(string $title = ''): string {
         return $this->collect_cat2(
             $title,
             'course_modules',
@@ -128,9 +125,8 @@ class category_renderer extends growth_renderer {
      * Table completions.
      *
      * @param string $title Title
-     * @return string
      */
-    public function table_coursecompletions($title = ''): string {
+    public function table_coursecompletions(string $title = ''): string {
         return $this->collect_cat($title, 'course_completions', 'course', 'timecompleted');
     }
 
@@ -138,68 +134,62 @@ class category_renderer extends growth_renderer {
      * Table badges.
      *
      * @param string $title Title
-     * @return string
      */
-    public function table_badges($title = ''): string {
+    public function table_badges(string $title = ''): string {
         return $this->collect_cat2($title, 'badge', 'courseid', 'badge_issued', 'badgeid', 'dateissued');
+    }
+
+    /**
+     * Collect certificates
+     *
+     * @param string $module Module
+     * @param string $issues Issues
+     * @param string $id Id
+     * @param string $title Title
+     */
+    private function certs(string $module, string $issues, string $id, string $title): string {
+        return $this->dir_exists($module) ? $this->collect_cat2($title, $module, 'course', $issues, $id, 'timecreated') : '';
     }
 
     /**
      * Table certificates.
      *
      * @param string $title Title
-     * @return string
      */
-    public function table_certificates($title = ''): string {
-        global $CFG;
-        $s = '';
-        if (file_exists($CFG->dirroot . '/mod/certificate')) {
-            $s = $this->collect_cat2($title, 'certificate', 'course', 'certificate_issues', 'certificateid', 'timecreated');
-        }
-        return $s;
+    public function table_certificates(string $title = ''): string {
+        return $this->certs('certificate', 'certificate_issues', 'certificateid', $title);
     }
 
     /**
      * Table custom certificates.
      *
      * @param string $title Title
-     * @return string
      */
-    public function table_customcerts($title = ''): string {
-        global $CFG;
-        $s = '';
-        if (file_exists($CFG->dirroot . '/mod/customcert')) {
-            $s = $this->collect_cat2($title, 'customcert', 'course', 'customcert_issues', 'customcertid', 'timecreated');
-        }
-        return $s;
+    public function table_customcerts(string $title = ''): string {
+        return $this->certs('customcert', 'customcert_issues', 'customcertid', $title);
     }
 
     /**
      * Table course certificates.
      *
      * @param string $title Title
-     * @return string
      */
-    public function table_coursecertificates($title = ''): string {
-        global $CFG;
-        $s = '';
-        if (file_exists($CFG->dirroot . '/mod/coursecertificate')) {
-            $s = $this->collect_cat($title, 'tool_certificate_issues', 'courseid', 'timecreated');
-        }
-        return $s;
+    public function table_coursecertificates(string $title = ''): string {
+        $s = 'coursecertificate';
+        $t = 'tool_certificate_issues';
+        return $this->dir_exists($s) ? $this->collect_cat($title, $t, 'courseid', 'timecreated') : '';
     }
 
     /**
      * Table country.
      *
      * @param string $title Title
-     * @return string
      */
-    public function table_countries($title = ''): string {
+    public function table_countries(string $title = ''): string {
         global $DB;
         $title = get_string('users');
         $out = get_string('nostudentsfound', 'moodle', $title);
-        if (count($this->courseids) > 0) {
+        if ($this->courseids !== []) {
             [$insql, $inparams] = $this->insql($this->courseids, 'courseid', 'courseid');
             $ids = $DB->get_fieldset_select('enrol', 'id', $insql, $inparams);
             if (count($ids) > 0) {
@@ -207,12 +197,14 @@ class category_renderer extends growth_renderer {
                 $userids = $DB->get_fieldset_select('user_enrolments', 'userid', $insql, $inparams);
                 if (count($userids) > 0) {
                     [$insql, $inparams] = $this->insql($userids, 'id', 'id');
-                    $sql = "SELECT country, COUNT(country) AS newusers FROM {user} WHERE $insql GROUP BY country ORDER BY country";
+                    $sql = "SELECT country, COUNT(country) AS newusers FROM {user}
+                            WHERE {$insql} GROUP BY country ORDER BY country";
                     $rows = $DB->get_records_sql($sql, $inparams);
                     $out = $this->create_countries($rows, $title);
                 }
             }
         }
+
         return $out;
     }
 
@@ -220,12 +212,10 @@ class category_renderer extends growth_renderer {
      * Collect category table.
      *
      * @param string $title Title
-     * @param string $table First table
-     * @param string $fieldwhere Where lookup
-     * @param string $fieldresult The field that has to be calculated
-     * @return string
-     */
-    protected function collect_cat($title, $table, $fieldwhere, $fieldresult): string {
+     * @param string $table Table
+     * @param string $fieldwhere Field where
+     * @param string $fieldresult Field result*/
+    protected function collect_cat(string $title, string $table, string $fieldwhere, string $fieldresult): string {
         [$insql, $inparams] = $this->insql($this->courseids, $fieldwhere, $fieldresult);
         return $this->create_charts($table, $title, $fieldresult, $insql, $inparams);
     }
@@ -234,16 +224,23 @@ class category_renderer extends growth_renderer {
      * Collect category table.
      *
      * @param string $title Title
-     * @param string $table1 First table
-     * @param string $field1 Where lookup
-     * @param string $table2 Second table
-     * @param string $field2 Where lookup
-     * @param string $fieldresult The field that has to be calculated
-     * @return string
+     * @param string $table1 Table 1
+     * @param string $field1 Field 1
+     * @param string $table2 Table 2
+     * @param string $field2 Field 2
+     * @param string $fieldresult Field result
      */
-    protected function collect_cat2($title, $table1, $field1, $table2, $field2, $fieldresult): string {
+    protected function collect_cat2(
+        string $title,
+        string $table1,
+        string $field1,
+        string $table2,
+        string $field2,
+        string $fieldresult
+    ): string {
+
         global $DB;
-        if (count($this->courseids) > 0) {
+        if ($this->courseids !== []) {
             [$insql, $inparams] = $this->insql($this->courseids, $field1, $fieldresult);
             $ids = $DB->get_fieldset_select($table1, 'id', $insql, $inparams);
             if (count($ids) > 0) {
@@ -252,6 +249,7 @@ class category_renderer extends growth_renderer {
                 return $this->create_charts($table2, $title, $fieldresult, $insql, $inparams);
             }
         }
+
         return get_string('nostudentsfound', 'moodle', $title);
     }
 }

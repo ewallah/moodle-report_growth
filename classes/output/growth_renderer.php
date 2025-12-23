@@ -343,12 +343,14 @@ class growth_renderer extends plugin_renderer_base {
                         WHERE {$wh} GROUP BY {$concat} ORDER BY {$field}";
                 break;
             case 'mssql':
+                // @codeCoverageIgnoreStart
                 $func = $weeks ? 'WEEK' : 'qq';
                 $field = "dateadd(S, {$field}, '1970-01-01')";
                 $concat = $DB->sql_concat_join("' '", ["DATEPART(YEAR, {$field})", "DATEPART({$func}, {$field})"]);
                 $sql = "SELECT {$concat} AS week, COUNT(*) AS newitems FROM {" . $table . "}
                         WHERE {$wh} GROUP BY {$concat} ORDER BY {$concat}";
                 break;
+                // @codeCoverageIgnoreEnd
             default:
                 $func = $weeks ? 'YYYY WW' : 'YYYY Q';
                 $sql = "SELECT TO_CHAR(TO_TIMESTAMP({$field}), '{$func}') AS week, COUNT(*) AS newitems FROM {" . $table . "}

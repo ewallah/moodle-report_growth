@@ -88,7 +88,7 @@ class course_renderer extends growth_renderer {
      * @param string $title Title
      */
     public function table_lastaccess(string $title = ''): string {
-        return $this->create_charts('user_lastaccess', $title, 'timeaccess', 'courseid = ' . $this->courseid);
+        return $this->create_charts('user_lastaccess', $title, 'timeaccess', "courseid = {$this->courseid}");
     }
 
     /**
@@ -97,7 +97,7 @@ class course_renderer extends growth_renderer {
      * @param string $title Title
      */
     public function table_activities(string $title = ''): string {
-        return $this->create_charts('course_modules', $title, 'added', 'course = ' . $this->courseid);
+        return $this->create_charts('course_modules', $title, 'added', "course = {$this->courseid}");
     }
 
     /**
@@ -115,7 +115,7 @@ class course_renderer extends growth_renderer {
      * @param string $title Title
      */
     public function table_coursecompletions(string $title = ''): string {
-        return $this->create_charts('course_completions', $title, 'timecompleted', 'course = ' . $this->courseid);
+        return $this->create_charts('course_completions', $title, 'timecompleted', "course = {$this->courseid}");
     }
 
     /**
@@ -178,7 +178,7 @@ class course_renderer extends growth_renderer {
     public function table_coursecertificates(string $title = ''): string {
         $s = 'coursecertificate';
         $t = 'tool_certificate_issues';
-        return $this->dir_exists($s) ? $this->create_charts($t, $title, 'timecreated', 'courseid = ' . $this->courseid) : '';
+        return $this->dir_exists($s) ? $this->create_charts($t, $title, 'timecreated', "courseid = {$this->courseid}") : '';
     }
 
     /**

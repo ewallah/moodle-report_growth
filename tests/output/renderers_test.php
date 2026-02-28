@@ -117,6 +117,7 @@ final class renderers_test extends advanced_testcase {
      */
     public function test_category(): void {
         global $PAGE;
+        $this->setAdminUser();
         $course = get_course($this->courseid);
         $context = \context_coursecat::instance($course->category);
         $output = new category_renderer($PAGE, 'general');

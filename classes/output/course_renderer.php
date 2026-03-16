@@ -187,19 +187,20 @@ class course_renderer extends growth_renderer {
      * @param string $title Title
      */
     public function table_countries(string $title = ''): string {
-        global $DB;
         $title = get_string('users');
         $out = get_string('nostudentsfound', 'moodle', $title);
-        $ids = $DB->get_fieldset_select('enrol', 'id', 'courseid = :courseid', ['courseid' => $this->context->instanceid]);
-        if (count($ids) > 0) {
-            [$insql, $inparams] = $this->insql($ids, 'enrolid', 'enrolid');
-            $userids = $DB->get_fieldset_select('user_enrolments', 'userid', $insql, $inparams);
-            if (count($userids) > 0) {
-                [$insql, $inparams] = $this->insql($userids, 'id', 'id');
-                $sql = "SELECT country, COUNT(country) AS newusers FROM {user} WHERE {$insql} GROUP BY country ORDER BY country";
-                $rows = $DB->get_records_sql($sql, $inparams);
-                $out = $this->create_countries($rows, $title);
+        $users = get_enrolled_users($this->context, '', 0, 'u.id, u.country');
+        if (count($users) > 0) {
+            $all = array_column($users, 'country');
+            $values = array_count_values($all);
+            $arr = [];
+            foreach ($values as $key => $value) {
+                $item = new \stdClass();
+                $item->country = $key;
+                $item->newusers = $value;
+                $arr[] = $item;
             }
+            $out = $this->create_countries($arr, $title);
         }
 
         return $out;

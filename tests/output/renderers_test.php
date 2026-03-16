@@ -127,4 +127,18 @@ final class renderers_test extends advanced_testcase {
         $output->table_customcerts();
         $output->table_coursecertificates();
     }
+
+    /**
+     * Test huge amount of users.
+     */
+    public function test_huge_amount_users(): void {
+        global $DB;
+        $this->setAdminUser();
+        $range = 65539;
+        $usernames = array_map(fn($i): int => $i, range(0, $range));
+        [$insql, $params] = $DB->get_in_or_equal($usernames);
+        $sql = "SELECT country, COUNT(country) AS newusers FROM {user} WHERE id {$insql} GROUP BY country ORDER BY country";
+        $rows = $DB->get_records_sql($sql, $params, 0, $range);
+        $this->assertEquals(1, count($rows));
+    }
 }

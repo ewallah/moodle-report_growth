@@ -181,6 +181,30 @@ class growth_renderer extends plugin_renderer_base {
     }
 
     /**
+     * Handle users.
+     *
+     * @param array $users Users
+     * @param string $title Title
+     */
+    protected function handle_users(array $users, string $title = ''): string {
+        $arr = [];
+        if (count($users) > 0) {
+            $all = array_column($users, 'country');
+            $values = array_count_values($all);
+            foreach ($values as $key => $value) {
+                if ($key !== '') {
+                    $item = new \stdClass();
+                    $item->country = $key;
+                    $item->newusers = $value;
+                    $arr[] = $item;
+                }
+            }
+        }
+
+        return $this->create_countries($arr, $title);
+    }
+
+    /**
      * Create intro table.
      *
      * @param array $data Data

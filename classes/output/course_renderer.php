@@ -187,22 +187,6 @@ class course_renderer extends growth_renderer {
      * @param string $title Title
      */
     public function table_countries(string $title = ''): string {
-        $title = get_string('users');
-        $out = get_string('nostudentsfound', 'moodle', $title);
-        $users = get_enrolled_users($this->context, '', 0, 'u.id, u.country');
-        if (count($users) > 0) {
-            $all = array_column($users, 'country');
-            $values = array_count_values($all);
-            $arr = [];
-            foreach ($values as $key => $value) {
-                $item = new \stdClass();
-                $item->country = $key;
-                $item->newusers = $value;
-                $arr[] = $item;
-            }
-            $out = $this->create_countries($arr, $title);
-        }
-
-        return $out;
+        return $this->handle_users(get_enrolled_users($this->context, '', 0, 'u.id, u.country'), $title);
     }
 }

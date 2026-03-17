@@ -186,26 +186,13 @@ class category_renderer extends growth_renderer {
      * @param string $title Title
      */
     public function table_countries(string $title = ''): string {
-        global $DB;
-        $title = get_string('users');
-        $out = get_string('nostudentsfound', 'moodle', $title);
-        if ($this->courseids !== []) {
-            [$insql, $inparams] = $this->insql($this->courseids, 'courseid', 'courseid');
-            $ids = $DB->get_fieldset_select('enrol', 'id', $insql, $inparams);
-            if (count($ids) > 0) {
-                [$insql, $inparams] = $this->insql($ids, 'enrolid', 'enrolid');
-                $userids = $DB->get_fieldset_select('user_enrolments', 'userid', $insql, $inparams);
-                if (count($userids) > 0) {
-                    [$insql, $inparams] = $this->insql($userids, 'id', 'id');
-                    $sql = "SELECT country, COUNT(country) AS newusers FROM {user}
-                            WHERE {$insql} GROUP BY country ORDER BY country";
-                    $rows = $DB->get_records_sql($sql, $inparams);
-                    $out = $this->create_countries($rows, $title);
-                }
-            }
+        $all = [];
+        foreach ($this->courseids as $id) {
+            $context = \context_course::instance($id);
+            $users = get_enrolled_users($context, '', 0, 'u.id, u.country');
+            $all = array_merge($all, $users);
         }
-
-        return $out;
+        return $this->handle_users($all, $title);
     }
 
     /**

@@ -141,6 +141,7 @@ class growth_renderer extends plugin_renderer_base {
      */
     protected function insql(array $fieldset, string $fieldwhere, string $fieldresult): array {
         global $DB;
+        $family = $DB->get_dbfamily();
         $inparams = [];
         $insql = $fieldresult . '< 0';
         if ($fieldset !== []) {
@@ -195,7 +196,7 @@ class growth_renderer extends plugin_renderer_base {
                 if ($key !== '') {
                     $item = new \stdClass();
                     $item->country = $key;
-                    $item->newusers = $value;
+                    $item->newusers = (int)$value;
                     $arr[] = $item;
                 }
             }

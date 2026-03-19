@@ -137,12 +137,12 @@ class course_renderer extends growth_renderer {
         $out = get_string('nostudentsfound', 'moodle', $title);
         $teachers = get_users_by_capability($this->context, 'moodle/course:viewhiddenactivities', 'u.id', 'u.id');
         if ($teachers && count($teachers) > 0) {
-            [$insql, $inparams] = $DB->get_in_or_equal(array_keys($teachers));
+            [$insql, $inparams] = $this->insql(array_keys($teachers), 'userid', 'id');
             $insql .= ' AND courseid = ? AND contextlevel = ? AND contextinstanceid = ?';
             $inparams[] = $this->courseid;
             $inparams[] = $this->context->contextlevel;
             $inparams[] = $this->context->instanceid;
-            $out = $this->create_charts('logstore_standard_log', $title, 'timecreated', 'userid ' . $insql, $inparams);
+            $out = $this->create_charts('logstore_standard_log', $title, 'timecreated', $insql, $inparams);
         }
 
         return $out;

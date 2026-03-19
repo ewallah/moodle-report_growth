@@ -130,8 +130,8 @@ class global_renderer extends growth_renderer {
         foreach ($enabled as $key) {
             $ids = $DB->get_fieldset_select('enrol', 'id', "enrol = '{$key}'");
             if (count($ids) > 0) {
-                [$insql, $inparams] = $DB->get_in_or_equal($ids);
-                $cnt = $DB->count_records_sql("SELECT COUNT('x') FROM {user_enrolments} WHERE enrolid {$insql}", $inparams);
+                [$insql, $inparams] = $this->insql($ids, 'enrolid', 'id');
+                $cnt = $DB->count_records_sql("SELECT COUNT('x') FROM {user_enrolments} WHERE {$insql}", $inparams);
                 $arr[] = [get_string('pluginname', 'enrol_' . $key), $cnt];
             }
         }

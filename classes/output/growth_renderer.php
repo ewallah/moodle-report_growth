@@ -141,12 +141,21 @@ class growth_renderer extends plugin_renderer_base {
      */
     protected function insql(array $fieldset, string $fieldwhere, string $fieldresult): array {
         global $DB;
-        $family = $DB->get_dbfamily();
         $inparams = [];
-        $insql = $fieldresult . '< 0';
+        $insql = "{$fieldresult} < 0";
         if ($fieldset !== []) {
-            [$insql, $inparams] = $DB->get_in_or_equal($fieldset);
-            $insql = $fieldwhere . ' ' . $insql;
+            if (count($fieldset) < 65000) {
+                [$insql, $inparams] = $DB->get_in_or_equal($fieldset);
+                $insql = "{$fieldwhere} {$insql}";
+            } else {
+                $chunks = array_chunk($fieldset, 65000);
+                $sqls = [];
+                foreach ($chunks as $chunk) {
+                    $chunk = array_map('intval', $chunk);
+                    $sqls[] = "{$fieldwhere} IN (" . implode(',', $chunk) . ")";
+                }
+                $insql = '(' . implode(' OR ', $sqls) . ')';
+            }
         }
 
         return [$insql, $inparams];

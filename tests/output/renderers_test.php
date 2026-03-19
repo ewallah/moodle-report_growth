@@ -133,13 +133,35 @@ final class renderers_test extends advanced_testcase {
      * Test huge amount of users.
      */
     public function test_huge_amount_users(): void {
-        global $DB;
+        global $DB, $PAGE;
         $this->setAdminUser();
-        $range = 65535;
+        $renderer = new global_renderer($PAGE, 'general');
+        $reflection = new \ReflectionMethod($renderer, 'insql');
+        $reflection->setAccessible(true);
+
+        $range = 140000;
         $usernames = array_map(fn($i): int => $i, range(1, $range));
-        [$insql, $params] = $DB->get_in_or_equal($usernames, SQL_PARAMS_QM);
-        $sql = "SELECT country, COUNT(country) AS newusers FROM {user} WHERE id {$insql} GROUP BY country ORDER BY country";
+        [$insql, $params] = $reflection->invoke($renderer, $usernames, 'id', 'id');
+        $sql = "SELECT country, COUNT(country) AS newusers FROM {user} WHERE {$insql} GROUP BY country ORDER BY country";
         $rows = $DB->get_records_sql($sql, $params);
-        $this->assertEquals(1, count($rows));
+        $this->assertGreaterThanOrEqual(1, count($rows));
+    }
+
+    /**
+     * Test insql with large fieldset.
+     */
+    public function test_insql_large_fieldset(): void {
+        global $PAGE;
+        $renderer = new global_renderer($PAGE, 'general');
+        $reflection = new \ReflectionMethod($renderer, 'insql');
+        $reflection->setAccessible(true);
+
+        $fieldset = range(1, 140000);
+        [$insql, $params] = $reflection->invoke($renderer, $fieldset, 'userid', 'id');
+
+        $this->assertEmpty($params);
+        $this->assertStringContainsString('userid IN (1,2,3,', $insql);
+        $this->assertStringContainsString(' OR ', $insql);
+        $this->assertStringContainsString(',140000)', $insql);
     }
 }

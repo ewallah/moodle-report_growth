@@ -67,6 +67,7 @@ class global_renderer extends growth_renderer {
         $rows['files'] = $txt->files;
         $rows['messages'] = get_string('messages', 'message');
         $rows['countries'] = get_string('countries', 'report_growth');
+        $rows['active'] = get_string('pluginname', 'report_stats');
         // Trigger a report viewed event.
         $this->trigger_page($p);
         return $this->render_page($rows, $p);
@@ -265,6 +266,15 @@ class global_renderer extends growth_renderer {
      */
     public function table_messages(string $title = ''): string {
         return $this->create_charts('messages', $title);
+    }
+
+    /**
+     * Table course statistics.
+     *
+     * @param string $title Title
+     */
+    public function table_active(string $title = ''): string {
+        return $this->create_charts('stats_weekly', $title, 'timeend', "stattype = 'activity'");
     }
 
     /**

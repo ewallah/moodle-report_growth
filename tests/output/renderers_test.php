@@ -53,6 +53,7 @@ final class renderers_test extends advanced_testcase {
         parent::setUp();
         $this->setAdminUser();
         $this->resetAfterTest();
+        set_config('enablestats', true);
         $dg = $this->getDataGenerator();
         $categoryid = $dg->create_category()->id;
         $dg->create_course(['category' => $categoryid]);
@@ -94,7 +95,8 @@ final class renderers_test extends advanced_testcase {
      * Test global tables.
      */
     public function test_global(): void {
-        global $PAGE;
+        global $CFG, $PAGE, $DB;
+        require_once("{$CFG->libdir}/statslib.php");
         $output = new global_renderer($PAGE, 'general');
         $context = \context_system::instance();
         $this->assertStringContainsString(' ', $output->create_tabtree($context));
@@ -109,6 +111,12 @@ final class renderers_test extends advanced_testcase {
         $output->table_certificates();
         $output->table_customcerts();
         $output->table_coursecertificates();
+
+        ob_start();
+        stats_cron_daily();
+        ob_end_clean();
+        print_object($DB->get_records('stats_daily',[]));
+        //$this->assertStringContainsString('boe', $output->table_active());
     }
 
     /**

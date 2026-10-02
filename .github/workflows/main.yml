@@ -111,11 +111,12 @@ jobs:
           COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: firefox
+        id: firefox
         if: ${{ !cancelled() }}
         run: moodle-plugin-ci --ansi behat
 
       - name: faildump
-        if: ${{ failure() && steps.behat.outcome == 'failure' }}
+        if: ${{ failure() && steps.firefox.outcome == 'failure' }}
         uses: actions/upload-artifact@v7
         with:
           name: firefox faildump (${{ join(matrix.*, ', ') }})

@@ -76,7 +76,7 @@ This plugin has been tested on
 
 * MYSQL
 * MariaDB
-* PostgreSQL
+* PostgreSQL (MDL-75160 is needed for querries with more than 65535 values).
 * MSSQL
 
 ### Theme support
